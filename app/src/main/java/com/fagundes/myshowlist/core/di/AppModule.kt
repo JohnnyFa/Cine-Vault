@@ -2,6 +2,7 @@ package com.fagundes.myshowlist.core.di
 
 import androidx.room.Room
 import com.fagundes.myshowlist.core.data.local.dao.ContentDao
+import com.fagundes.myshowlist.core.data.local.dao.FavoriteDao
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.data.remote.api.AnimeApi
 import com.fagundes.myshowlist.core.data.remote.api.MovieApi
@@ -13,6 +14,8 @@ import com.fagundes.myshowlist.feat.catalog.data.repository.CatalogRepositoryImp
 import com.fagundes.myshowlist.feat.catalog.vm.CatalogViewModel
 import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepository
 import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepositoryImpl
+import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveFavoriteStateUseCase
+import com.fagundes.myshowlist.feat.detail.domain.usecase.ToggleFavoriteUseCase
 import com.fagundes.myshowlist.feat.detail.vm.DetailViewModel
 import com.fagundes.myshowlist.feat.home.data.local.datasource.HomeLocalDataSource
 import com.fagundes.myshowlist.feat.home.data.local.datasource.HomeLocalDataSourceImpl
@@ -56,10 +59,11 @@ val appModule = module {
             androidContext(),
             AppDatabase::class.java,
             "myshowlist.db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     single<ContentDao> { get<AppDatabase>().contentDao() }
+    single<FavoriteDao> { get<AppDatabase>().favoriteDao() }
     single { Dispatchers.IO }
 
     // ---------- APIs ----------
@@ -92,8 +96,11 @@ val appModule = module {
     }
 
     single<DetailRepository> {
-        DetailRepositoryImpl(get())
+        DetailRepositoryImpl(get(), get())
     }
+
+    factory { ObserveFavoriteStateUseCase(get()) }
+    factory { ToggleFavoriteUseCase(get()) }
 
     // ---------- ViewModels ----------
     viewModelOf(::LoginViewModel)
@@ -104,7 +111,9 @@ val appModule = module {
         DetailViewModel(
             id = id,
             type = type,
-            repository = get()
+            repository = get(),
+            observeFavoriteStateUseCase = get(),
+            toggleFavoriteUseCase = get()
         )
     }
 }

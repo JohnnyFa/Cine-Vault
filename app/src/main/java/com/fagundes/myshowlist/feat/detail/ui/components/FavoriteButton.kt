@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,7 +25,11 @@ import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.ui.theme.CineVaultGradients
 
 @Composable
-fun FavoriteButton() {
+fun FavoriteButton(
+    isFavorite: Boolean,
+    isLoading: Boolean,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -38,21 +43,25 @@ fun FavoriteButton() {
                     brush = CineVaultGradients.Brand,
                     shape = RoundedCornerShape(18.dp)
                 )
-                .clickable { /* sem ação por enquanto */ },
+                .clickable(enabled = !isLoading, onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Filled.Star,
-                    contentDescription = null,
-                    tint = Color.Black
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.favorite),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Color.Black
-                )
+            if (isLoading) {
+                CircularProgressIndicator(color = Color.Black)
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = null,
+                        tint = if (isFavorite) Color(0xFF1C1C1C) else Color.Black
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = if (isFavorite) stringResource(R.string.favorited) else stringResource(R.string.favorite),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.Black
+                    )
+                }
             }
         }
     }

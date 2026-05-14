@@ -1,5 +1,6 @@
 package com.fagundes.myshowlist.feat.detail.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,9 +14,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,6 +28,7 @@ import com.fagundes.myshowlist.feat.detail.domain.ContentDetailUi
 import com.fagundes.myshowlist.feat.detail.ui.components.FavoriteButton
 import com.fagundes.myshowlist.feat.detail.ui.components.MetaRow
 import com.fagundes.myshowlist.feat.detail.ui.components.PosterHero
+import com.fagundes.myshowlist.feat.detail.vm.DetailEvent
 import com.fagundes.myshowlist.feat.detail.vm.DetailUiState
 import com.fagundes.myshowlist.feat.detail.vm.DetailViewModel
 import com.fagundes.myshowlist.ui.theme.Background
@@ -42,13 +46,20 @@ fun DetailScreen(
         parametersOf(id, type)
     }
 ) {
+    val context = LocalContext.current
     val state by viewModel.uiState.collectAsState()
 
-    when (state) {
-        is DetailUiState.Loading -> {
-            Box {}
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is DetailEvent.ShowError -> Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                is DetailEvent.FavoriteUpdated -> Unit
+            }
         }
+    }
 
+    when (state) {
+        is DetailUiState.Loading -> Box {}
         is DetailUiState.Error -> {
             Text(
                 text = (state as DetailUiState.Error).message,
@@ -58,8 +69,12 @@ fun DetailScreen(
         }
 
         is DetailUiState.Success -> {
+            val successState = state as DetailUiState.Success
             DetailContent(
-                ui = (state as DetailUiState.Success).ui,
+                ui = successState.ui,
+                isFavorite = successState.isFavorite,
+                isFavoriteLoading = successState.isFavoriteLoading,
+                onFavoriteClick = viewModel::onFavoriteClick,
                 onBack = onBack
             )
         }
@@ -69,6 +84,9 @@ fun DetailScreen(
 @Composable
 fun DetailContent(
     ui: ContentDetailUi,
+    isFavorite: Boolean,
+    isFavoriteLoading: Boolean,
+    onFavoriteClick: () -> Unit,
     onBack: () -> Unit
 ) {
     Column(
@@ -115,7 +133,11 @@ fun DetailContent(
 
             Spacer(Modifier.height(32.dp))
 
-            FavoriteButton()
+            FavoriteButton(
+                isFavorite = isFavorite,
+                isLoading = isFavoriteLoading,
+                onClick = onFavoriteClick
+            )
 
             Spacer(Modifier.height(48.dp))
         }

@@ -39,4 +39,5 @@
     <string name="terms">Termos</string>
     <string name="privacy">Política de privacidade</string>
     <string name="favorite">Favoritar</string>
+    <string name="favorited">Favoritado</string>
 </resources>
