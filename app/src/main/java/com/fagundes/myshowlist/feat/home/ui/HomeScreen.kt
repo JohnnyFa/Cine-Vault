@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +29,10 @@ import com.fagundes.myshowlist.feat.home.vm.HomeUiState
 import com.fagundes.myshowlist.feat.home.vm.HomeViewModel
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fagundes.myshowlist.core.domain.Movie
+import com.fagundes.myshowlist.feat.home.ui.components.FavoritesSection
+import com.fagundes.myshowlist.feat.home.ui.components.RecentsSection
 import com.fagundes.myshowlist.ui.theme.MyShowListTheme
 
 @Composable
@@ -39,14 +41,18 @@ fun HomeScreen(
     onLogout: () -> Unit,
     onOpenDetail: (Int, ContentType) -> Unit
 ) {
-    val trendingState by viewModel.trendingState.collectAsState()
-    val forYouState by viewModel.forYouState.collectAsState()
-    val showOfTheDayState by viewModel.showOfTheDay.collectAsState()
+    val trendingState by viewModel.trendingState.collectAsStateWithLifecycle()
+    val forYouState by viewModel.forYouState.collectAsStateWithLifecycle()
+    val showOfTheDayState by viewModel.showOfTheDay.collectAsStateWithLifecycle()
+    val favoritesState by viewModel.favoritesState.collectAsStateWithLifecycle()
+    val recentsState by viewModel.recentsState.collectAsStateWithLifecycle()
 
     HomeScreenContent(
         trendingState = trendingState,
         forYouState = forYouState,
         showOfTheDayState = showOfTheDayState,
+        favoritesState = favoritesState,
+        recentsState = recentsState,
         onOpenDetail = onOpenDetail,
         onLogout = onLogout,
         onRetry = HomeRetryActions(
@@ -62,6 +68,8 @@ fun HomeScreenContent(
     trendingState: HomeUiState<List<Movie>>,
     forYouState: HomeUiState<List<Movie>>,
     showOfTheDayState: HomeUiState<Movie>,
+    favoritesState: HomeUiState<List<Movie>>,
+    recentsState: HomeUiState<List<Movie>>,
     onOpenDetail: (Int, ContentType) -> Unit,
     onLogout: () -> Unit,
     onRetry: HomeRetryActions
@@ -94,6 +102,38 @@ fun HomeScreenContent(
                                 onRetry = onRetry.onRetryShowOfTheDay
                             )
 
+                        else -> Unit
+                    }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            item {
+                Box(modifier = Modifier.testTag("favorites_container")) {
+                    when (favoritesState) {
+                        is HomeUiState.Success ->
+                            FavoritesSection(
+                                movies = favoritesState.data,
+                                onMovieClick = { movie ->
+                                    onOpenDetail(movie.id, ContentType.MOVIE)
+                                }
+                            )
+                        else -> Unit
+                    }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            item {
+                Box(modifier = Modifier.testTag("recents_container")) {
+                    when (recentsState) {
+                        is HomeUiState.Success ->
+                            RecentsSection(
+                                movies = recentsState.data,
+                                onMovieClick = { movie ->
+                                    onOpenDetail(movie.id, ContentType.MOVIE)
+                                }
+                            )
                         else -> Unit
                     }
                 }
@@ -188,36 +228,16 @@ fun HomeScreenPreview() {
             showOfTheDayState = HomeUiState.Success(
                 Movie(5, "Show of the Day", null, "Overview", 9.5)
             ),
-            onOpenDetail = { _, _ -> },
-            onLogout = {},
-            onRetry = HomeRetryActions({}, {}, {})
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenLoadingPreview() {
-    MyShowListTheme {
-        HomeScreenContent(
-            trendingState = HomeUiState.Loading,
-            forYouState = HomeUiState.Loading,
-            showOfTheDayState = HomeUiState.Loading,
-            onOpenDetail = { _, _ -> },
-            onLogout = {},
-            onRetry = HomeRetryActions({}, {}, {})
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenErrorPreview() {
-    MyShowListTheme {
-        HomeScreenContent(
-            trendingState = HomeUiState.Error("Error"),
-            forYouState = HomeUiState.Error("Error"),
-            showOfTheDayState = HomeUiState.Error("Error"),
+            favoritesState = HomeUiState.Success(
+                listOf(
+                    Movie(1, "Favorite 1", null, null, 8.0)
+                )
+            ),
+            recentsState = HomeUiState.Success(
+                listOf(
+                    Movie(1, "Recent 1", null, null, 8.0)
+                )
+            ),
             onOpenDetail = { _, _ -> },
             onLogout = {},
             onRetry = HomeRetryActions({}, {}, {})

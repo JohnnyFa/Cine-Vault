@@ -8,6 +8,7 @@ import com.fagundes.myshowlist.feat.detail.domain.ContentDetailUi
 import com.fagundes.myshowlist.feat.detail.domain.FavoriteItem
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveFavoriteStateUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ToggleFavoriteUseCase
+import com.fagundes.myshowlist.feat.home.domain.usecase.SaveRecentMovieUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,7 +23,8 @@ class DetailViewModel(
     private val type: ContentType,
     private val repository: DetailRepository,
     private val observeFavoriteStateUseCase: ObserveFavoriteStateUseCase,
-    private val toggleFavoriteUseCase: ToggleFavoriteUseCase
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val saveRecentMovieUseCase: SaveRecentMovieUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<DetailUiState>(DetailUiState.Loading)
@@ -78,16 +80,17 @@ class DetailViewModel(
         viewModelScope.launch {
             repository.getContentDetail(id.toString(), type.name)
                 .onSuccess {
-                    repository.cacheFavoriteCandidate(
-                        FavoriteItem(
-                            id = it.id,
-                            type = type,
-                            title = it.title,
-                            posterUrl = it.imageUrl,
-                            overview = it.overview,
-                            rating = it.rating
-                        )
+                    val favoriteItem = FavoriteItem(
+                        id = it.id,
+                        type = type,
+                        title = it.title,
+                        posterUrl = it.imageUrl,
+                        overview = it.overview,
+                        rating = it.rating
                     )
+                    repository.cacheFavoriteCandidate(favoriteItem)
+                    saveRecentMovieUseCase(favoriteItem)
+
                     _uiState.value = DetailUiState.Success(
                         ui = it,
                         isFavorite = latestFavoriteState.value

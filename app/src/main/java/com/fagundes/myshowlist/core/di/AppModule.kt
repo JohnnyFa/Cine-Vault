@@ -3,6 +3,7 @@ package com.fagundes.myshowlist.core.di
 import androidx.room.Room
 import com.fagundes.myshowlist.core.data.local.dao.ContentDao
 import com.fagundes.myshowlist.core.data.local.dao.FavoriteDao
+import com.fagundes.myshowlist.core.data.local.dao.RecentDao
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.data.remote.api.AnimeApi
 import com.fagundes.myshowlist.core.data.remote.api.MovieApi
@@ -21,8 +22,15 @@ import com.fagundes.myshowlist.feat.home.data.local.datasource.HomeLocalDataSour
 import com.fagundes.myshowlist.feat.home.data.local.datasource.HomeLocalDataSourceImpl
 import com.fagundes.myshowlist.feat.home.data.remote.HomeRemoteDataSource
 import com.fagundes.myshowlist.feat.home.data.remote.HomeRemoteDataSourceImpl
+import com.fagundes.myshowlist.feat.home.data.repository.FavoriteRepository
+import com.fagundes.myshowlist.feat.home.data.repository.FavoriteRepositoryImpl
 import com.fagundes.myshowlist.feat.home.data.repository.HomeRepository
 import com.fagundes.myshowlist.feat.home.data.repository.HomeRepositoryImpl
+import com.fagundes.myshowlist.feat.home.data.repository.RecentRepository
+import com.fagundes.myshowlist.feat.home.data.repository.RecentRepositoryImpl
+import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveFavoritesUseCase
+import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveRecentsUseCase
+import com.fagundes.myshowlist.feat.home.domain.usecase.SaveRecentMovieUseCase
 import com.fagundes.myshowlist.feat.home.vm.HomeViewModel
 import com.fagundes.myshowlist.feat.login.data.FirebaseAuthRepository
 import com.fagundes.myshowlist.feat.login.domain.AuthRepository
@@ -59,11 +67,12 @@ val appModule = module {
             androidContext(),
             AppDatabase::class.java,
             "myshowlist.db"
-        ).fallbackToDestructiveMigration().build()
+        ).fallbackToDestructiveMigration(false).build()
     }
 
     single<ContentDao> { get<AppDatabase>().contentDao() }
     single<FavoriteDao> { get<AppDatabase>().favoriteDao() }
+    single<RecentDao> { get<AppDatabase>().recentDao() }
     single { Dispatchers.IO }
 
     // ---------- APIs ----------
@@ -99,8 +108,19 @@ val appModule = module {
         DetailRepositoryImpl(get(), get())
     }
 
+    single<FavoriteRepository> {
+        FavoriteRepositoryImpl(get())
+    }
+
+    single<RecentRepository> {
+        RecentRepositoryImpl(get())
+    }
+
     factory { ObserveFavoriteStateUseCase(get()) }
     factory { ToggleFavoriteUseCase(get()) }
+    factory { ObserveFavoritesUseCase(get()) }
+    factory { SaveRecentMovieUseCase(get()) }
+    factory { ObserveRecentsUseCase(get()) }
 
     // ---------- ViewModels ----------
     viewModelOf(::LoginViewModel)
@@ -113,7 +133,8 @@ val appModule = module {
             type = type,
             repository = get(),
             observeFavoriteStateUseCase = get(),
-            toggleFavoriteUseCase = get()
+            toggleFavoriteUseCase = get(),
+            saveRecentMovieUseCase = get()
         )
     }
 }
