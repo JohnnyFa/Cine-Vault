@@ -22,68 +22,44 @@ import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.ui.theme.AccentRed
 import com.fagundes.myshowlist.ui.theme.TextPrimary
-import com.fagundes.myshowlist.ui.theme.TextSecondary
 
 @Composable
 fun FavoritesSection(
     movies: List<Movie>,
     onMovieClick: (Movie) -> Unit
 ) {
-    if (movies.isEmpty()) {
-        EmptyFavoritesState()
-    } else {
-        Column(
-            modifier = Modifier.fillMaxWidth()
+    if (movies.isEmpty()) return
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = null,
-                    tint = AccentRed,
-                    modifier = Modifier.size(20.dp)
-                )
+            Icon(
+                imageVector = Icons.Default.Favorite,
+                contentDescription = null,
+                tint = AccentRed,
+                modifier = Modifier.size(20.dp)
+            )
 
-                Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(8.dp))
 
-                Text(
-                    text = stringResource(R.string.label_your_favorites),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = TextPrimary
-                )
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            MediaCarousel(
-                items = movies,
-                onItemClick = onMovieClick
+            Text(
+                text = stringResource(R.string.label_your_favorites),
+                style = MaterialTheme.typography.titleLarge,
+                color = TextPrimary
             )
         }
-    }
-}
 
-@Composable
-private fun EmptyFavoritesState() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.label_your_favorites),
-            style = MaterialTheme.typography.titleLarge,
-            color = TextPrimary
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = stringResource(R.string.empty_favorites_message),
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary
+        Spacer(Modifier.height(16.dp))
+
+        MediaCarousel(
+            items = movies,
+            onItemClick = onMovieClick
         )
     }
 }

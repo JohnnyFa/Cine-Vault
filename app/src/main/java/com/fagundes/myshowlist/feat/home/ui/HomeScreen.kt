@@ -9,30 +9,31 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.components.error.ErrorSection
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
+import com.fagundes.myshowlist.core.domain.Movie
+import com.fagundes.myshowlist.feat.home.ui.components.FavoritesSection
 import com.fagundes.myshowlist.feat.home.ui.components.RecommendedForYouSection
+import com.fagundes.myshowlist.feat.home.ui.components.RecentsSection
 import com.fagundes.myshowlist.feat.home.ui.components.ShowOfTheDaySection
 import com.fagundes.myshowlist.feat.home.ui.components.TrendingNowSection
 import com.fagundes.myshowlist.feat.home.ui.components.skeleton.CarouselSkeleton
 import com.fagundes.myshowlist.feat.home.ui.components.skeleton.ShowOfTheDaySkeleton
 import com.fagundes.myshowlist.feat.home.vm.HomeUiState
 import com.fagundes.myshowlist.feat.home.vm.HomeViewModel
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.fagundes.myshowlist.core.domain.Movie
-import com.fagundes.myshowlist.feat.home.ui.components.FavoritesSection
-import com.fagundes.myshowlist.feat.home.ui.components.RecentsSection
 import com.fagundes.myshowlist.ui.theme.MyShowListTheme
 
 @Composable
@@ -84,120 +85,123 @@ fun HomeScreenContent(
             modifier = Modifier.fillMaxWidth(),
             contentPadding = WindowInsets.statusBars.asPaddingValues()
         ) {
+            showOfTheDayItem(showOfTheDayState, onRetry.onRetryShowOfTheDay, onOpenDetail)
+            favoritesItem(favoritesState, onOpenDetail)
+            recentsItem(recentsState, onOpenDetail)
+            trendingItem(trendingState, onRetry.onRetryPopular, onOpenDetail)
+            recommendedItem(forYouState, onRetry.onRetryRecommended, onOpenDetail)
+            logoutItem(onLogout)
+        }
+    }
+}
 
-            item {
-                Box(modifier = Modifier.testTag("show_of_the_day_container")) {
-                    when (showOfTheDayState) {
-                        HomeUiState.Loading -> ShowOfTheDaySkeleton()
-                        is HomeUiState.Success ->
-                            ShowOfTheDaySection(
-                                movie = showOfTheDayState.data,
-                                onMovieClick = { movie ->
-                                    onOpenDetail(movie.id, ContentType.MOVIE)
-                                }
-                            )
-
-                        is HomeUiState.Error ->
-                            ErrorSection(
-                                onRetry = onRetry.onRetryShowOfTheDay
-                            )
-
-                        else -> Unit
-                    }
-                }
-                Spacer(modifier = Modifier.height(24.dp))
+private fun LazyListScope.showOfTheDayItem(
+    state: HomeUiState<Movie>,
+    onRetry: () -> Unit,
+    onOpenDetail: (Int, ContentType) -> Unit
+) {
+    item {
+        Box(modifier = Modifier.testTag("show_of_the_day_container")) {
+            when (state) {
+                HomeUiState.Loading -> ShowOfTheDaySkeleton()
+                is HomeUiState.Success -> ShowOfTheDaySection(
+                    movie = state.data,
+                    onMovieClick = { movie -> onOpenDetail(movie.id, ContentType.MOVIE) }
+                )
+                is HomeUiState.Error -> ErrorSection(onRetry = onRetry)
+                else -> Unit
             }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+}
 
-            item {
-                Box(modifier = Modifier.testTag("favorites_container")) {
-                    when (favoritesState) {
-                        is HomeUiState.Success ->
-                            FavoritesSection(
-                                movies = favoritesState.data,
-                                onMovieClick = { movie ->
-                                    onOpenDetail(movie.id, ContentType.MOVIE)
-                                }
-                            )
-                        else -> Unit
-                    }
-                }
-                Spacer(modifier = Modifier.height(24.dp))
+private fun LazyListScope.favoritesItem(
+    state: HomeUiState<List<Movie>>,
+    onOpenDetail: (Int, ContentType) -> Unit
+) {
+    val movies = (state as? HomeUiState.Success)?.data ?: return
+    if (movies.isEmpty()) return
+
+    item {
+        Box(modifier = Modifier.testTag("favorites_container")) {
+            FavoritesSection(
+                movies = movies,
+                onMovieClick = { movie -> onOpenDetail(movie.id, ContentType.MOVIE) }
+            )
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+private fun LazyListScope.recentsItem(
+    state: HomeUiState<List<Movie>>,
+    onOpenDetail: (Int, ContentType) -> Unit
+) {
+    val movies = (state as? HomeUiState.Success)?.data ?: return
+    if (movies.isEmpty()) return
+
+    item {
+        Box(modifier = Modifier.testTag("recents_container")) {
+            RecentsSection(
+                movies = movies,
+                onMovieClick = { movie -> onOpenDetail(movie.id, ContentType.MOVIE) }
+            )
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+private fun LazyListScope.trendingItem(
+    state: HomeUiState<List<Movie>>,
+    onRetry: () -> Unit,
+    onOpenDetail: (Int, ContentType) -> Unit
+) {
+    item {
+        Box(modifier = Modifier.testTag("trending_now_container")) {
+            when (state) {
+                HomeUiState.Loading -> CarouselSkeleton()
+                is HomeUiState.Success -> TrendingNowSection(
+                    movies = state.data,
+                    onMovieClick = { movie -> onOpenDetail(movie.id, ContentType.MOVIE) }
+                )
+                is HomeUiState.Error -> ErrorSection(onRetry = onRetry)
+                else -> Unit
             }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+}
 
-            item {
-                Box(modifier = Modifier.testTag("recents_container")) {
-                    when (recentsState) {
-                        is HomeUiState.Success ->
-                            RecentsSection(
-                                movies = recentsState.data,
-                                onMovieClick = { movie ->
-                                    onOpenDetail(movie.id, ContentType.MOVIE)
-                                }
-                            )
-                        else -> Unit
-                    }
-                }
-                Spacer(modifier = Modifier.height(24.dp))
+private fun LazyListScope.recommendedItem(
+    state: HomeUiState<List<Movie>>,
+    onRetry: () -> Unit,
+    onOpenDetail: (Int, ContentType) -> Unit
+) {
+    item {
+        Box(modifier = Modifier.testTag("for_you_container")) {
+            when (state) {
+                HomeUiState.Loading -> CarouselSkeleton()
+                is HomeUiState.Success -> RecommendedForYouSection(
+                    movies = state.data,
+                    onMovieClick = { movie -> onOpenDetail(movie.id, ContentType.MOVIE) }
+                )
+                is HomeUiState.Error -> ErrorSection(onRetry = onRetry)
+                else -> Unit
             }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+}
 
-            item {
-                Box(modifier = Modifier.testTag("trending_now_container")) {
-                    when (trendingState) {
-                        HomeUiState.Loading -> CarouselSkeleton()
-
-                        is HomeUiState.Success ->
-                            TrendingNowSection(
-                                movies = trendingState.data,
-                                onMovieClick = { movie ->
-                                    onOpenDetail(movie.id, ContentType.MOVIE)
-                                }
-                            )
-
-
-                        is HomeUiState.Error ->
-                            ErrorSection(
-                                onRetry = onRetry.onRetryPopular
-                            )
-
-                        else -> Unit
-                    }
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            item {
-                Box(modifier = Modifier.testTag("for_you_container")) {
-                    when (forYouState) {
-                        HomeUiState.Loading -> CarouselSkeleton()
-
-                        is HomeUiState.Success ->
-                            RecommendedForYouSection(
-                                movies = forYouState.data,
-                                onMovieClick = { movie ->
-                                    onOpenDetail(movie.id, ContentType.MOVIE)
-                                }
-                            )
-
-                        is HomeUiState.Error ->
-                            ErrorSection(
-                                onRetry = onRetry.onRetryRecommended
-                            )
-
-                        else -> Unit
-                    }
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(
-                    onClick = onLogout,
-                    modifier = Modifier.testTag("logout_button")
-                ) {
-                    Text(stringResource(R.string.leave))
-                }
-            }
+private fun LazyListScope.logoutItem(onLogout: () -> Unit) {
+    item {
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = onLogout,
+            modifier = Modifier.testTag("logout_button")
+        ) {
+            Text(stringResource(R.string.leave))
         }
     }
 }
