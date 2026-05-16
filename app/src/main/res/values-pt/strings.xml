@@ -40,4 +40,7 @@
     <string name="privacy">Política de privacidade</string>
     <string name="favorite">Favoritar</string>
     <string name="favorited">Favoritado</string>
+    <string name="label_your_favorites">Seus Favoritos</string>
+    <string name="empty_favorites_message">Nenhum favorito ainda. Toque no ícone de coração para salvar filmes.</string>
+    <string name="label_recently_viewed">Vistos Recentemente</string>
 </resources>
