@@ -3,29 +3,23 @@ package com.fagundes.myshowlist.feat.home.data.local.datasource
 import com.fagundes.myshowlist.core.data.local.dao.ContentDao
 import com.fagundes.myshowlist.core.data.local.entity.ContentEntity
 import com.fagundes.myshowlist.core.data.local.enum.ContentCategory
-import com.fagundes.myshowlist.core.data.local.mapper.toMovie
-import com.fagundes.myshowlist.core.domain.Movie
+import kotlinx.coroutines.flow.Flow
 
 class HomeLocalDataSourceImpl(
     private val dao: ContentDao
 ) : HomeLocalDataSource {
 
-    override suspend fun getContentById(id: Int): ContentEntity {
-        return dao.getById(id) ?: throw IllegalArgumentException("Content not found")
+    override suspend fun saveMoviesForCategory(category: ContentCategory, items: List<ContentEntity>) {
+        dao.replaceCategory(category)
+        dao.insertAll(items)
     }
 
-    override suspend fun saveMovies(items: List<ContentEntity>) {
-        try {
-            dao.insertAll(items)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
+    override fun observeMoviesByCategory(category: ContentCategory): Flow<List<ContentEntity>> =
+        dao.observeCategory(category)
 
-    override suspend fun getMoviesByCategory(
-        category: ContentCategory,
-        maxAgeMillis: Long
-    ): List<Movie> {
-        return dao.getMoviesByCategory(category, maxAgeMillis).map { it.toMovie() }
+    override suspend fun getMoviesByCategory(category: ContentCategory): List<ContentEntity> = dao.getCategory(category)
+
+    override suspend fun clearExpired(olderThan: Long) {
+        dao.deleteExpiredCache(olderThan)
     }
 }

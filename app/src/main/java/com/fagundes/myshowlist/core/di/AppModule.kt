@@ -4,11 +4,13 @@ import androidx.room.Room
 import com.fagundes.myshowlist.core.data.local.dao.ContentDao
 import com.fagundes.myshowlist.core.data.local.dao.FavoriteDao
 import com.fagundes.myshowlist.core.data.local.dao.RecentDao
+import com.fagundes.myshowlist.core.data.local.dao.MovieDetailCacheDao
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.data.remote.api.AnimeApi
 import com.fagundes.myshowlist.core.data.remote.api.MovieApi
 import com.fagundes.myshowlist.core.db.AppDatabase
 import com.fagundes.myshowlist.core.db.MIGRATION_3_4
+import com.fagundes.myshowlist.core.db.MIGRATION_4_5
 import com.fagundes.myshowlist.core.network.provideJikanHttpClient
 import com.fagundes.myshowlist.core.network.provideTmdbHttpClient
 import com.fagundes.myshowlist.feat.catalog.data.repository.CatalogRepository
@@ -68,12 +70,13 @@ val appModule = module {
             androidContext(),
             AppDatabase::class.java,
             "myshowlist.db"
-        ).addMigrations(MIGRATION_3_4).fallbackToDestructiveMigration(false).build()
+        ).addMigrations(MIGRATION_3_4, MIGRATION_4_5).fallbackToDestructiveMigration(false).build()
     }
 
     single<ContentDao> { get<AppDatabase>().contentDao() }
     single<FavoriteDao> { get<AppDatabase>().favoriteDao() }
     single<RecentDao> { get<AppDatabase>().recentDao() }
+    single<MovieDetailCacheDao> { get<AppDatabase>().movieDetailCacheDao() }
     single { Dispatchers.IO }
 
     // ---------- APIs ----------
@@ -106,7 +109,7 @@ val appModule = module {
     }
 
     single<DetailRepository> {
-        DetailRepositoryImpl(get(), get())
+        DetailRepositoryImpl(get(), get(), get())
     }
 
     single<FavoriteRepository> {

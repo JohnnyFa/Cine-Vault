@@ -39,10 +39,12 @@ fun Movie.toEntity(contentType: ContentType, category: ContentCategory): Content
         type = contentType,
         title = title,
         posterUrl = posterUrl,
+        backdropPath = null,
         overview = overview,
         rating = rating,
+        releaseDate = null,
         category = category,
-        lastUpdated = System.currentTimeMillis()
+        cachedAt = System.currentTimeMillis()
     )
 
 fun ContentEntity.toDetailUi(): ContentDetailUi =

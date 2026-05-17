@@ -36,7 +36,8 @@ class DetailViewModel(
 
     init {
         observeFavoriteState()
-        loadDetail()
+        observeDetail()
+        refreshDetail()
     }
 
     fun onFavoriteClick() {
@@ -76,29 +77,23 @@ class DetailViewModel(
         }
     }
 
-    private fun loadDetail() {
+    private fun observeDetail() {
         viewModelScope.launch {
-            repository.getContentDetail(id.toString(), type.name)
-                .onSuccess {
-                    val favoriteItem = FavoriteItem(
-                        id = it.id,
-                        type = type,
-                        title = it.title,
-                        posterUrl = it.imageUrl,
-                        overview = it.overview,
-                        rating = it.rating
-                    )
+            repository.observeContentDetail(id, type.name).collect { detail ->
+                if (detail != null) {
+                    val favoriteItem = FavoriteItem(id = detail.id, type = type, title = detail.title, posterUrl = detail.imageUrl, overview = detail.overview, rating = detail.rating)
                     repository.cacheFavoriteCandidate(favoriteItem)
                     saveRecentMovieUseCase(favoriteItem)
+                    _uiState.value = DetailUiState.Success(ui = detail, isFavorite = latestFavoriteState.value)
+                }
+            }
+        }
+    }
 
-                    _uiState.value = DetailUiState.Success(
-                        ui = it,
-                        isFavorite = latestFavoriteState.value
-                    )
-                }
-                .onFailure {
-                    _uiState.value = DetailUiState.Error("Failed to load content")
-                }
+    private fun refreshDetail() {
+        viewModelScope.launch {
+            runCatching { repository.refreshDetailIfNeeded(id) }
+                .onFailure { if (_uiState.value is DetailUiState.Loading) _uiState.value = DetailUiState.Error("Failed to load content") }
         }
     }
 }

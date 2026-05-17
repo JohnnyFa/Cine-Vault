@@ -1,6 +1,5 @@
 package com.fagundes.myshowlist.feat.home.vm
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fagundes.myshowlist.core.domain.Movie
@@ -10,6 +9,7 @@ import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveRecentsUseCase
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -20,93 +20,59 @@ class HomeViewModel(
 ) : ViewModel() {
 
     private val _trendingState = MutableStateFlow<HomeUiState<List<Movie>>>(HomeUiState.Idle)
-    val trendingState: StateFlow<HomeUiState<List<Movie>>> = _trendingState
+    val trendingState: StateFlow<HomeUiState<List<Movie>>> = _trendingState.asStateFlow()
 
     private val _forYouState = MutableStateFlow<HomeUiState<List<Movie>>>(HomeUiState.Idle)
-    val forYouState: StateFlow<HomeUiState<List<Movie>>> = _forYouState
+    val forYouState: StateFlow<HomeUiState<List<Movie>>> = _forYouState.asStateFlow()
 
     private val _showOfTheDayState = MutableStateFlow<HomeUiState<Movie>>(HomeUiState.Idle)
-    val showOfTheDay: StateFlow<HomeUiState<Movie>> = _showOfTheDayState
+    val showOfTheDay: StateFlow<HomeUiState<Movie>> = _showOfTheDayState.asStateFlow()
 
     private val _favoritesState = MutableStateFlow<HomeUiState<List<Movie>>>(HomeUiState.Idle)
-    val favoritesState: StateFlow<HomeUiState<List<Movie>>> = _favoritesState
+    val favoritesState: StateFlow<HomeUiState<List<Movie>>> = _favoritesState.asStateFlow()
 
     private val _recentsState = MutableStateFlow<HomeUiState<List<Movie>>>(HomeUiState.Idle)
-    val recentsState: StateFlow<HomeUiState<List<Movie>>> = _recentsState
+    val recentsState: StateFlow<HomeUiState<List<Movie>>> = _recentsState.asStateFlow()
 
     init {
-        Log.d("HomeViewModel", "HomeViewModel init: ${this.hashCode()}")
-        if (_trendingState.value !is HomeUiState.Success) loadPopular()
-        if (_forYouState.value !is HomeUiState.Success) loadRecommended()
-        if (_showOfTheDayState.value !is HomeUiState.Success) loadShowOfTheDay()
+        observeHomeSections()
+        refreshHome()
         observeFavorites()
         observeRecents()
     }
 
-    private fun observeFavorites() {
+    private fun observeHomeSections() {
         viewModelScope.launch {
-            observeFavoritesUseCase().collect { favorites ->
-                _favoritesState.value = HomeUiState.Success(favorites)
+            repository.observePopularMovies().collect { movies ->
+                _trendingState.value = if (movies.isEmpty()) HomeUiState.Loading else HomeUiState.Success(movies)
+            }
+        }
+        viewModelScope.launch {
+            repository.observeRecommendedMovies().collect { movies ->
+                _forYouState.value = if (movies.isEmpty()) HomeUiState.Loading else HomeUiState.Success(movies)
+            }
+        }
+        viewModelScope.launch {
+            repository.observeShowOfTheDay().collect { movie ->
+                _showOfTheDayState.value = movie?.let { HomeUiState.Success(it) } ?: HomeUiState.Loading
             }
         }
     }
 
-    private fun observeRecents() {
+    private fun refreshHome() {
         viewModelScope.launch {
-            observeRecentsUseCase().collect { recents ->
-                _recentsState.value = HomeUiState.Success(recents)
-            }
-        }
-    }
-
-    fun loadPopular() {
-        Log.d("HomeViewModel", "loadPopular called")
-        viewModelScope.launch {
-            _trendingState.value = HomeUiState.Loading
-
-            repository.getPopularMovies()
-                .onSuccess {
-                    _trendingState.value = HomeUiState.Success(it)
-                }
+            runCatching { repository.refreshHomeIfNeeded() }
                 .onFailure {
-                    _trendingState.value =
-                        HomeUiState.Error("Failed to load trending")
+                    if (_trendingState.value is HomeUiState.Loading) _trendingState.value = HomeUiState.Error("Failed to load trending")
+                    if (_forYouState.value is HomeUiState.Loading) _forYouState.value = HomeUiState.Error("Failed to load recommended")
+                    if (_showOfTheDayState.value is HomeUiState.Loading) _showOfTheDayState.value = HomeUiState.Error("Failed to load show of the day")
                 }
         }
     }
 
-    fun loadRecommended() {
-        Log.d("HomeViewModel", "loadRecommended called")
-        viewModelScope.launch {
-            _forYouState.value = HomeUiState.Loading
-
-            repository.getRecommended()
-                .onSuccess {
-                    _forYouState.value = HomeUiState.Success(it)
-                }
-                .onFailure {
-                    _forYouState.value =
-                        HomeUiState.Error("Failed to load recommended")
-                }
-
-        }
-    }
-
-    fun loadShowOfTheDay() {
-        Log.d("HomeViewModel", "loadShowOfTheDay called")
-        viewModelScope.launch {
-            _showOfTheDayState.value = HomeUiState.Loading
-
-            repository.getShowOfTheDay()
-                .onSuccess {
-                    _showOfTheDayState.value = HomeUiState.Success(it)
-                }
-                .onFailure {
-                    _showOfTheDayState.value =
-                        HomeUiState.Error("Failed to load show of the day")
-                }
-        }
-    }
+    fun loadPopular() = refreshHome()
+    fun loadRecommended() = refreshHome()
+    fun loadShowOfTheDay() = refreshHome()
 
     fun logout() {
         auth.signOut()
