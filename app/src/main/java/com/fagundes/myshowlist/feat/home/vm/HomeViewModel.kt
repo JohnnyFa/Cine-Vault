@@ -59,6 +59,22 @@ class HomeViewModel(
         }
     }
 
+    private fun observeFavorites() {
+        viewModelScope.launch {
+            observeFavoritesUseCase().collect { movies ->
+                _favoritesState.value = HomeUiState.Success(movies)
+            }
+        }
+    }
+
+    private fun observeRecents() {
+        viewModelScope.launch {
+            observeRecentsUseCase().collect { movies ->
+                _recentsState.value = HomeUiState.Success(movies)
+            }
+        }
+    }
+
     private fun refreshHome() {
         viewModelScope.launch {
             runCatching { repository.refreshHomeIfNeeded() }
