@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,7 +60,7 @@ fun DetailScreen(
     }
 
     when (state) {
-        is DetailUiState.Loading -> Box {}
+        is DetailUiState.Loading -> Box(modifier = Modifier.fillMaxSize()) { CircularProgressIndicator(modifier = Modifier.padding(24.dp)) }
         is DetailUiState.Error -> {
             Text(
                 text = (state as DetailUiState.Error).message,
