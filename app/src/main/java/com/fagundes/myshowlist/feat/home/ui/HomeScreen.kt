@@ -106,7 +106,7 @@ private fun LazyListScope.showOfTheDayItem(
                 HomeUiState.Loading -> ShowOfTheDaySkeleton()
                 is HomeUiState.Success -> ShowOfTheDaySection(
                     movie = state.data,
-                    onMovieClick = { movie -> onOpenDetail(movie.id, ContentType.MOVIE) }
+                    onMovieClick = { movie -> onOpenDetail(movie.id, movie.type) }
                 )
                 is HomeUiState.Error -> ErrorSection(onRetry = onRetry)
                 else -> Unit
@@ -145,7 +145,7 @@ private fun LazyListScope.recentsItem(
         Box(modifier = Modifier.testTag("recents_container")) {
             RecentsSection(
                 movies = movies,
-                onMovieClick = { movie -> onOpenDetail(movie.id, ContentType.MOVIE) }
+                onMovieClick = { movie -> onOpenDetail(movie.id, movie.type) }
             )
         }
         Spacer(modifier = Modifier.height(24.dp))

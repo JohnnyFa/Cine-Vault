@@ -19,7 +19,8 @@ class RecentRepositoryImpl(
                     title = entity.title,
                     posterUrl = entity.posterUrl,
                     overview = null,
-                    rating = entity.rating
+                    rating = entity.rating,
+                    type = entity.type
                 )
             }
         }

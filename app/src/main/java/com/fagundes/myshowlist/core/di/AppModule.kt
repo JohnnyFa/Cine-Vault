@@ -8,6 +8,7 @@ import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.data.remote.api.AnimeApi
 import com.fagundes.myshowlist.core.data.remote.api.MovieApi
 import com.fagundes.myshowlist.core.db.AppDatabase
+import com.fagundes.myshowlist.core.db.MIGRATION_3_4
 import com.fagundes.myshowlist.core.network.provideJikanHttpClient
 import com.fagundes.myshowlist.core.network.provideTmdbHttpClient
 import com.fagundes.myshowlist.feat.catalog.data.repository.CatalogRepository
@@ -67,7 +68,7 @@ val appModule = module {
             androidContext(),
             AppDatabase::class.java,
             "myshowlist.db"
-        ).fallbackToDestructiveMigration(false).build()
+        ).addMigrations(MIGRATION_3_4).fallbackToDestructiveMigration(false).build()
     }
 
     single<ContentDao> { get<AppDatabase>().contentDao() }
