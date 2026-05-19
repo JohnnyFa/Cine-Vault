@@ -26,7 +26,6 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
-
     private val auth: FirebaseAuth = mockk(relaxed = true)
     private val repository: HomeRepository = mockk(relaxed = true)
     private val observeFavoritesUseCase: ObserveFavoritesUseCase = mockk(relaxed = true)
@@ -42,14 +41,14 @@ class HomeViewModelTest {
         Dispatchers.setMain(testDispatcher)
         mockkStatic(Log::class)
         every { Log.d(any(), any()) } returns 0
-        
+
         // Set up default successful responses for init block
         every { repository.observePopularMovies() } returns flowOf(movieList)
         every { repository.observeRecommendedMovies() } returns flowOf(movieList)
         every { repository.observeShowOfTheDay() } returns flowOf(movie)
         every { observeFavoritesUseCase() } returns flowOf(movieList)
         every { observeRecentsUseCase() } returns flowOf(movieList)
-        
+
         viewModel = HomeViewModel(auth, repository, observeFavoritesUseCase, observeRecentsUseCase)
     }
 
@@ -60,48 +59,51 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `initial state should load data correctly`() = runTest {
-        testDispatcher.scheduler.runCurrent()
-        
-        assert(viewModel.trendingState.value is HomeUiState.Success)
-        assertEquals(movieList, (viewModel.trendingState.value as HomeUiState.Success).data)
-        
-        assert(viewModel.forYouState.value is HomeUiState.Success)
-        assertEquals(movieList, (viewModel.forYouState.value as HomeUiState.Success).data)
-        
-        assert(viewModel.showOfTheDay.value is HomeUiState.Success)
-        assertEquals(movie, (viewModel.showOfTheDay.value as HomeUiState.Success).data)
+    fun `initial state should load data correctly`() =
+        runTest {
+            testDispatcher.scheduler.runCurrent()
 
-        assert(viewModel.favoritesState.value is HomeUiState.Success)
-        assertEquals(movieList, (viewModel.favoritesState.value as HomeUiState.Success).data)
+            assert(viewModel.trendingState.value is HomeUiState.Success)
+            assertEquals(movieList, (viewModel.trendingState.value as HomeUiState.Success).data)
 
-        assert(viewModel.recentsState.value is HomeUiState.Success)
-        assertEquals(movieList, (viewModel.recentsState.value as HomeUiState.Success).data)
-    }
+            assert(viewModel.forYouState.value is HomeUiState.Success)
+            assertEquals(movieList, (viewModel.forYouState.value as HomeUiState.Success).data)
 
-    @Test
-    fun `loadPopular should call refreshHomeIfNeeded`() = runTest {
-        viewModel.loadPopular()
-        testDispatcher.scheduler.runCurrent()
-        
-        coEvery { repository.refreshHomeIfNeeded() }
-    }
+            assert(viewModel.showOfTheDay.value is HomeUiState.Success)
+            assertEquals(movie, (viewModel.showOfTheDay.value as HomeUiState.Success).data)
+
+            assert(viewModel.favoritesState.value is HomeUiState.Success)
+            assertEquals(movieList, (viewModel.favoritesState.value as HomeUiState.Success).data)
+
+            assert(viewModel.recentsState.value is HomeUiState.Success)
+            assertEquals(movieList, (viewModel.recentsState.value as HomeUiState.Success).data)
+        }
 
     @Test
-    fun `loadPopular should update trendingState to Error on failure if still loading`() = runTest {
-        // Force loading state for this test
-        every { repository.observePopularMovies() } returns flowOf(emptyList())
-        viewModel = HomeViewModel(auth, repository, observeFavoritesUseCase, observeRecentsUseCase)
-        testDispatcher.scheduler.runCurrent()
-        
-        coEvery { repository.refreshHomeIfNeeded() } throws Exception("Network error")
-        
-        viewModel.loadPopular()
-        testDispatcher.scheduler.runCurrent()
-        
-        assert(viewModel.trendingState.value is HomeUiState.Error)
-        assertEquals("Failed to load trending", (viewModel.trendingState.value as HomeUiState.Error).message)
-    }
+    fun `loadPopular should call refreshHomeIfNeeded`() =
+        runTest {
+            viewModel.loadPopular()
+            testDispatcher.scheduler.runCurrent()
+
+            coEvery { repository.refreshHomeIfNeeded() }
+        }
+
+    @Test
+    fun `loadPopular should update trendingState to Error on failure if still loading`() =
+        runTest {
+            // Force loading state for this test
+            every { repository.observePopularMovies() } returns flowOf(emptyList())
+            viewModel = HomeViewModel(auth, repository, observeFavoritesUseCase, observeRecentsUseCase)
+            testDispatcher.scheduler.runCurrent()
+
+            coEvery { repository.refreshHomeIfNeeded() } throws Exception("Network error")
+
+            viewModel.loadPopular()
+            testDispatcher.scheduler.runCurrent()
+
+            assert(viewModel.trendingState.value is HomeUiState.Error)
+            assertEquals("Failed to load trending", (viewModel.trendingState.value as HomeUiState.Error).message)
+        }
 
     @Test
     fun `logout should call auth signOut`() {

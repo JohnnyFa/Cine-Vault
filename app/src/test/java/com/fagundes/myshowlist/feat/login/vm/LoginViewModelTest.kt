@@ -26,7 +26,6 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
-
     private val auth: FirebaseAuth = mockk(relaxed = true)
     private lateinit var viewModel: LoginViewModel
     private val testDispatcher = StandardTestDispatcher()
@@ -45,56 +44,59 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `initial state should be Idle`() = runTest {
-        assertEquals(LoginUiState.Idle, viewModel.uiState.value)
-    }
+    fun `initial state should be Idle`() =
+        runTest {
+            assertEquals(LoginUiState.Idle, viewModel.uiState.value)
+        }
 
     @Test
-    fun `onGoogleTokenReceived should set state to Loading and then Idle on success`() = runTest {
-        val idToken = "token"
-        val credential = mockk<AuthCredential>()
-        val authResultTask = mockk<Task<AuthResult>>()
-        val successListenerSlot = slot<OnSuccessListener<AuthResult>>()
+    fun `onGoogleTokenReceived should set state to Loading and then Idle on success`() =
+        runTest {
+            val idToken = "token"
+            val credential = mockk<AuthCredential>()
+            val authResultTask = mockk<Task<AuthResult>>()
+            val successListenerSlot = slot<OnSuccessListener<AuthResult>>()
 
-        every { GoogleAuthProvider.getCredential(idToken, null) } returns credential
-        every { auth.signInWithCredential(credential) } returns authResultTask
-        every { authResultTask.addOnSuccessListener(capture(successListenerSlot)) } returns authResultTask
-        every { authResultTask.addOnFailureListener(any()) } returns authResultTask
+            every { GoogleAuthProvider.getCredential(idToken, null) } returns credential
+            every { auth.signInWithCredential(credential) } returns authResultTask
+            every { authResultTask.addOnSuccessListener(capture(successListenerSlot)) } returns authResultTask
+            every { authResultTask.addOnFailureListener(any()) } returns authResultTask
 
-        viewModel.onGoogleTokenReceived(idToken)
+            viewModel.onGoogleTokenReceived(idToken)
 
-        assertEquals(LoginUiState.Loading, viewModel.uiState.value)
+            assertEquals(LoginUiState.Loading, viewModel.uiState.value)
 
-        successListenerSlot.captured.onSuccess(mockk())
+            successListenerSlot.captured.onSuccess(mockk())
 
-        // Ensure state update is processed
-        testDispatcher.scheduler.runCurrent()
+            // Ensure state update is processed
+            testDispatcher.scheduler.runCurrent()
 
-        assertEquals(LoginUiState.Idle, viewModel.uiState.value)
-        verify { auth.signInWithCredential(credential) }
-    }
+            assertEquals(LoginUiState.Idle, viewModel.uiState.value)
+            verify { auth.signInWithCredential(credential) }
+        }
 
     @Test
-    fun `onGoogleTokenReceived should set state to Error on failure`() = runTest {
-        val idToken = "token"
-        val credential = mockk<AuthCredential>()
-        val authResultTask = mockk<Task<AuthResult>>()
-        val failureListenerSlot = slot<OnFailureListener>()
-        val errorMessage = "Firebase Error"
+    fun `onGoogleTokenReceived should set state to Error on failure`() =
+        runTest {
+            val idToken = "token"
+            val credential = mockk<AuthCredential>()
+            val authResultTask = mockk<Task<AuthResult>>()
+            val failureListenerSlot = slot<OnFailureListener>()
+            val errorMessage = "Firebase Error"
 
-        every { GoogleAuthProvider.getCredential(idToken, null) } returns credential
-        every { auth.signInWithCredential(credential) } returns authResultTask
-        every { authResultTask.addOnSuccessListener(any()) } returns authResultTask
-        every { authResultTask.addOnFailureListener(capture(failureListenerSlot)) } returns authResultTask
+            every { GoogleAuthProvider.getCredential(idToken, null) } returns credential
+            every { auth.signInWithCredential(credential) } returns authResultTask
+            every { authResultTask.addOnSuccessListener(any()) } returns authResultTask
+            every { authResultTask.addOnFailureListener(capture(failureListenerSlot)) } returns authResultTask
 
-        viewModel.onGoogleTokenReceived(idToken)
+            viewModel.onGoogleTokenReceived(idToken)
 
-        assertEquals(LoginUiState.Loading, viewModel.uiState.value)
+            assertEquals(LoginUiState.Loading, viewModel.uiState.value)
 
-        failureListenerSlot.captured.onFailure(Exception(errorMessage))
+            failureListenerSlot.captured.onFailure(Exception(errorMessage))
 
-        val state = viewModel.uiState.value
-        assert(state is LoginUiState.Error)
-        assertEquals(errorMessage, (state as LoginUiState.Error).message)
-    }
+            val state = viewModel.uiState.value
+            assert(state is LoginUiState.Error)
+            assertEquals(errorMessage, (state as LoginUiState.Error).message)
+        }
 }
