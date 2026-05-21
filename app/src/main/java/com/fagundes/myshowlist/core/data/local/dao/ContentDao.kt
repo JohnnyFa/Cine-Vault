@@ -4,13 +4,12 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
 import com.fagundes.myshowlist.core.data.local.entity.ContentEntity
 import com.fagundes.myshowlist.core.data.local.enum.ContentCategory
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ContentDao {
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertContent(content: ContentEntity)
 

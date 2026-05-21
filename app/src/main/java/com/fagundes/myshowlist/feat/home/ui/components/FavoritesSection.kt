@@ -26,24 +26,25 @@ import com.fagundes.myshowlist.ui.theme.TextPrimary
 @Composable
 fun FavoritesSection(
     movies: List<Movie>,
-    onMovieClick: (Movie) -> Unit
+    onMovieClick: (Movie) -> Unit,
 ) {
     if (movies.isEmpty()) return
 
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = Icons.Default.Favorite,
                 contentDescription = null,
                 tint = AccentRed,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(20.dp),
             )
 
             Spacer(Modifier.width(8.dp))
@@ -51,7 +52,7 @@ fun FavoritesSection(
             Text(
                 text = stringResource(R.string.label_your_favorites),
                 style = MaterialTheme.typography.titleLarge,
-                color = TextPrimary
+                color = TextPrimary,
             )
         }
 
@@ -59,7 +60,7 @@ fun FavoritesSection(
 
         MediaCarousel(
             items = movies,
-            onItemClick = onMovieClick
+            onItemClick = onMovieClick,
         )
     }
 }

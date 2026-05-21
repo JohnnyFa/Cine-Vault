@@ -12,7 +12,7 @@ fun ContentEntity.toMovie(): Movie =
         title = title,
         posterUrl = posterUrl,
         overview = overview,
-        rating = rating
+        rating = rating,
     )
 
 fun ContentEntity.toAnime(): Movie =
@@ -21,7 +21,7 @@ fun ContentEntity.toAnime(): Movie =
         title = title,
         posterUrl = posterUrl,
         overview = overview,
-        rating = rating
+        rating = rating,
     )
 
 fun ContentEntity.toTvShow(): Movie =
@@ -30,10 +30,13 @@ fun ContentEntity.toTvShow(): Movie =
         title = title,
         posterUrl = posterUrl,
         overview = overview,
-        rating = rating
+        rating = rating,
     )
 
-fun Movie.toEntity(contentType: ContentType, category: ContentCategory): ContentEntity =
+fun Movie.toEntity(
+    contentType: ContentType,
+    category: ContentCategory,
+): ContentEntity =
     ContentEntity(
         id = id,
         type = contentType,
@@ -44,7 +47,7 @@ fun Movie.toEntity(contentType: ContentType, category: ContentCategory): Content
         rating = rating,
         releaseDate = null,
         category = category,
-        cachedAt = System.currentTimeMillis()
+        cachedAt = System.currentTimeMillis(),
     )
 
 fun ContentEntity.toDetailUi(): ContentDetailUi =
@@ -54,5 +57,5 @@ fun ContentEntity.toDetailUi(): ContentDetailUi =
         imageUrl = posterUrl,
         overview = overview,
         rating = rating,
-        type = type.name
+        type = type.name,
     )

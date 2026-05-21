@@ -16,9 +16,8 @@ class HomeViewModel(
     private val auth: FirebaseAuth,
     private val repository: HomeRepository,
     private val observeFavoritesUseCase: ObserveFavoritesUseCase,
-    private val observeRecentsUseCase: ObserveRecentsUseCase
+    private val observeRecentsUseCase: ObserveRecentsUseCase,
 ) : ViewModel() {
-
     private val _trendingState = MutableStateFlow<HomeUiState<List<Movie>>>(HomeUiState.Idle)
     val trendingState: StateFlow<HomeUiState<List<Movie>>> = _trendingState.asStateFlow()
 
@@ -44,17 +43,20 @@ class HomeViewModel(
     private fun observeHomeSections() {
         viewModelScope.launch {
             repository.observePopularMovies().collect { movies ->
-                _trendingState.value = if (movies.isEmpty()) HomeUiState.Loading else HomeUiState.Success(movies)
+                _trendingState.value =
+                    if (movies.isEmpty()) HomeUiState.Loading else HomeUiState.Success(movies)
             }
         }
         viewModelScope.launch {
             repository.observeRecommendedMovies().collect { movies ->
-                _forYouState.value = if (movies.isEmpty()) HomeUiState.Loading else HomeUiState.Success(movies)
+                _forYouState.value =
+                    if (movies.isEmpty()) HomeUiState.Loading else HomeUiState.Success(movies)
             }
         }
         viewModelScope.launch {
             repository.observeShowOfTheDay().collect { movie ->
-                _showOfTheDayState.value = movie?.let { HomeUiState.Success(it) } ?: HomeUiState.Loading
+                _showOfTheDayState.value =
+                    movie?.let { HomeUiState.Success(it) } ?: HomeUiState.Loading
             }
         }
     }
@@ -77,17 +79,27 @@ class HomeViewModel(
 
     private fun refreshHome() {
         viewModelScope.launch {
-            runCatching { repository.refreshHomeIfNeeded() }
-                .onFailure {
-                    if (_trendingState.value is HomeUiState.Loading) _trendingState.value = HomeUiState.Error("Failed to load trending")
-                    if (_forYouState.value is HomeUiState.Loading) _forYouState.value = HomeUiState.Error("Failed to load recommended")
-                    if (_showOfTheDayState.value is HomeUiState.Loading) _showOfTheDayState.value = HomeUiState.Error("Failed to load show of the day")
+            runCatching { repository.refreshHomeIfNeeded() }.onFailure {
+                if (_trendingState.value is HomeUiState.Loading) {
+                    _trendingState.value =
+                        HomeUiState.Error("Failed to load trending")
                 }
+                if (_forYouState.value is HomeUiState.Loading) {
+                    _forYouState.value =
+                        HomeUiState.Error("Failed to load recommended")
+                }
+                if (_showOfTheDayState.value is HomeUiState.Loading) {
+                    _showOfTheDayState.value =
+                        HomeUiState.Error("Failed to load show of the day")
+                }
+            }
         }
     }
 
     fun loadPopular() = refreshHome()
+
     fun loadRecommended() = refreshHome()
+
     fun loadShowOfTheDay() = refreshHome()
 
     fun logout() {
@@ -97,7 +109,10 @@ class HomeViewModel(
 
 sealed interface HomeUiState<out T> {
     object Idle : HomeUiState<Nothing>
+
     object Loading : HomeUiState<Nothing>
+
     data class Success<T>(val data: T) : HomeUiState<T>
+
     data class Error(val message: String) : HomeUiState<Nothing>
 }

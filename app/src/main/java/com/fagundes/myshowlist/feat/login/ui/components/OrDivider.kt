@@ -18,28 +18,29 @@ import com.fagundes.myshowlist.ui.theme.TextMuted
 @Composable
 fun OrDivider() {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 24.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         HorizontalDivider(
             modifier = Modifier.weight(1f),
             color = Divider,
-            thickness = 1.dp
+            thickness = 1.dp,
         )
 
         Text(
             text = stringResource(R.string.or),
             style = MaterialTheme.typography.bodySmall,
             color = TextMuted,
-            modifier = Modifier.padding(horizontal = 12.dp)
+            modifier = Modifier.padding(horizontal = 12.dp),
         )
 
         HorizontalDivider(
             modifier = Modifier.weight(1f),
             color = Divider,
-            thickness = 1.dp
+            thickness = 1.dp,
         )
     }
 }

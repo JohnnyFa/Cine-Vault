@@ -21,20 +21,21 @@ import com.fagundes.myshowlist.feat.catalog.ui.components.shimmer.UpcomingMovieS
 @Composable
 fun CatalogLoading(
     modifier: Modifier = Modifier,
-    showSearchAndCategories: Boolean = true
+    showSearchAndCategories: Boolean = true,
 ) {
     Column(modifier = modifier) {
         if (showSearchAndCategories) {
             // Search Bar Shimmer
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
             ) {
                 ShimmerBox(
-                    width = 400.dp, // Large enough to fill max width
+                    width = 400.dp,
                     height = 56.dp,
-                    radius = 16.dp
+                    radius = 16.dp,
                 )
             }
 
@@ -43,7 +44,7 @@ fun CatalogLoading(
             // Chips Shimmer
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(horizontal = 20.dp)
+                modifier = Modifier.padding(horizontal = 20.dp),
             ) {
                 repeat(4) {
                     ShimmerBox(width = 80.dp, height = 32.dp, radius = 20.dp)
@@ -58,31 +59,33 @@ fun CatalogLoading(
             width = 120.dp,
             height = 20.dp,
             radius = 4.dp,
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 20.dp),
         )
 
         Spacer(Modifier.height(12.dp))
 
         // Banner Shimmer
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(380.dp)
-                .padding(horizontal = 20.dp)
-                .clip(RoundedCornerShape(28.dp))
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(380.dp)
+                    .padding(horizontal = 20.dp)
+                    .clip(RoundedCornerShape(28.dp)),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 ShimmerBox(
-                    width = 500.dp, // Fill width
+                    width = 500.dp,
                     height = 380.dp,
-                    radius = 0.dp
+                    radius = 0.dp,
                 )
             }
 
             Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(20.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(20.dp),
             ) {
                 ShimmerBox(width = 200.dp, height = 24.dp, radius = 4.dp)
                 Spacer(Modifier.height(8.dp))

@@ -6,5 +6,5 @@ data class ContentDetailUi(
     val imageUrl: String?,
     val overview: String?,
     val rating: Double?,
-    val type: String?
+    val type: String?,
 )

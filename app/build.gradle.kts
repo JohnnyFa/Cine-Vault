@@ -11,12 +11,13 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.ktlint)
 }
-val localProperties = Properties().apply {
-    val file = rootProject.file("local.properties")
-    if (file.exists()) {
-        load(FileInputStream(file))
+val localProperties =
+    Properties().apply {
+        val file = rootProject.file("local.properties")
+        if (file.exists()) {
+            load(FileInputStream(file))
+        }
     }
-}
 
 android {
     namespace = "com.fagundes.myshowlist"
@@ -41,7 +42,7 @@ android {
         buildConfigField(
             "String",
             "TMDB_API_KEY",
-            "\"$tmdbApiKey\""
+            "\"$tmdbApiKey\"",
         )
 
         javaCompileOptions {
@@ -49,8 +50,8 @@ android {
                 arguments(
                     mapOf(
                         "room.schemaLocation" to
-                                "$projectDir/schemas"
-                    )
+                            "$projectDir/schemas",
+                    ),
                 )
             }
         }
@@ -61,7 +62,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }

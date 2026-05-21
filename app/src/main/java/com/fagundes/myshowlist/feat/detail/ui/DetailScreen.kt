@@ -42,9 +42,10 @@ fun DetailScreen(
     id: Int,
     type: ContentType,
     onBack: () -> Unit,
-    viewModel: DetailViewModel = koinViewModel {
-        parametersOf(id, type)
-    }
+    viewModel: DetailViewModel =
+        koinViewModel {
+            parametersOf(id, type)
+        },
 ) {
     val context = LocalContext.current
     val state by viewModel.uiState.collectAsState()
@@ -64,7 +65,7 @@ fun DetailScreen(
             Text(
                 text = (state as DetailUiState.Error).message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
         }
 
@@ -75,7 +76,7 @@ fun DetailScreen(
                 isFavorite = successState.isFavorite,
                 isFavoriteLoading = successState.isFavoriteLoading,
                 onFavoriteClick = viewModel::onFavoriteClick,
-                onBack = onBack
+                onBack = onBack,
             )
         }
     }
@@ -87,39 +88,39 @@ fun DetailContent(
     isFavorite: Boolean,
     isFavoriteLoading: Boolean,
     onFavoriteClick: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Background)
-            .verticalScroll(rememberScrollState())
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Background)
+                .verticalScroll(rememberScrollState()),
     ) {
-
         PosterHero(
             imageUrl = ui.imageUrl,
-            onBack = onBack
+            onBack = onBack,
         )
 
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
         ) {
-
             Spacer(Modifier.height(16.dp))
 
             Text(
                 text = ui.title,
                 style = MaterialTheme.typography.displaySmall,
-                color = TextPrimary
+                color = TextPrimary,
             )
 
             Spacer(Modifier.height(12.dp))
 
             MetaRow(
                 rating = ui.rating,
-                type = ui.type
+                type = ui.type,
             )
 
             Spacer(Modifier.height(20.dp))
@@ -128,7 +129,7 @@ fun DetailContent(
                 text = ui.overview ?: stringResource(R.string.empty_overview),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextSecondary,
-                lineHeight = 22.sp
+                lineHeight = 22.sp,
             )
 
             Spacer(Modifier.height(32.dp))
@@ -136,7 +137,7 @@ fun DetailContent(
             FavoriteButton(
                 isFavorite = isFavorite,
                 isLoading = isFavoriteLoading,
-                onClick = onFavoriteClick
+                onClick = onFavoriteClick,
             )
 
             Spacer(Modifier.height(48.dp))

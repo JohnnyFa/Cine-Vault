@@ -2,7 +2,14 @@ package com.fagundes.myshowlist.components.bottomnavigation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,26 +30,26 @@ import com.fagundes.myshowlist.core.navigation.AppRoutes
 @Composable
 fun AppBottomNavigation(
     currentRoute: String,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Row(
-            modifier = Modifier
-                .height(56.dp)
-                .clip(RoundedCornerShape(28.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .shadow(20.dp, RoundedCornerShape(28.dp))
-                .padding(horizontal = 28.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier =
+                Modifier
+                    .height(56.dp)
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .shadow(20.dp, RoundedCornerShape(28.dp))
+                    .padding(horizontal = 28.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-
             BottomIcon(
                 selected = currentRoute == AppRoutes.HOME,
                 icon = Icons.Default.Home,
-                onClick = { onNavigate(AppRoutes.HOME) }
+                onClick = { onNavigate(AppRoutes.HOME) },
             )
 
             Spacer(Modifier.width(32.dp))
@@ -50,7 +57,7 @@ fun AppBottomNavigation(
             BottomIcon(
                 selected = currentRoute == AppRoutes.CATALOG,
                 icon = Icons.Default.Search,
-                onClick = { onNavigate(AppRoutes.CATALOG) }
+                onClick = { onNavigate(AppRoutes.CATALOG) },
             )
         }
     }
@@ -60,25 +67,28 @@ fun AppBottomNavigation(
 private fun BottomIcon(
     selected: Boolean,
     icon: ImageVector,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .background(
-                if (selected) Color(0x33E50914) else Color.Transparent
-            )
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(
+                    if (selected) Color(0x33E50914) else Color.Transparent,
+                )
+                .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = if (selected)
-                Color(0xFFE50914)
-            else
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            tint =
+                if (selected) {
+                    Color(0xFFE50914)
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                },
         )
     }
 }

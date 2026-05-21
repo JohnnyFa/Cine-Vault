@@ -22,36 +22,38 @@ import com.fagundes.myshowlist.ui.theme.TextSecondary
 fun CatalogSearchBar(
     value: String,
     onSearchChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     TextField(
         value = value,
         onValueChange = onSearchChange,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(54.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(54.dp),
         placeholder = {
             Text(
                 text = "Search movies",
-                color = TextMuted
+                color = TextMuted,
             )
         },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = null,
-                tint = TextMuted
+                tint = TextMuted,
             )
         },
         singleLine = true,
         shape = RoundedCornerShape(16.dp),
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Surface,
-            unfocusedContainerColor = Surface,
-            disabledContainerColor = Surface,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Divider,
-            cursorColor = TextSecondary
-        )
+        colors =
+            TextFieldDefaults.colors(
+                focusedContainerColor = Surface,
+                unfocusedContainerColor = Surface,
+                disabledContainerColor = Surface,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Divider,
+                cursorColor = TextSecondary,
+            ),
     )
 }

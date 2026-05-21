@@ -14,19 +14,22 @@ import kotlinx.coroutines.flow.map
 
 class HomeRepositoryImpl(
     private val local: HomeLocalDataSource,
-    private val remote: HomeRemoteDataSource
-): HomeRepository {
-    override fun observePopularMovies(): Flow<List<Movie>> = local.observeMoviesByCategory(ContentCategory.POPULAR)
-        .map { list -> list.map { it.toMovie() } }
-        .distinctUntilChanged()
+    private val remote: HomeRemoteDataSource,
+) : HomeRepository {
+    override fun observePopularMovies(): Flow<List<Movie>> =
+        local.observeMoviesByCategory(ContentCategory.POPULAR)
+            .map { list -> list.map { it.toMovie() } }
+            .distinctUntilChanged()
 
-    override fun observeRecommendedMovies(): Flow<List<Movie>> = local.observeMoviesByCategory(ContentCategory.RECOMMENDED)
-        .map { list -> list.map { it.toMovie() } }
-        .distinctUntilChanged()
+    override fun observeRecommendedMovies(): Flow<List<Movie>> =
+        local.observeMoviesByCategory(ContentCategory.RECOMMENDED)
+            .map { list -> list.map { it.toMovie() } }
+            .distinctUntilChanged()
 
-    override fun observeShowOfTheDay(): Flow<Movie?> = local.observeMoviesByCategory(ContentCategory.SHOW_OF_THE_DAY)
-        .map { it.firstOrNull()?.toMovie() }
-        .distinctUntilChanged()
+    override fun observeShowOfTheDay(): Flow<Movie?> =
+        local.observeMoviesByCategory(ContentCategory.SHOW_OF_THE_DAY)
+            .map { it.firstOrNull()?.toMovie() }
+            .distinctUntilChanged()
 
     override suspend fun refreshHomeIfNeeded() {
         val now = System.currentTimeMillis()
@@ -41,7 +44,7 @@ class HomeRepositoryImpl(
     private suspend fun refreshCategoryIfNeeded(
         category: ContentCategory,
         minValid: Long,
-        fetch: suspend () -> List<Movie>
+        fetch: suspend () -> List<Movie>,
     ) {
         val cached = local.getMoviesByCategory(category)
         val expired = cached.isEmpty() || cached.any { it.cachedAt < minValid }
@@ -50,7 +53,7 @@ class HomeRepositoryImpl(
         val remoteItems = fetch()
         local.saveMoviesForCategory(
             category,
-            remoteItems.map { it.toEntity(ContentType.MOVIE, category) }
+            remoteItems.map { it.toEntity(ContentType.MOVIE, category) },
         )
     }
 }

@@ -28,49 +28,52 @@ import com.fagundes.myshowlist.ui.theme.BlackSoft
 @Composable
 fun PosterHero(
     imageUrl: String?,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(360.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(360.dp),
     ) {
-
         SubcomposeAsyncImage(
             model = imageUrl,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
-            loading = { PosterShimmer() }
+            loading = { PosterShimmer() },
         )
 
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Background
-                        )
-                    )
-                )
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    Color.Transparent,
+                                    Background,
+                                ),
+                        ),
+                    ),
         )
 
         IconButton(
             onClick = onBack,
-            modifier = Modifier
-                .padding(WindowInsets.statusBars.asPaddingValues())
-                .padding(16.dp)
-                .background(
-                    color = BlackSoft.copy(alpha = 0.6f),
-                    shape = CircleShape
-                )
+            modifier =
+                Modifier
+                    .padding(WindowInsets.statusBars.asPaddingValues())
+                    .padding(16.dp)
+                    .background(
+                        color = BlackSoft.copy(alpha = 0.6f),
+                        shape = CircleShape,
+                    ),
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = null,
-                tint = Color.White
+                tint = Color.White,
             )
         }
     }

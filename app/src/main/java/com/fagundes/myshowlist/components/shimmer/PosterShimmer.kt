@@ -21,35 +21,39 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun PosterShimmer() {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .shimmer()
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .shimmer()
+                .background(MaterialTheme.colorScheme.surfaceVariant),
     )
 }
 
-fun Modifier.shimmer(): Modifier = composed {
-    val transition = rememberInfiniteTransition(label = "shimmer")
+fun Modifier.shimmer(): Modifier =
+    composed {
+        val transition = rememberInfiniteTransition(label = "shimmer")
 
-    val translateAnim by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "shimmerAnim"
-    )
-
-    background(
-        Brush.linearGradient(
-            colors = listOf(
-                Color.LightGray.copy(alpha = 0.6f),
-                Color.LightGray.copy(alpha = 0.2f),
-                Color.LightGray.copy(alpha = 0.6f)
-            ),
-            start = Offset(translateAnim, translateAnim),
-            end = Offset(translateAnim + 200f, translateAnim + 200f)
+        val translateAnim by transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1000f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(1000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart,
+                ),
+            label = "shimmerAnim",
         )
-    )
-}
+
+        background(
+            Brush.linearGradient(
+                colors =
+                    listOf(
+                        Color.LightGray.copy(alpha = 0.6f),
+                        Color.LightGray.copy(alpha = 0.2f),
+                        Color.LightGray.copy(alpha = 0.6f),
+                    ),
+                start = Offset(translateAnim, translateAnim),
+                end = Offset(translateAnim + 200f, translateAnim + 200f),
+            ),
+        )
+    }

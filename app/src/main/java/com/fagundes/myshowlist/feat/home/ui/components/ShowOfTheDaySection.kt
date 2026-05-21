@@ -34,61 +34,65 @@ import com.fagundes.myshowlist.ui.theme.Background
 import com.fagundes.myshowlist.ui.theme.TextPrimary
 import com.fagundes.myshowlist.ui.theme.TextSecondary
 import java.util.Locale
+
 @Composable
 fun ShowOfTheDaySection(
     movie: Movie,
-    onMovieClick: (Movie) -> Unit
+    onMovieClick: (Movie) -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onMovieClick(movie) }
-    ) {
-
-        Box(
-            modifier = Modifier
+        modifier =
+            Modifier
                 .fillMaxWidth()
-                .height(420.dp)
+                .clickable { onMovieClick(movie) },
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(420.dp),
         ) {
-
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data("${TMDB_IMAGE_BASE}${movie.posterUrl}")
-                    .crossfade(true)
-                    .build(),
+                model =
+                    ImageRequest.Builder(LocalContext.current)
+                        .data("${TMDB_IMAGE_BASE}${movie.posterUrl}")
+                        .crossfade(true)
+                        .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
 
             // Gradient overlay
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Background.copy(alpha = 0.9f),
-                                Background
-                            )
-                        )
-                    )
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors =
+                                    listOf(
+                                        Color.Transparent,
+                                        Background.copy(alpha = 0.9f),
+                                        Background,
+                                    ),
+                            ),
+                        ),
             )
 
             // Conteúdo
             Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(24.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(24.dp),
             ) {
-
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Filled.Star,
                         contentDescription = null,
                         tint = AccentGold,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(18.dp),
                     )
 
                     Spacer(Modifier.width(6.dp))
@@ -96,7 +100,7 @@ fun ShowOfTheDaySection(
                     Text(
                         text = String.format(Locale.US, "%.1f", movie.rating),
                         style = MaterialTheme.typography.labelMedium,
-                        color = AccentGold
+                        color = AccentGold,
                     )
                 }
 
@@ -105,7 +109,7 @@ fun ShowOfTheDaySection(
                 Text(
                     text = movie.title,
                     style = MaterialTheme.typography.displaySmall,
-                    color = TextPrimary
+                    color = TextPrimary,
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -114,7 +118,7 @@ fun ShowOfTheDaySection(
                     text = movie.overview.orEmpty(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextSecondary,
-                    maxLines = 4
+                    maxLines = 4,
                 )
             }
         }

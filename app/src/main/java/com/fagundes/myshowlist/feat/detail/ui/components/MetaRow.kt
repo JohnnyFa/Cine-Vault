@@ -20,33 +20,33 @@ import com.fagundes.myshowlist.ui.theme.TextSecondary
 @Composable
 fun MetaRow(
     rating: Double?,
-    type: String?
+    type: String?,
 ) {
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-
         Text(
             text = rating?.let { "⭐ ${String.format("%.1f", it)}" } ?: "—",
             style = MaterialTheme.typography.bodyMedium,
-            color = RatingYellow
+            color = RatingYellow,
         )
 
         if (!type.isNullOrBlank()) {
             Spacer(Modifier.width(12.dp))
 
             Box(
-                modifier = Modifier
-                    .background(
-                        color = SurfaceElevated,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                modifier =
+                    Modifier
+                        .background(
+                            color = SurfaceElevated,
+                            shape = RoundedCornerShape(12.dp),
+                        )
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
             ) {
                 Text(
                     text = type.uppercase(),
                     style = MaterialTheme.typography.labelMedium,
-                    color = TextSecondary
+                    color = TextSecondary,
                 )
             }
         }

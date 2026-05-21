@@ -6,7 +6,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 
 class AnimeApi(
-    private val client: HttpClient
+    private val client: HttpClient,
 ) {
     suspend fun getTopAnimes(): JikanResponse {
         return client

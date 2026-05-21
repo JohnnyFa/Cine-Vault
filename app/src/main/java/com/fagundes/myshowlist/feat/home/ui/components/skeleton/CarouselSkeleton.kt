@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,10 +18,11 @@ fun CarouselSkeleton() {
     Column(modifier = Modifier.fillMaxWidth()) {
         // Title Shimmer
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             ShimmerBox(width = 20.dp, height = 20.dp, radius = 4.dp)
             Spacer(modifier = Modifier.width(8.dp))
@@ -32,14 +32,14 @@ fun CarouselSkeleton() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
-            modifier = Modifier.padding(start = 16.dp)
+            modifier = Modifier.padding(start = 16.dp),
         ) {
             repeat(4) {
                 Column(modifier = Modifier.width(140.dp)) {
                     ShimmerBox(
                         width = 140.dp,
                         height = 200.dp,
-                        radius = 24.dp
+                        radius = 24.dp,
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     ShimmerBox(width = 100.dp, height = 16.dp, radius = 4.dp)

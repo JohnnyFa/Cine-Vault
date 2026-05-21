@@ -5,7 +5,7 @@ import com.fagundes.myshowlist.core.data.local.enum.ContentType
 
 @Entity(
     tableName = "favorites",
-    primaryKeys = ["id", "type"]
+    primaryKeys = ["id", "type"],
 )
 data class FavoriteEntity(
     val id: Int,
@@ -14,5 +14,5 @@ data class FavoriteEntity(
     val posterUrl: String?,
     val overview: String?,
     val rating: Double?,
-    val favoritedAt: Long
+    val favoritedAt: Long,
 )

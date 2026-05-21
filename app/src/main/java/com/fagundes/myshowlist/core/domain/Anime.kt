@@ -5,5 +5,5 @@ data class Anime(
     val title: String,
     val imageUrl: String?,
     val overview: String?,
-    val rating: Double?
+    val rating: Double?,
 )

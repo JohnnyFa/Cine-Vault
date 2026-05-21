@@ -5,7 +5,10 @@ import kotlinx.coroutines.flow.Flow
 
 interface HomeRepository {
     fun observePopularMovies(): Flow<List<Movie>>
+
     fun observeRecommendedMovies(): Flow<List<Movie>>
+
     fun observeShowOfTheDay(): Flow<Movie?>
+
     suspend fun refreshHomeIfNeeded()
 }

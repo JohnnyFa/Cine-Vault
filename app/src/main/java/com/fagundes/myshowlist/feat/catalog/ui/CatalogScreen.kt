@@ -1,5 +1,9 @@
 package com.fagundes.myshowlist.feat.catalog.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,15 +16,13 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.components.EmptySection
@@ -36,17 +38,13 @@ import com.fagundes.myshowlist.feat.catalog.ui.components.UpcomingMovieItem
 import com.fagundes.myshowlist.feat.catalog.vm.CatalogUiState
 import com.fagundes.myshowlist.feat.catalog.vm.CatalogViewModel
 import com.fagundes.myshowlist.ui.theme.Background
-
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.tooling.preview.Preview
 import com.fagundes.myshowlist.ui.theme.MyShowListTheme
 
 @Composable
 fun CatalogScreen(
     viewModel: CatalogViewModel,
-    onOpenDetail: (Int, ContentType) -> Unit
+    onOpenDetail: (Int, ContentType) -> Unit,
 ) {
-
     val state by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
 
@@ -57,7 +55,7 @@ fun CatalogScreen(
         onCategorySelected = viewModel::onCategorySelected,
         onRetry = viewModel::retry,
         onSeeAllUpcoming = viewModel::onSeeAllUpcoming,
-        onOpenDetail = onOpenDetail
+        onOpenDetail = onOpenDetail,
     )
 }
 
@@ -69,29 +67,31 @@ fun CatalogScreenContent(
     onCategorySelected: (MovieGenre) -> Unit,
     onRetry: () -> Unit,
     onSeeAllUpcoming: () -> Unit,
-    onOpenDetail: (Int, ContentType) -> Unit
+    onOpenDetail: (Int, ContentType) -> Unit,
 ) {
-    val listState = rememberSaveable(
-        saver = LazyListState.Saver
-    ) {
-        LazyListState()
-    }
+    val listState =
+        rememberSaveable(
+            saver = LazyListState.Saver,
+        ) {
+            LazyListState()
+        }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Background)
-            .safeDrawingPadding()
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Background)
+                .safeDrawingPadding(),
     ) {
-
         Spacer(Modifier.height(16.dp))
 
         CatalogHeader(
             searchQuery = searchQuery,
-            selectedCategory = (state as? CatalogUiState.Content)?.ui?.selectedCategory
-                ?: MovieGenre.ALL,
+            selectedCategory =
+                (state as? CatalogUiState.Content)?.ui?.selectedCategory
+                    ?: MovieGenre.ALL,
             onSearchChange = onSearchChange,
-            onCategorySelected = onCategorySelected
+            onCategorySelected = onCategorySelected,
         )
 
         Spacer(Modifier.height(24.dp))
@@ -101,20 +101,20 @@ fun CatalogScreenContent(
             transitionSpec = {
                 fadeIn().togetherWith(fadeOut())
             },
-            label = "CatalogScreenTransition"
+            label = "CatalogScreenTransition",
         ) { targetState ->
             when (targetState) {
                 CatalogUiState.Loading -> {
                     CatalogLoading(
                         showSearchAndCategories = false,
-                        modifier = Modifier.testTag("CatalogLoading")
+                        modifier = Modifier.testTag("CatalogLoading"),
                     )
                 }
 
                 is CatalogUiState.Error -> {
                     ErrorSection(
                         onRetry = onRetry,
-                        modifier = Modifier.testTag("CatalogError")
+                        modifier = Modifier.testTag("CatalogError"),
                     )
                 }
 
@@ -127,23 +127,22 @@ fun CatalogScreenContent(
                                 icon = painterResource(R.drawable.ic_empty_list),
                                 title = "No movies found",
                                 description = "Try searching for something else",
-                                modifier = Modifier.testTag("CatalogEmpty")
+                                modifier = Modifier.testTag("CatalogEmpty"),
                             )
                         } else {
                             LazyColumn(
                                 state = listState,
                                 contentPadding = PaddingValues(bottom = 120.dp),
                                 verticalArrangement = Arrangement.spacedBy(24.dp),
-                                modifier = Modifier.testTag("CatalogMovieList")
+                                modifier = Modifier.testTag("CatalogMovieList"),
                             ) {
-
                                 item {
                                     CatalogContent(
                                         movies = ui.movies,
                                         featuredMovie = ui.featuredMovie,
                                         searchQuery = searchQuery,
                                         onSeeAllUpcoming = onSeeAllUpcoming,
-                                        onOpenDetail = onOpenDetail
+                                        onOpenDetail = onOpenDetail,
                                     )
                                 }
                             }
@@ -160,12 +159,12 @@ private fun CatalogHeader(
     searchQuery: String,
     selectedCategory: MovieGenre,
     onSearchChange: (String) -> Unit,
-    onCategorySelected: (MovieGenre) -> Unit
+    onCategorySelected: (MovieGenre) -> Unit,
 ) {
     CatalogSearchBar(
         value = searchQuery,
         onSearchChange = onSearchChange,
-        modifier = Modifier.padding(horizontal = 20.dp)
+        modifier = Modifier.padding(horizontal = 20.dp),
     )
 
     Spacer(Modifier.height(16.dp))
@@ -173,7 +172,7 @@ private fun CatalogHeader(
     if (searchQuery.isBlank()) {
         CategoryChipsRow(
             selectedCategory = selectedCategory,
-            onCategorySelected = onCategorySelected
+            onCategorySelected = onCategorySelected,
         )
     }
 }
@@ -184,7 +183,7 @@ fun CatalogContent(
     featuredMovie: Movie?,
     searchQuery: String,
     onSeeAllUpcoming: () -> Unit,
-    onOpenDetail: (Int, ContentType) -> Unit
+    onOpenDetail: (Int, ContentType) -> Unit,
 ) {
     if (searchQuery.isBlank() || searchQuery.length < 2) {
         UpcomingHighlightCard(
@@ -193,7 +192,7 @@ fun CatalogContent(
             onClick = { movie ->
                 onOpenDetail(movie.id, ContentType.MOVIE)
             },
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 20.dp),
         )
 
         Spacer(Modifier.height(24.dp))
@@ -209,7 +208,7 @@ fun CatalogContent(
                 onClick = {
                     onOpenDetail(movie.id, ContentType.MOVIE)
                 },
-                modifier = Modifier.padding(horizontal = 20.dp)
+                modifier = Modifier.padding(horizontal = 20.dp),
             )
         }
 }
@@ -225,7 +224,7 @@ fun CatalogScreenContentLoadingPreview() {
             onCategorySelected = {},
             onRetry = {},
             onSeeAllUpcoming = {},
-            onOpenDetail = { _, _ -> }
+            onOpenDetail = { _, _ -> },
         )
     }
 }
@@ -241,7 +240,7 @@ fun CatalogScreenContentErrorPreview() {
             onCategorySelected = {},
             onRetry = {},
             onSeeAllUpcoming = {},
-            onOpenDetail = { _, _ -> }
+            onOpenDetail = { _, _ -> },
         )
     }
 }
@@ -251,17 +250,18 @@ fun CatalogScreenContentErrorPreview() {
 fun CatalogScreenContentEmptyPreview() {
     MyShowListTheme {
         CatalogScreenContent(
-            state = CatalogUiState.Content(
-                com.fagundes.myshowlist.feat.catalog.vm.CatalogContentState(
-                    movies = emptyList()
-                )
-            ),
+            state =
+                CatalogUiState.Content(
+                    com.fagundes.myshowlist.feat.catalog.vm.CatalogContentState(
+                        movies = emptyList(),
+                    ),
+                ),
             searchQuery = "Unknown Movie",
             onSearchChange = {},
             onCategorySelected = {},
             onRetry = {},
             onSeeAllUpcoming = {},
-            onOpenDetail = { _, _ -> }
+            onOpenDetail = { _, _ -> },
         )
     }
 }
@@ -269,25 +269,27 @@ fun CatalogScreenContentEmptyPreview() {
 @Preview(showBackground = true)
 @Composable
 fun CatalogScreenContentSuccessPreview() {
-    val movies = listOf(
-        Movie(1, "Movie 1", "/poster1.jpg", "Overview 1", 8.5),
-        Movie(2, "Movie 2", "/poster2.jpg", "Overview 2", 7.0),
-        Movie(3, "Movie 3", "/poster3.jpg", "Overview 3", 9.0)
-    )
+    val movies =
+        listOf(
+            Movie(1, "Movie 1", "/poster1.jpg", "Overview 1", 8.5),
+            Movie(2, "Movie 2", "/poster2.jpg", "Overview 2", 7.0),
+            Movie(3, "Movie 3", "/poster3.jpg", "Overview 3", 9.0),
+        )
     MyShowListTheme {
         CatalogScreenContent(
-            state = CatalogUiState.Content(
-                com.fagundes.myshowlist.feat.catalog.vm.CatalogContentState(
-                    movies = movies,
-                    featuredMovie = movies.first()
-                )
-            ),
+            state =
+                CatalogUiState.Content(
+                    com.fagundes.myshowlist.feat.catalog.vm.CatalogContentState(
+                        movies = movies,
+                        featuredMovie = movies.first(),
+                    ),
+                ),
             searchQuery = "",
             onSearchChange = {},
             onCategorySelected = {},
             onRetry = {},
             onSeeAllUpcoming = {},
-            onOpenDetail = { _, _ -> }
+            onOpenDetail = { _, _ -> },
         )
     }
 }

@@ -17,23 +17,25 @@ import com.fagundes.myshowlist.components.shimmer.ShimmerBox
 @Composable
 fun ShowOfTheDaySkeleton() {
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(420.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(420.dp),
         ) {
             ShimmerBox(
-                width = 500.dp, // Use a large width to ensure it fills maxWidth
+                width = 500.dp,
                 height = 420.dp,
-                radius = 0.dp
+                radius = 0.dp,
             )
 
             Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(24.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(24.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ShimmerBox(width = 18.dp, height = 18.dp, radius = 4.dp)

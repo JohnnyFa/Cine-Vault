@@ -3,8 +3,8 @@ package com.fagundes.myshowlist.core.di
 import androidx.room.Room
 import com.fagundes.myshowlist.core.data.local.dao.ContentDao
 import com.fagundes.myshowlist.core.data.local.dao.FavoriteDao
-import com.fagundes.myshowlist.core.data.local.dao.RecentDao
 import com.fagundes.myshowlist.core.data.local.dao.MovieDetailCacheDao
+import com.fagundes.myshowlist.core.data.local.dao.RecentDao
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.data.remote.api.AnimeApi
 import com.fagundes.myshowlist.core.data.remote.api.MovieApi
@@ -40,105 +40,105 @@ import com.fagundes.myshowlist.feat.login.domain.AuthRepository
 import com.fagundes.myshowlist.feat.login.domain.LoginWithGoogleUseCase
 import com.fagundes.myshowlist.feat.login.vm.LoginViewModel
 import com.google.firebase.auth.FirebaseAuth
-import org.koin.core.module.dsl.viewModelOf
-import org.koin.dsl.module
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
+import org.koin.dsl.module
 
+val appModule =
+    module {
 
-val appModule = module {
+        // ---------- Firebase ----------
+        single { FirebaseAuth.getInstance() }
 
-    // ---------- Firebase ----------
-    single { FirebaseAuth.getInstance() }
+        // ---------- Auth ----------
+        single<AuthRepository> { FirebaseAuthRepository(get()) }
+        factory { LoginWithGoogleUseCase(get()) }
 
-    // ---------- Auth ----------
-    single<AuthRepository> { FirebaseAuthRepository(get()) }
-    factory { LoginWithGoogleUseCase(get()) }
+        // ---------- HttpClients ----------
+        val tmdbClient = named("TmdbClient")
+        val jikanClient = named("JikanClient")
 
-    // ---------- HttpClients ----------
-    val tmdbClient = named("TmdbClient")
-    val jikanClient = named("JikanClient")
+        single(tmdbClient) { provideTmdbHttpClient() }
+        single(jikanClient) { provideJikanHttpClient() }
 
-    single(tmdbClient) { provideTmdbHttpClient() }
-    single(jikanClient) { provideJikanHttpClient() }
+        // ---------- Database ----------
+        single {
+            Room.databaseBuilder(
+                androidContext(),
+                AppDatabase::class.java,
+                "myshowlist.db",
+            ).addMigrations(MIGRATION_3_4, MIGRATION_4_5).fallbackToDestructiveMigration(false).build()
+        }
 
-    // ---------- Database ----------
-    single {
-        Room.databaseBuilder(
-            androidContext(),
-            AppDatabase::class.java,
-            "myshowlist.db"
-        ).addMigrations(MIGRATION_3_4, MIGRATION_4_5).fallbackToDestructiveMigration(false).build()
+        single<ContentDao> { get<AppDatabase>().contentDao() }
+        single<FavoriteDao> { get<AppDatabase>().favoriteDao() }
+        single<RecentDao> { get<AppDatabase>().recentDao() }
+        single<MovieDetailCacheDao> { get<AppDatabase>().movieDetailCacheDao() }
+        single { Dispatchers.IO }
+
+        // ---------- APIs ----------
+        single { MovieApi(get(tmdbClient)) }
+        single { AnimeApi(get(jikanClient)) }
+
+        // ---------- Remote DataSource ----------
+        single<HomeRemoteDataSource> {
+            HomeRemoteDataSourceImpl(movieApi = get())
+        }
+
+        // ---------- Local DataSource ----------
+        single<HomeLocalDataSource> {
+            HomeLocalDataSourceImpl(get())
+        }
+
+        // ---------- Repository ----------
+        single<HomeRepository> {
+            HomeRepositoryImpl(
+                local = get(),
+                remote = get(),
+            )
+        }
+
+        single<CatalogRepository> {
+            CatalogRepositoryImpl(
+                movieApi = get(),
+                local = get(),
+            )
+        }
+
+        single<DetailRepository> {
+            DetailRepositoryImpl(get(), get(), get())
+        }
+
+        single<FavoriteRepository> {
+            FavoriteRepositoryImpl(get())
+        }
+
+        single<RecentRepository> {
+            RecentRepositoryImpl(get())
+        }
+
+        factory { ObserveFavoriteStateUseCase(get()) }
+        factory { ToggleFavoriteUseCase(get()) }
+        factory { ObserveFavoritesUseCase(get()) }
+        factory { SaveRecentMovieUseCase(get()) }
+        factory { ObserveRecentsUseCase(get()) }
+
+        // ---------- ViewModels ----------
+        viewModelOf(::LoginViewModel)
+        viewModelOf(::HomeViewModel)
+        viewModelOf(::CatalogViewModel)
+
+        viewModel { (id: Int, type: ContentType) ->
+            DetailViewModel(
+                id = id,
+                type = type,
+                repository = get(),
+                observeFavoriteStateUseCase = get(),
+                toggleFavoriteUseCase = get(),
+                saveRecentMovieUseCase = get(),
+            )
+        }
     }
-
-    single<ContentDao> { get<AppDatabase>().contentDao() }
-    single<FavoriteDao> { get<AppDatabase>().favoriteDao() }
-    single<RecentDao> { get<AppDatabase>().recentDao() }
-    single<MovieDetailCacheDao> { get<AppDatabase>().movieDetailCacheDao() }
-    single { Dispatchers.IO }
-
-    // ---------- APIs ----------
-    single { MovieApi(get(tmdbClient)) }
-    single { AnimeApi(get(jikanClient)) }
-
-    // ---------- Remote DataSource ----------
-    single<HomeRemoteDataSource> {
-        HomeRemoteDataSourceImpl(movieApi = get())
-    }
-
-    // ---------- Local DataSource ----------
-    single<HomeLocalDataSource> {
-        HomeLocalDataSourceImpl(get())
-    }
-
-    // ---------- Repository ----------
-    single<HomeRepository> {
-        HomeRepositoryImpl(
-            local = get(),
-            remote = get()
-        )
-    }
-
-    single<CatalogRepository> {
-        CatalogRepositoryImpl(
-            movieApi = get(),
-            local = get()
-        )
-    }
-
-    single<DetailRepository> {
-        DetailRepositoryImpl(get(), get(), get())
-    }
-
-    single<FavoriteRepository> {
-        FavoriteRepositoryImpl(get())
-    }
-
-    single<RecentRepository> {
-        RecentRepositoryImpl(get())
-    }
-
-    factory { ObserveFavoriteStateUseCase(get()) }
-    factory { ToggleFavoriteUseCase(get()) }
-    factory { ObserveFavoritesUseCase(get()) }
-    factory { SaveRecentMovieUseCase(get()) }
-    factory { ObserveRecentsUseCase(get()) }
-
-    // ---------- ViewModels ----------
-    viewModelOf(::LoginViewModel)
-    viewModelOf(::HomeViewModel)
-    viewModelOf(::CatalogViewModel)
-
-    viewModel { (id: Int, type: ContentType) ->
-        DetailViewModel(
-            id = id,
-            type = type,
-            repository = get(),
-            observeFavoriteStateUseCase = get(),
-            toggleFavoriteUseCase = get(),
-            saveRecentMovieUseCase = get()
-        )
-    }
-}

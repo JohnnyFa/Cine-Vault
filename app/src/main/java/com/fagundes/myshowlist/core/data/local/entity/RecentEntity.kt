@@ -5,7 +5,7 @@ import com.fagundes.myshowlist.core.data.local.enum.ContentType
 
 @Entity(
     tableName = "recents",
-    primaryKeys = ["id", "type"]
+    primaryKeys = ["id", "type"],
 )
 data class RecentEntity(
     val id: Int,
@@ -13,5 +13,5 @@ data class RecentEntity(
     val title: String,
     val posterUrl: String?,
     val rating: Double?,
-    val viewedAt: Long
+    val viewedAt: Long,
 )
