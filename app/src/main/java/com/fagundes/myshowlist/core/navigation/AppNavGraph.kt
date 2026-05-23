@@ -15,25 +15,21 @@ import com.fagundes.myshowlist.feat.login.ui.LoginScreen
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun AppNavGraph(
-    startDestination: String
-) {
+fun AppNavGraph(startDestination: String) {
     val navController = rememberNavController()
 
     MainScaffold(navController = navController) {
-
         NavHost(
             navController = navController,
-            startDestination = startDestination
+            startDestination = startDestination,
         ) {
-
             composable(AppRoutes.LOGIN) {
                 LoginScreen(
                     onLoginSuccess = {
                         navController.navigate(AppRoutes.HOME) {
                             popUpTo(AppRoutes.LOGIN) { inclusive = true }
                         }
-                    }
+                    },
                 )
             }
 
@@ -50,7 +46,7 @@ fun AppNavGraph(
                         navController.navigate(AppRoutes.LOGIN) {
                             popUpTo(0)
                         }
-                    }
+                    },
                 )
             }
 
@@ -64,14 +60,15 @@ fun AppNavGraph(
             composable(AppRoutes.DETAIL) { backStackEntry ->
                 val id = backStackEntry.arguments!!.getString("id")!!.toInt()
 
-                val type = ContentType.valueOf(
-                    backStackEntry.arguments!!.getString("type")!!
-                )
+                val type =
+                    ContentType.valueOf(
+                        backStackEntry.arguments!!.getString("type")!!,
+                    )
 
                 DetailScreen(
                     id = id,
                     type = type,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
                 )
             }
         }

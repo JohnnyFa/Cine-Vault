@@ -37,16 +37,16 @@ import java.util.Locale
 @Composable
 fun MediaCarousel(
     items: List<Movie>,
-    onItemClick: (Movie) -> Unit
+    onItemClick: (Movie) -> Unit,
 ) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         items(items.size) { index ->
             MediaCard(
                 movie = items[index],
-                onClick = { onItemClick(items[index]) }
+                onClick = { onItemClick(items[index]) },
             )
         }
     }
@@ -55,30 +55,32 @@ fun MediaCarousel(
 @Composable
 fun MediaCard(
     movie: Movie,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val formattedRating = String.format(Locale.US, "%.1f", movie.rating)
 
     Column(
-        modifier = Modifier
-            .width(140.dp)
-            .clickable { onClick() }
+        modifier =
+            Modifier
+                .width(140.dp)
+                .clickable { onClick() },
     ) {
-
         Box(
-            modifier = Modifier
-                .height(200.dp)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(24.dp))
+            modifier =
+                Modifier
+                    .height(200.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(24.dp)),
         ) {
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data("${TMDB_IMAGE_BASE}${movie.posterUrl}")
-                    .crossfade(true)
-                    .build(),
+                model =
+                    ImageRequest.Builder(LocalContext.current)
+                        .data("${TMDB_IMAGE_BASE}${movie.posterUrl}")
+                        .crossfade(true)
+                        .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
 
@@ -88,7 +90,7 @@ fun MediaCard(
             text = movie.title,
             maxLines = 1,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextPrimary
+            color = TextPrimary,
         )
 
         Spacer(Modifier.height(4.dp))
@@ -98,7 +100,7 @@ fun MediaCard(
                 imageVector = Icons.Filled.Star,
                 contentDescription = null,
                 tint = AccentGold,
-                modifier = Modifier.size(14.dp)
+                modifier = Modifier.size(14.dp),
             )
 
             Spacer(Modifier.width(4.dp))
@@ -106,7 +108,7 @@ fun MediaCard(
             Text(
                 text = formattedRating,
                 style = MaterialTheme.typography.labelSmall,
-                color = AccentGold
+                color = AccentGold,
             )
         }
     }

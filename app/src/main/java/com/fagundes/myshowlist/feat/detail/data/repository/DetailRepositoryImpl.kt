@@ -16,12 +16,14 @@ import kotlinx.coroutines.flow.map
 class DetailRepositoryImpl(
     private val movieApi: MovieApi,
     private val favoriteDao: FavoriteDao,
-    private val detailCacheDao: MovieDetailCacheDao
+    private val detailCacheDao: MovieDetailCacheDao,
 ) : DetailRepository {
-
     private val favoriteCandidates = mutableMapOf<Int, FavoriteItem>()
 
-    override fun observeContentDetail(id: Int, type: String): Flow<ContentDetailUi?> =
+    override fun observeContentDetail(
+        id: Int,
+        type: String,
+    ): Flow<ContentDetailUi?> =
         detailCacheDao.observeMovieById(id).map { cached ->
             cached?.let {
                 ContentDetailUi(
@@ -30,7 +32,7 @@ class DetailRepositoryImpl(
                     imageUrl = it.posterPath,
                     overview = it.overview,
                     rating = it.voteAverage,
-                    type = type
+                    type = type,
                 )
             }
         }.distinctUntilChanged()
@@ -53,13 +55,43 @@ class DetailRepositoryImpl(
                 genres = remote.genres?.joinToString(",") { it.name },
                 runtime = remote.runtime,
                 releaseDate = remote.releaseDate,
-                cachedAt = now
-            )
+                cachedAt = now,
+            ),
         )
         detailCacheDao.deleteExpiredCache(now - CACHE_DURATION)
     }
 
-    override suspend fun cacheFavoriteCandidate(item: FavoriteItem) { favoriteCandidates[item.id] = item }
-    override fun observeFavoriteState(id: Int, type: ContentType): Flow<Boolean> = favoriteDao.observeById(id, type).map { it != null }
-    override suspend fun toggleFavorite(id: Int, type: ContentType): Result<Boolean> = runCatching { if (favoriteDao.isFavorite(id, type)) { favoriteDao.remove(id, type); false } else { val c=checkNotNull(favoriteCandidates[id]); favoriteDao.upsert(FavoriteEntity(c.id,c.type,c.title,c.posterUrl,c.overview,c.rating,System.currentTimeMillis())); true } }
+    override suspend fun cacheFavoriteCandidate(item: FavoriteItem) {
+        favoriteCandidates[item.id] = item
+    }
+
+    override fun observeFavoriteState(
+        id: Int,
+        type: ContentType,
+    ): Flow<Boolean> = favoriteDao.observeById(id, type).map { it != null }
+
+    override suspend fun toggleFavorite(
+        id: Int,
+        type: ContentType,
+    ): Result<Boolean> =
+        runCatching {
+            if (favoriteDao.isFavorite(id, type)) {
+                favoriteDao.remove(id, type)
+                false
+            } else {
+                val c = checkNotNull(favoriteCandidates[id])
+                favoriteDao.upsert(
+                    FavoriteEntity(
+                        id = c.id,
+                        type = c.type,
+                        title = c.title,
+                        posterUrl = c.posterUrl,
+                        overview = c.overview,
+                        rating = c.rating,
+                        favoritedAt = System.currentTimeMillis(),
+                    ),
+                )
+                true
+            }
+        }
 }

@@ -8,20 +8,15 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 
 class MovieApi(
-    private val client: HttpClient
+    private val client: HttpClient,
 ) {
+    suspend fun getPopularMovies(): TmdbResponse = client.get("movie/popular") {}.body()
 
-    suspend fun getPopularMovies(): TmdbResponse =
-        client.get("movie/popular"){}.body()
+    suspend fun getRecommendedMovies(): TmdbResponse = client.get("movie/upcoming").body()
 
-    suspend fun getRecommendedMovies(): TmdbResponse =
-        client.get("movie/upcoming").body()
+    suspend fun getShowOfTheDay(): TmdbResponse = client.get("discover/movie").body()
 
-    suspend fun getShowOfTheDay(): TmdbResponse =
-        client.get("discover/movie").body()
-
-    suspend fun getUpcomingMovies(): TmdbResponse =
-        client.get("movie/upcoming").body()
+    suspend fun getUpcomingMovies(): TmdbResponse = client.get("movie/upcoming").body()
 
     suspend fun getMoviesByCategory(category: Int): TmdbResponse {
         return client
@@ -33,6 +28,7 @@ class MovieApi(
         return client
             .get("search/movie") { parameter("query", name) }.body()
     }
+
     suspend fun getContentById(id: Int): MovieDto {
         return client
             .get("movie/$id").body()

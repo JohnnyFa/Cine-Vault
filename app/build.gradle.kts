@@ -8,13 +8,16 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.services)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.ktlint)
 }
-val localProperties = Properties().apply {
-    val file = rootProject.file("local.properties")
-    if (file.exists()) {
-        load(FileInputStream(file))
+val localProperties =
+    Properties().apply {
+        val file = rootProject.file("local.properties")
+        if (file.exists()) {
+            load(FileInputStream(file))
+        }
     }
-}
 
 android {
     namespace = "com.fagundes.myshowlist"
@@ -39,7 +42,7 @@ android {
         buildConfigField(
             "String",
             "TMDB_API_KEY",
-            "\"$tmdbApiKey\""
+            "\"$tmdbApiKey\"",
         )
 
         javaCompileOptions {
@@ -47,8 +50,8 @@ android {
                 arguments(
                     mapOf(
                         "room.schemaLocation" to
-                                "$projectDir/schemas"
-                    )
+                            "$projectDir/schemas",
+                    ),
                 )
             }
         }
@@ -59,7 +62,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -98,6 +101,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
+        allWarningsAsErrors = providers.gradleProperty("warningsAsErrors").orNull == "true"
     }
     buildFeatures {
         compose = true
@@ -173,4 +177,25 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+ktlint {
+    android.set(true)
+    outputToConsole.set(true)
+    ignoreFailures.set(false)
+    filter {
+        exclude("**/build/**")
+        exclude("**/src/androidTest/**")
+    }
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    ignoreFailures = true
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+}
+
+dependencies {
+    detektPlugins(libs.detekt.formatting)
 }

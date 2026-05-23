@@ -4,9 +4,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
-import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.feat.catalog.vm.CatalogContentState
 import com.fagundes.myshowlist.feat.catalog.vm.CatalogUiState
@@ -15,7 +12,6 @@ import org.junit.Rule
 import org.junit.Test
 
 class CatalogScreenTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -30,7 +26,7 @@ class CatalogScreenTest {
                     onCategorySelected = {},
                     onRetry = {},
                     onSeeAllUpcoming = {},
-                    onOpenDetail = { _, _ -> }
+                    onOpenDetail = { _, _ -> },
                 )
             }
         }
@@ -49,7 +45,7 @@ class CatalogScreenTest {
                     onCategorySelected = {},
                     onRetry = {},
                     onSeeAllUpcoming = {},
-                    onOpenDetail = { _, _ -> }
+                    onOpenDetail = { _, _ -> },
                 )
             }
         }
@@ -69,7 +65,7 @@ class CatalogScreenTest {
                     onCategorySelected = {},
                     onRetry = {},
                     onSeeAllUpcoming = {},
-                    onOpenDetail = { _, _ -> }
+                    onOpenDetail = { _, _ -> },
                 )
             }
         }
@@ -80,10 +76,11 @@ class CatalogScreenTest {
 
     @Test
     fun catalogScreen_contentState_displaysMovies() {
-        val movies = listOf(
-            Movie(1, "Movie 1", "/url1", "Overview 1", 8.0),
-            Movie(2, "Movie 2", "/url2", "Overview 2", 7.0)
-        )
+        val movies =
+            listOf(
+                Movie(1, "Movie 1", "/url1", "Overview 1", 8.0),
+                Movie(2, "Movie 2", "/url2", "Overview 2", 7.0),
+            )
         composeTestRule.setContent {
             MyShowListTheme {
                 CatalogScreenContent(
@@ -93,7 +90,7 @@ class CatalogScreenTest {
                     onCategorySelected = {},
                     onRetry = {},
                     onSeeAllUpcoming = {},
-                    onOpenDetail = { _, _ -> }
+                    onOpenDetail = { _, _ -> },
                 )
             }
         }

@@ -9,9 +9,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class LoginViewModel(
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
 ) : ViewModel() {
-
     // ---------- STATE ----------
     private val _uiState =
         MutableStateFlow<LoginUiState>(LoginUiState.Idle)
@@ -21,7 +20,7 @@ class LoginViewModel(
     private val _uiEvent =
         MutableSharedFlow<LoginUiEvent>(
             replay = 0,
-            extraBufferCapacity = 1
+            extraBufferCapacity = 1,
         )
     val uiEvent: SharedFlow<LoginUiEvent> = _uiEvent
 

@@ -10,18 +10,26 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FavoriteDao {
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(favorite: FavoriteEntity)
 
     @Query("DELETE FROM favorites WHERE id = :id AND type = :type")
-    suspend fun remove(id: Int, type: ContentType)
+    suspend fun remove(
+        id: Int,
+        type: ContentType,
+    )
 
     @Query("SELECT * FROM favorites WHERE id = :id AND type = :type LIMIT 1")
-    fun observeById(id: Int, type: ContentType): Flow<FavoriteEntity?>
+    fun observeById(
+        id: Int,
+        type: ContentType,
+    ): Flow<FavoriteEntity?>
 
     @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE id = :id AND type = :type)")
-    suspend fun isFavorite(id: Int, type: ContentType): Boolean
+    suspend fun isFavorite(
+        id: Int,
+        type: ContentType,
+    ): Boolean
 
     @Query("SELECT * FROM favorites ORDER BY favoritedAt DESC")
     fun observeAllFavorites(): Flow<List<FavoriteEntity>>

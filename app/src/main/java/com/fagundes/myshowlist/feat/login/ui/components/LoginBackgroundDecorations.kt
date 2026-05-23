@@ -15,26 +15,27 @@ import com.fagundes.myshowlist.ui.theme.AccentOrange
 @Composable
 fun LoginBackgroundDecorations() {
     Box(modifier = Modifier.fillMaxSize()) {
-
         Box(
-            modifier = Modifier
-                .size(280.dp)
-                .offset(x = (-70).dp, y = (-130).dp)
-                .background(
-                    color = AccentOrange.copy(alpha = 0.25f),
-                    shape = CircleShape
-                )
+            modifier =
+                Modifier
+                    .size(280.dp)
+                    .offset(x = (-70).dp, y = (-130).dp)
+                    .background(
+                        color = AccentOrange.copy(alpha = 0.25f),
+                        shape = CircleShape,
+                    ),
         )
 
         Box(
-            modifier = Modifier
-                .size(200.dp)
-                .align(Alignment.BottomEnd)
-                .offset(x = 50.dp, y = 50.dp)
-                .background(
-                    color = AccentOrange.copy(alpha = 0.25f),
-                    shape = CircleShape
-                )
+            modifier =
+                Modifier
+                    .size(200.dp)
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 50.dp, y = 50.dp)
+                    .background(
+                        color = AccentOrange.copy(alpha = 0.25f),
+                        shape = CircleShape,
+                    ),
         )
     }
 }

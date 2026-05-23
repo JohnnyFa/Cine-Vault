@@ -9,5 +9,5 @@ fun AnimeDto.toDomain(): Anime =
         title = title,
         imageUrl = images.jpg.imageUrl,
         overview = "",
-        rating = 0.0
+        rating = 0.0,
     )

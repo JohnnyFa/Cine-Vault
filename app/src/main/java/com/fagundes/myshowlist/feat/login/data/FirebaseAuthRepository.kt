@@ -7,9 +7,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 class FirebaseAuthRepository(
-    private val firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth,
 ) : AuthRepository {
-
     override suspend fun signInWithGoogle(idToken: String): Result<Unit> =
         suspendCancellableCoroutine { cont ->
 

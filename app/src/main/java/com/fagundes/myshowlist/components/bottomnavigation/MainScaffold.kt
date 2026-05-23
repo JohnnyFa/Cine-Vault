@@ -10,20 +10,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.fagundes.myshowlist.core.navigation.AppRoutes
 
-private val bottomBarRoutes = setOf(
-    AppRoutes.HOME,
-    AppRoutes.CATALOG
-)
+private val bottomBarRoutes =
+    setOf(
+        AppRoutes.HOME,
+        AppRoutes.CATALOG,
+    )
 
 @Composable
 fun MainScaffold(
     navController: NavHostController,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -35,9 +35,10 @@ fun MainScaffold(
 
         if (showBottomBar) {
             Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(WindowInsets.navigationBars.asPaddingValues())
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(WindowInsets.navigationBars.asPaddingValues()),
             ) {
                 AppBottomNavigation(
                     currentRoute = currentRoute ?: AppRoutes.HOME,
@@ -49,7 +50,7 @@ fun MainScaffold(
                             launchSingleTop = true
                             restoreState = true
                         }
-                    }
+                    },
                 )
             }
         }

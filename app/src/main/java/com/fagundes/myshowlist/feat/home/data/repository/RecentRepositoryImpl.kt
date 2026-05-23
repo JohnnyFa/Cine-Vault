@@ -8,9 +8,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class RecentRepositoryImpl(
-    private val recentDao: RecentDao
+    private val recentDao: RecentDao,
 ) : RecentRepository {
-
     override fun observeRecents(): Flow<List<Movie>> {
         return recentDao.observeRecents().map { entities ->
             entities.map { entity ->
@@ -20,7 +19,7 @@ class RecentRepositoryImpl(
                     posterUrl = entity.posterUrl,
                     overview = null,
                     rating = entity.rating,
-                    type = entity.type
+                    type = entity.type,
                 )
             }
         }
@@ -34,8 +33,8 @@ class RecentRepositoryImpl(
                 title = movie.title,
                 posterUrl = movie.posterUrl,
                 rating = movie.rating,
-                viewedAt = System.currentTimeMillis()
-            )
+                viewedAt = System.currentTimeMillis(),
+            ),
         )
         recentDao.deleteOldRecents()
     }

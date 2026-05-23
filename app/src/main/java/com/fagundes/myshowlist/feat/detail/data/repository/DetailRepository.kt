@@ -6,9 +6,22 @@ import com.fagundes.myshowlist.feat.detail.domain.FavoriteItem
 import kotlinx.coroutines.flow.Flow
 
 interface DetailRepository {
-    fun observeContentDetail(id: Int, type: String): Flow<ContentDetailUi?>
+    fun observeContentDetail(
+        id: Int,
+        type: String,
+    ): Flow<ContentDetailUi?>
+
     suspend fun refreshDetailIfNeeded(id: Int)
+
     suspend fun cacheFavoriteCandidate(item: FavoriteItem)
-    fun observeFavoriteState(id: Int, type: ContentType): Flow<Boolean>
-    suspend fun toggleFavorite(id: Int, type: ContentType): Result<Boolean>
+
+    fun observeFavoriteState(
+        id: Int,
+        type: ContentType,
+    ): Flow<Boolean>
+
+    suspend fun toggleFavorite(
+        id: Int,
+        type: ContentType,
+    ): Result<Boolean>
 }

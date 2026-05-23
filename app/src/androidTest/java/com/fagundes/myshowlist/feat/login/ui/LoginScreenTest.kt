@@ -10,7 +10,6 @@ import org.junit.Rule
 import org.junit.Test
 
 class LoginScreenTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -19,17 +18,17 @@ class LoginScreenTest {
         composeTestRule.setContent {
             LoginScreenContent(
                 state = LoginUiState.Idle,
-                onLoginClick = {}
+                onLoginClick = {},
             )
         }
 
         // Using substring = true for app name because it might have flavor suffixes like "(Dev)"
         composeTestRule.onNodeWithText("CINE VAULT", ignoreCase = true, substring = true).assertIsDisplayed()
-        
+
         // Using tags for better reliability
         composeTestRule.onNodeWithTag("login_google_button").assertIsDisplayed()
         composeTestRule.onNodeWithTag("login_guest_button").assertIsDisplayed()
-        
+
         // Also verifying text if needed, using substring for robustness
         composeTestRule.onNodeWithText("Continue with Google", ignoreCase = true, substring = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("Continue as Guest", ignoreCase = true, substring = true).assertIsDisplayed()
@@ -41,7 +40,7 @@ class LoginScreenTest {
         composeTestRule.setContent {
             LoginScreenContent(
                 state = LoginUiState.Idle,
-                onLoginClick = { loginClicked = true }
+                onLoginClick = { loginClicked = true },
             )
         }
 
@@ -54,11 +53,11 @@ class LoginScreenTest {
         composeTestRule.setContent {
             LoginScreenContent(
                 state = LoginUiState.Loading,
-                onLoginClick = {}
+                onLoginClick = {},
             )
         }
 
-        // CircularProgressIndicator doesn't have text, and when loading, 
+        // CircularProgressIndicator doesn't have text, and when loading,
         // GoogleLoginButton doesn't show the "Continue with Google" text.
         composeTestRule.onNodeWithText("Continue with Google", ignoreCase = true, substring = true).assertDoesNotExist()
     }

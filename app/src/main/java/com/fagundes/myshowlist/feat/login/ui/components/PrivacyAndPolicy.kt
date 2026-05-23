@@ -19,55 +19,57 @@ import com.fagundes.myshowlist.ui.theme.TextMuted
 
 @Composable
 fun TermsAndPrivacyText() {
+    val annotatedText =
+        buildAnnotatedString {
+            append(stringResource(R.string.by_continuing))
 
-    val annotatedText = buildAnnotatedString {
-        append(stringResource(R.string.by_continuing))
+            pushLink(
+                LinkAnnotation.Clickable(
+                    tag = stringResource(R.string.terms),
+                    linkInteractionListener =
+                        LinkInteractionListener {
+                            // sem ação por enquanto
+                        },
+                ),
+            )
+            withStyle(
+                SpanStyle(
+                    color = AccentGold,
+                    fontWeight = FontWeight.Medium,
+                ),
+            ) {
+                append(stringResource(R.string.terms))
+            }
+            pop()
 
-        pushLink(
-            LinkAnnotation.Clickable(
-                tag = stringResource(R.string.terms),
-                linkInteractionListener = LinkInteractionListener {
-                    // sem ação por enquanto
-                }
+            append(stringResource(R.string.and))
+
+            pushLink(
+                LinkAnnotation.Clickable(
+                    tag = stringResource(R.string.privacy),
+                    linkInteractionListener =
+                        LinkInteractionListener {
+                            // sem ação por enquanto
+                        },
+                ),
             )
-        )
-        withStyle(
-            SpanStyle(
-                color = AccentGold,
-                fontWeight = FontWeight.Medium
-            )
-        ) {
-            append(stringResource(R.string.terms))
+
+            withStyle(
+                SpanStyle(
+                    color = AccentGold,
+                    fontWeight = FontWeight.Medium,
+                ),
+            ) {
+                append(stringResource(R.string.privacy))
+            }
+            pop()
         }
-        pop()
-
-        append(stringResource(R.string.and))
-
-        pushLink(
-            LinkAnnotation.Clickable(
-                tag = stringResource(R.string.privacy),
-                linkInteractionListener = LinkInteractionListener {
-                    // sem ação por enquanto
-                }
-            )
-        )
-
-        withStyle(
-            SpanStyle(
-                color = AccentGold,
-                fontWeight = FontWeight.Medium
-            )
-        ) {
-            append(stringResource(R.string.privacy))
-        }
-        pop()
-    }
 
     Text(
         text = annotatedText,
         style = MaterialTheme.typography.bodySmall,
         color = TextMuted,
         textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     )
 }

@@ -1,0 +1,66 @@
+name: Android CI
+
+on:
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-and-unit-tests:
+    name: Quality + Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Generate local.properties for CI
+        run: |
+          cat <<EOF > local.properties
+          sdk.dir=$ANDROID_HOME
+          TMDB_API_KEY=${TMDB_API_KEY}
+          EOF
+        env:
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+
+      - name: Run static analysis and unit tests
+        run: |
+          ./gradlew \
+            ktlintMainSourceSetCheck \
+            ktlintTestSourceSetCheck \
+            detekt \
+            lint \
+            test \
+            -PwarningsAsErrors=true \
+            --stacktrace
+
+      - name: Build all debug flavors
+        run: |
+          ./gradlew \
+            assembleDevDebug \
+            assembleStagingDebug \
+            assembleProdDebug \
+            --stacktrace

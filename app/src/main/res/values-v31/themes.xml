@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.MyShowList.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#0B0B0D</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo_animated</item>
+        <item name="postSplashScreenTheme">@style/Theme.MyShowList</item>
+        <item name="android:windowSplashScreenBrandingImage">@drawable/ic_branding</item>
+    </style>
+
+</resources>

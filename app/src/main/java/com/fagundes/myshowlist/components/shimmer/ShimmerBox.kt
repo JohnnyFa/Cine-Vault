@@ -14,14 +14,15 @@ fun ShimmerBox(
     width: Dp,
     height: Dp,
     radius: Dp = 8.dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier
-            .size(width, height)
-            .background(
-                brush = shimmerBrush(),
-                shape = RoundedCornerShape(radius)
-            )
+        modifier =
+            modifier
+                .size(width, height)
+                .background(
+                    brush = shimmerBrush(),
+                    shape = RoundedCornerShape(radius),
+                ),
     )
 }

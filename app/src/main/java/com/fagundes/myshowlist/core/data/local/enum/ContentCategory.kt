@@ -5,5 +5,5 @@ enum class ContentCategory {
     RECOMMENDED,
     TRENDING,
     SHOW_OF_THE_DAY,
-    UPCOMING
+    UPCOMING,
 }

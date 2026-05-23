@@ -8,5 +8,5 @@ data class Movie(
     override val posterUrl: String?,
     override val overview: String?,
     override val rating: Double?,
-    val type: ContentType = ContentType.MOVIE
+    val type: ContentType = ContentType.MOVIE,
 ) : Content

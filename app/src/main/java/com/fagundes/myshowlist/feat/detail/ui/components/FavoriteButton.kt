@@ -28,23 +28,23 @@ import com.fagundes.myshowlist.ui.theme.CineVaultGradients
 fun FavoriteButton(
     isFavorite: Boolean,
     isLoading: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-
         Box(
-            modifier = Modifier
-                .weight(1f)
-                .height(56.dp)
-                .background(
-                    brush = CineVaultGradients.Brand,
-                    shape = RoundedCornerShape(18.dp)
-                )
-                .clickable(enabled = !isLoading, onClick = onClick),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .height(56.dp)
+                    .background(
+                        brush = CineVaultGradients.Brand,
+                        shape = RoundedCornerShape(18.dp),
+                    )
+                    .clickable(enabled = !isLoading, onClick = onClick),
+            contentAlignment = Alignment.Center,
         ) {
             if (isLoading) {
                 CircularProgressIndicator(color = Color.Black)
@@ -53,13 +53,18 @@ fun FavoriteButton(
                     Icon(
                         imageVector = Icons.Filled.Star,
                         contentDescription = null,
-                        tint = if (isFavorite) Color(0xFF1C1C1C) else Color.Black
+                        tint = if (isFavorite) Color(0xFF1C1C1C) else Color.Black,
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = if (isFavorite) stringResource(R.string.favorited) else stringResource(R.string.favorite),
+                        text =
+                            if (isFavorite) {
+                                stringResource(R.string.favorited)
+                            } else {
+                                stringResource(R.string.favorite)
+                            },
                         style = MaterialTheme.typography.labelLarge,
-                        color = Color.Black
+                        color = Color.Black,
                     )
                 }
             }

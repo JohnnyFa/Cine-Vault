@@ -8,5 +8,5 @@ data class FavoriteItem(
     val title: String,
     val posterUrl: String?,
     val overview: String?,
-    val rating: Double?
+    val rating: Double?,
 )

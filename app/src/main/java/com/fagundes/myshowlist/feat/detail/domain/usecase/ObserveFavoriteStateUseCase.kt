@@ -5,8 +5,10 @@ import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepository
 import kotlinx.coroutines.flow.Flow
 
 class ObserveFavoriteStateUseCase(
-    private val repository: DetailRepository
+    private val repository: DetailRepository,
 ) {
-    operator fun invoke(itemId: Int, type: ContentType): Flow<Boolean> =
-        repository.observeFavoriteState(itemId, type)
+    operator fun invoke(
+        itemId: Int,
+        type: ContentType,
+    ): Flow<Boolean> = repository.observeFavoriteState(itemId, type)
 }

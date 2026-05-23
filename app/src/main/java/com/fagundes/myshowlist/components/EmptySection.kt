@@ -23,18 +23,18 @@ fun EmptySection(
     icon: Painter,
     title: String,
     description: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Icon(
             painter = icon,
             contentDescription = null,
             tint = TextMuted,
-            modifier = Modifier.size(80.dp)
+            modifier = Modifier.size(80.dp),
         )
 
         Spacer(Modifier.height(16.dp))
@@ -42,7 +42,7 @@ fun EmptySection(
         Text(
             text = title,
             color = TextPrimary,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
         )
 
         Spacer(Modifier.height(8.dp))
@@ -50,7 +50,7 @@ fun EmptySection(
         Text(
             text = description,
             color = TextMuted,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }

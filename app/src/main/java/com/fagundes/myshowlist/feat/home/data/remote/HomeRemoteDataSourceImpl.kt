@@ -5,9 +5,8 @@ import com.fagundes.myshowlist.core.data.remote.api.MovieApi
 import com.fagundes.myshowlist.core.domain.Movie
 
 class HomeRemoteDataSourceImpl(
-    private val movieApi: MovieApi
+    private val movieApi: MovieApi,
 ) : HomeRemoteDataSource {
-
     override suspend fun getPopularMovies(): List<Movie> =
         movieApi.getPopularMovies()
             .results

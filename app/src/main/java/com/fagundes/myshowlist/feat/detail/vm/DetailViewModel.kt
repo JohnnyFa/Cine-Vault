@@ -24,9 +24,8 @@ class DetailViewModel(
     private val repository: DetailRepository,
     private val observeFavoriteStateUseCase: ObserveFavoriteStateUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
-    private val saveRecentMovieUseCase: SaveRecentMovieUseCase
+    private val saveRecentMovieUseCase: SaveRecentMovieUseCase,
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow<DetailUiState>(DetailUiState.Loading)
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
@@ -81,7 +80,15 @@ class DetailViewModel(
         viewModelScope.launch {
             repository.observeContentDetail(id, type.name).collect { detail ->
                 if (detail != null) {
-                    val favoriteItem = FavoriteItem(id = detail.id, type = type, title = detail.title, posterUrl = detail.imageUrl, overview = detail.overview, rating = detail.rating)
+                    val favoriteItem =
+                        FavoriteItem(
+                            id = detail.id,
+                            type = type,
+                            title = detail.title,
+                            posterUrl = detail.imageUrl,
+                            overview = detail.overview,
+                            rating = detail.rating,
+                        )
                     repository.cacheFavoriteCandidate(favoriteItem)
                     saveRecentMovieUseCase(favoriteItem)
                     _uiState.value = DetailUiState.Success(ui = detail, isFavorite = latestFavoriteState.value)
@@ -93,22 +100,29 @@ class DetailViewModel(
     private fun refreshDetail() {
         viewModelScope.launch {
             runCatching { repository.refreshDetailIfNeeded(id) }
-                .onFailure { if (_uiState.value is DetailUiState.Loading) _uiState.value = DetailUiState.Error("Failed to load content") }
+                .onFailure {
+                    if (_uiState.value is DetailUiState.Loading) {
+                        _uiState.value = DetailUiState.Error("Failed to load content")
+                    }
+                }
         }
     }
 }
 
 sealed interface DetailUiState {
     data object Loading : DetailUiState
+
     data class Success(
         val ui: ContentDetailUi,
         val isFavorite: Boolean = false,
-        val isFavoriteLoading: Boolean = false
+        val isFavoriteLoading: Boolean = false,
     ) : DetailUiState
+
     data class Error(val message: String) : DetailUiState
 }
 
 sealed interface DetailEvent {
     data class FavoriteUpdated(val isFavorite: Boolean) : DetailEvent
+
     data class ShowError(val message: String) : DetailEvent
 }

@@ -4,16 +4,16 @@ import com.fagundes.myshowlist.core.data.remote.dto.MovieDto
 import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.feat.detail.domain.ContentDetailUi
 
-
 fun MovieDto.toDomain(): Movie =
     Movie(
         id = id,
         title = title,
-        posterUrl = posterPath?.let {
-            "https://image.tmdb.org/t/p/w500$it"
-        },
+        posterUrl =
+            posterPath?.let {
+                "https://image.tmdb.org/t/p/w500$it"
+            },
         rating = rating,
-        overview = overview
+        overview = overview,
     )
 
 fun Movie.toContentDetailUi(type: String?): ContentDetailUi =
@@ -23,5 +23,5 @@ fun Movie.toContentDetailUi(type: String?): ContentDetailUi =
         imageUrl = posterUrl,
         overview = overview,
         rating = rating,
-        type = type
+        type = type,
     )

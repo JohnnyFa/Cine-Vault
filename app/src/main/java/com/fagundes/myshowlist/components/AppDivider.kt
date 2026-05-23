@@ -9,6 +9,6 @@ import androidx.compose.ui.unit.dp
 fun AppDivider() {
     HorizontalDivider(
         thickness = 1.dp,
-        color = Color(0xFFE50914).copy(alpha = 0.35f)
+        color = Color(0xFFE50914).copy(alpha = 0.35f),
     )
 }

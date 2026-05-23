@@ -15,7 +15,6 @@ import org.junit.Rule
 import org.junit.Test
 
 class HomeScreenTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -33,7 +32,7 @@ class HomeScreenTest {
                 recentsState = HomeUiState.Loading,
                 onOpenDetail = { _, _ -> },
                 onLogout = {},
-                onRetry = HomeRetryActions({}, {}, {})
+                onRetry = HomeRetryActions({}, {}, {}),
             )
         }
 
@@ -53,13 +52,13 @@ class HomeScreenTest {
                 recentsState = HomeUiState.Success(movieList),
                 onOpenDetail = { _, _ -> },
                 onLogout = {},
-                onRetry = HomeRetryActions({}, {}, {})
+                onRetry = HomeRetryActions({}, {}, {}),
             )
         }
 
         // We use onAllNodesWithText(movie.title).onFirst() because the same movie might appear in multiple sections
         composeTestRule.onAllNodesWithText("Test Movie", substring = true).onFirst().assertIsDisplayed()
-        
+
         // Scroll to the container instead of searching by text directly while scrolling might be more reliable if items are recycled
         composeTestRule.onNodeWithTag("home_screen_content")
             .performScrollToNode(hasTestTag("trending_now_container"))
@@ -82,23 +81,24 @@ class HomeScreenTest {
                 recentsState = HomeUiState.Idle,
                 onOpenDetail = { _, _ -> },
                 onLogout = {},
-                onRetry = HomeRetryActions(
-                    onRetryShowOfTheDay = { retryClicked = true },
-                    onRetryPopular = {},
-                    onRetryRecommended = {}
-                )
+                onRetry =
+                    HomeRetryActions(
+                        onRetryShowOfTheDay = { retryClicked = true },
+                        onRetryPopular = {},
+                        onRetryRecommended = {},
+                    ),
             )
         }
 
         // Multiple ErrorSections will be present, check if at least one is displayed
         composeTestRule.onAllNodesWithTag("error_section").onFirst().assertIsDisplayed()
-        
+
         // Click retry on the first retry button found
         composeTestRule.onAllNodesWithTag("error_retry_button").onFirst().performClick()
-        
+
         assert(retryClicked)
     }
-    
+
     @Test
     fun homeScreen_logoutClick_callsCallback() {
         var logoutClicked = false
@@ -111,7 +111,7 @@ class HomeScreenTest {
                 recentsState = HomeUiState.Idle,
                 onOpenDetail = { _, _ -> },
                 onLogout = { logoutClicked = true },
-                onRetry = HomeRetryActions({}, {}, {})
+                onRetry = HomeRetryActions({}, {}, {}),
             )
         }
 

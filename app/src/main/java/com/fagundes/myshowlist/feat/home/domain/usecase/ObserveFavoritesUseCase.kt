@@ -5,7 +5,7 @@ import com.fagundes.myshowlist.feat.home.data.repository.FavoriteRepository
 import kotlinx.coroutines.flow.Flow
 
 class ObserveFavoritesUseCase(
-    private val repository: FavoriteRepository
+    private val repository: FavoriteRepository,
 ) {
     operator fun invoke(): Flow<List<Movie>> = repository.observeAllFavorites()
 }

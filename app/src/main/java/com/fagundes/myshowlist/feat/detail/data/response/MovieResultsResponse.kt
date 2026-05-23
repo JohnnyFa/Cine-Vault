@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MovieResultsResponse(
     @SerialName("movie_results")
-    val movieResults: List<MovieDto>
+    val movieResults: List<MovieDto>,
 )

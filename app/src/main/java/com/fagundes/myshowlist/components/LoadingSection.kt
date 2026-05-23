@@ -19,27 +19,26 @@ import com.fagundes.myshowlist.ui.theme.AccentGold
 import com.fagundes.myshowlist.ui.theme.AccentOrange
 
 @Composable
-fun LoadingSection(
-    modifier: Modifier = Modifier
-) {
+fun LoadingSection(modifier: Modifier = Modifier) {
     val infiniteTransition = rememberInfiniteTransition(label = "loadingTransition")
     val color by infiniteTransition.animateColor(
         initialValue = AccentGold,
         targetValue = AccentOrange,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "loadingColor"
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(1000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
+        label = "loadingColor",
     )
 
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
             color = color,
-            modifier = Modifier.padding(24.dp)
+            modifier = Modifier.padding(24.dp),
         )
     }
 }

@@ -103,3 +103,127 @@ TODO: Add license information.
 
 ---
 *Developed by [Johnny Fagundes](https://github.com/johnnyfagundes)*
+
+## 🔄 CI/CD (GitHub Actions)
+
+### Workflow Structure
+
+```text
+.github/workflows/
+├── android-ci.yml                 # PR quality gates + flavor builds + instrumentation tests
+└── firebase-distribution.yml      # Staging auto distribution + prod manual distribution
+```
+
+### PR CI Pipeline
+
+`android-ci.yml` runs on every pull request and executes:
+- `ktlintCheck`
+- `detekt` (reporting mode during adoption)
+- Android `lint`
+- warnings verification (`-PwarningsAsErrors=true`)
+- unit tests (`test`)
+- instrumentation tests (`connectedCheck` on emulator, independent job to avoid being skipped when lint/static-analysis fails)
+- flavor builds:
+  - `assembleDevDebug`
+  - `assembleStagingDebug`
+  - `assembleProdDebug`
+
+Key CI settings:
+- Java 17 (Temurin)
+- Android SDK setup via `android-actions/setup-android@v3`
+- Gradle cache + configuration cache support via `gradle/actions/setup-gradle@v4`
+- Headless emulator on API 35 with startup optimizations (`-no-window`, `-no-boot-anim`, animation disabled)
+
+### Firebase App Distribution CD
+
+`firebase-distribution.yml` handles deployments:
+
+1. **Dev/Staging distribution by tag**
+   - Trigger: git tag like `v1.0.0-dev-1`
+   - Build: `assembleStagingRelease`
+   - Uploads APK to Firebase App Distribution using `FIREBASE_APP_ID_STAGING`
+
+2. **Production distribution by tag**
+   - Trigger: git tag like `v1.0.0-1`
+   - Build: `assembleProdRelease`
+   - Uploads APK to Firebase App Distribution using `FIREBASE_APP_ID_PROD`
+
+Release notes are generated automatically from recent commit messages.
+
+### Required GitHub Secrets
+
+Create the following secrets in `Settings > Secrets and variables > Actions`:
+
+- `TMDB_API_KEY`
+- `FIREBASE_TOKEN`
+- `FIREBASE_APP_ID_STAGING`
+- `FIREBASE_APP_ID_PROD`
+
+Example values:
+
+```text
+TMDB_API_KEY=your_tmdb_api_key
+FIREBASE_TOKEN=1//0gExampleFirebaseCLIToken
+FIREBASE_APP_ID_STAGING=1:1234567890:android:abcdef123456staging
+FIREBASE_APP_ID_PROD=1:1234567890:android:abcdef123456prod
+```
+
+### How to generate Firebase CLI token
+
+```bash
+npm install -g firebase-tools
+firebase login:ci
+```
+
+Copy the generated token and save it as `FIREBASE_TOKEN`.
+
+### How to retrieve Firebase App IDs
+
+Option A (Firebase Console):
+- Open Firebase project → Project settings → Your apps.
+- Copy the **App ID** for staging/prod Android apps.
+
+Option B (`google-services.json`):
+- Find `mobilesdk_app_id` per flavor's Firebase config file.
+
+### Firebase Testers & Groups
+
+In Firebase Console → App Distribution:
+- Create groups such as `internal-testers`, `qa`, `prod-beta`.
+- Add tester emails to each group.
+- Keep staging and prod groups separate.
+
+### Secrets and Sensitive Configuration Strategy
+
+- Keep local developer values in `local.properties` only for local runs.
+- In CI/CD, generate `local.properties` from GitHub secrets at runtime.
+- Never hardcode tokens/keys in Gradle files or workflow YAML.
+
+### Production Recommendations
+
+- **Gradle optimization**
+  - Keep Gradle, AGP, Kotlin, and dependencies updated.
+  - Enable `org.gradle.caching=true` and `org.gradle.configuration-cache=true` (if all plugins are compatible).
+  - Use parallel workers based on runner cores.
+
+- **CI speed improvements**
+  - Split quality/unit tests and instrumentation tests into separate jobs.
+  - Keep emulator job dependent on fast checks to fail early.
+  - Consider path-based filters to skip Android jobs for docs-only changes.
+
+- **Test strategy**
+  - Run unit/static checks on every PR.
+  - Run instrumentation tests on every PR for critical branches, or on labeled PRs if build minutes are constrained.
+  - Add smoke instrumentation suite for PRs and full suite nightly.
+
+- **Release minification in CI**
+  - Yes, keep release minification enabled in CI for staging/prod to catch R8/proguard regressions early.
+
+- **Branch strategy**
+- `main`: stable production-ready branch
+- `develop`: integration branch for features
+- `staging`: optional pre-release hardening branch
+- feature branches via PR into `develop`
+- tag-driven distribution:
+  - Dev/Staging: `vX.Y.Z-dev-N` (example: `v1.0.0-dev-1`)
+  - Production: `vX.Y.Z-N` (example: `v1.0.0-1`)

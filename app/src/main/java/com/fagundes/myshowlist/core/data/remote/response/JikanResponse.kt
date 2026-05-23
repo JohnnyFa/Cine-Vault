@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class JikanResponse(
-    val data: List<AnimeDto>
+    val data: List<AnimeDto>,
 )

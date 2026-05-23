@@ -14,9 +14,8 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 
 class CatalogViewModel(
-    private val repository: CatalogRepository
+    private val repository: CatalogRepository,
 ) : ViewModel() {
-
     private val _uiState =
         MutableStateFlow<CatalogUiState>(CatalogUiState.Loading)
     val uiState: StateFlow<CatalogUiState> = _uiState
@@ -35,7 +34,7 @@ class CatalogViewModel(
     }
 
     fun onSeeAllUpcoming() {
-       print("implementacao futura")
+        print("implementacao futura")
     }
 
     fun retry() {
@@ -57,13 +56,14 @@ class CatalogViewModel(
             repository.getMoviesByCategory(category.genreId!!)
                 .onSuccess { movies ->
                     baseMovies = movies
-                    _uiState.value = CatalogUiState.Content(
-                        current.copy(
-                            selectedCategory = category,
-                            movies = movies,
-                            featuredMovie = movies.randomOrNull()
+                    _uiState.value =
+                        CatalogUiState.Content(
+                            current.copy(
+                                selectedCategory = category,
+                                movies = movies,
+                                featuredMovie = movies.randomOrNull(),
+                            ),
                         )
-                    )
                 }
                 .onFailure {
                     _uiState.value =
@@ -80,11 +80,12 @@ class CatalogViewModel(
                 ?: CatalogContentState()
 
         if (query.isBlank()) {
-            _uiState.value = CatalogUiState.Content(
-                current.copy(
-                    movies = baseMovies
+            _uiState.value =
+                CatalogUiState.Content(
+                    current.copy(
+                        movies = baseMovies,
+                    ),
                 )
-            )
             return
         }
     }
@@ -101,9 +102,10 @@ class CatalogViewModel(
                         val current =
                             (_uiState.value as? CatalogUiState.Content)?.ui
                                 ?: CatalogContentState()
-                        _uiState.value = CatalogUiState.Content(
-                            current.copy(movies = baseMovies)
-                        )
+                        _uiState.value =
+                            CatalogUiState.Content(
+                                current.copy(movies = baseMovies),
+                            )
                         return@collectLatest
                     }
 
@@ -113,49 +115,50 @@ class CatalogViewModel(
                                 (_uiState.value as? CatalogUiState.Content)?.ui
                                     ?: CatalogContentState()
 
-                            _uiState.value = CatalogUiState.Content(
-                                current.copy(
-                                    movies = movies
+                            _uiState.value =
+                                CatalogUiState.Content(
+                                    current.copy(
+                                        movies = movies,
+                                    ),
                                 )
-                            )
                         }
                 }
         }
     }
 
-    private fun loadCatalog() = viewModelScope.launch {
-        repository.getUpcomingMovies()
-            .onSuccess { movies ->
-                baseMovies = movies
-                _uiState.value = CatalogUiState.Content(
-                    CatalogContentState(
-                        movies = movies,
-                        featuredMovie = movies.randomOrNull()
-                    )
-                )
-            }
-            .onFailure {
-                _uiState.value = CatalogUiState.Error("Erro ao carregar catálogo")
-            }
-    }
+    private fun loadCatalog() =
+        viewModelScope.launch {
+            repository.getUpcomingMovies()
+                .onSuccess { movies ->
+                    baseMovies = movies
+                    _uiState.value =
+                        CatalogUiState.Content(
+                            CatalogContentState(
+                                movies = movies,
+                                featuredMovie = movies.randomOrNull(),
+                            ),
+                        )
+                }
+                .onFailure {
+                    _uiState.value = CatalogUiState.Error("Erro ao carregar catálogo")
+                }
+        }
 }
 
 sealed interface CatalogUiState {
-
     object Loading : CatalogUiState
 
     data class Content(
-        val ui: CatalogContentState
+        val ui: CatalogContentState,
     ) : CatalogUiState
 
     data class Error(
-        val message: String
+        val message: String,
     ) : CatalogUiState
 }
-
 
 data class CatalogContentState(
     val selectedCategory: MovieGenre = MovieGenre.ALL,
     val movies: List<Movie> = emptyList(),
-    val featuredMovie: Movie? = null
+    val featuredMovie: Movie? = null,
 )

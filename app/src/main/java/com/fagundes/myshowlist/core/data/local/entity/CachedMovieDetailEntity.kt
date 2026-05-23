@@ -14,5 +14,5 @@ data class CachedMovieDetailEntity(
     val genres: String?,
     val runtime: Int?,
     val releaseDate: String?,
-    val cachedAt: Long
+    val cachedAt: Long,
 )
