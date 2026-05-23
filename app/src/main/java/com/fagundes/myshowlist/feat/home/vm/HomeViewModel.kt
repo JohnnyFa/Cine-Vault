@@ -25,7 +25,7 @@ class HomeViewModel(
     val forYouState: StateFlow<HomeUiState<List<Movie>>> = _forYouState.asStateFlow()
 
     private val _showOfTheDayState = MutableStateFlow<HomeUiState<Movie>>(HomeUiState.Idle)
-    val showOfTheDay: StateFlow<HomeUiState<Movie>> = _showOfTheDayState.asStateFlow()
+    val showOfTheDayState: StateFlow<HomeUiState<Movie>> = _showOfTheDayState.asStateFlow()
 
     private val _favoritesState = MutableStateFlow<HomeUiState<List<Movie>>>(HomeUiState.Idle)
     val favoritesState: StateFlow<HomeUiState<List<Movie>>> = _favoritesState.asStateFlow()

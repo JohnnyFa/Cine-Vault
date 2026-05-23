@@ -44,7 +44,7 @@ fun HomeScreen(
 ) {
     val trendingState by viewModel.trendingState.collectAsStateWithLifecycle()
     val forYouState by viewModel.forYouState.collectAsStateWithLifecycle()
-    val showOfTheDayState by viewModel.showOfTheDay.collectAsStateWithLifecycle()
+    val showOfTheDayState by viewModel.showOfTheDayState.collectAsStateWithLifecycle()
     val favoritesState by viewModel.favoritesState.collectAsStateWithLifecycle()
     val recentsState by viewModel.recentsState.collectAsStateWithLifecycle()
 
