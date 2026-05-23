@@ -69,8 +69,8 @@ class HomeViewModelTest {
             assert(viewModel.forYouState.value is HomeUiState.Success)
             assertEquals(movieList, (viewModel.forYouState.value as HomeUiState.Success).data)
 
-            assert(viewModel.showOfTheDay.value is HomeUiState.Success)
-            assertEquals(movie, (viewModel.showOfTheDay.value as HomeUiState.Success).data)
+            assert(viewModel.showOfTheDayState.value is HomeUiState.Success)
+            assertEquals(movie, (viewModel.showOfTheDayState.value as HomeUiState.Success<Movie>).data)
 
             assert(viewModel.favoritesState.value is HomeUiState.Success)
             assertEquals(movieList, (viewModel.favoritesState.value as HomeUiState.Success).data)
