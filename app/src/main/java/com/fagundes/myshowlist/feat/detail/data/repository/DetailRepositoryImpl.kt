@@ -80,7 +80,17 @@ class DetailRepositoryImpl(
                 false
             } else {
                 val c = checkNotNull(favoriteCandidates[id])
-                favoriteDao.upsert(FavoriteEntity(c.id, c.type, c.title, c.posterUrl, c.overview, c.rating, System.currentTimeMillis()))
+                favoriteDao.upsert(
+                    FavoriteEntity(
+                        id = c.id,
+                        type = c.type,
+                        title = c.title,
+                        posterUrl = c.posterUrl,
+                        overview = c.overview,
+                        rating = c.rating,
+                        favoritedAt = System.currentTimeMillis(),
+                    ),
+                )
                 true
             }
         }

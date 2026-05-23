@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.fagundes.myshowlist.ui.theme.RatingYellow
 import com.fagundes.myshowlist.ui.theme.SurfaceElevated
 import com.fagundes.myshowlist.ui.theme.TextSecondary
+import java.util.Locale
 
 @Composable
 fun MetaRow(
@@ -26,7 +27,7 @@ fun MetaRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = rating?.let { "⭐ ${String.format("%.1f", it)}" } ?: "—",
+            text = rating?.let { "⭐ ${String.format(Locale.US, "%.1f", it)}" } ?: "—",
             style = MaterialTheme.typography.bodyMedium,
             color = RatingYellow,
         )

@@ -5,9 +5,33 @@ config:
   validation: true
   warningsAsErrors: false
 
+formatting:
+  active: true
+  Indentation:
+    active: false
+  ArgumentListWrapping:
+    active: false
+  Wrapping:
+    active: false
+  MaximumLineLength:
+    active: false
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated:
+      - 'Composable'
+
+complexity:
+  LongMethod:
+    threshold: 80
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 8
+    ignoreAnnotated:
+      - 'Composable'
+
 style:
   MagicNumber:
     active: false
-
-formatting:
-  active: true
+  MaxLineLength:
+    active: false

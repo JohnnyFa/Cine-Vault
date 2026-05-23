@@ -57,7 +57,12 @@ fun FavoriteButton(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = if (isFavorite) stringResource(R.string.favorited) else stringResource(R.string.favorite),
+                        text =
+                            if (isFavorite) {
+                                stringResource(R.string.favorited)
+                            } else {
+                                stringResource(R.string.favorite)
+                            },
                         style = MaterialTheme.typography.labelLarge,
                         color = Color.Black,
                     )

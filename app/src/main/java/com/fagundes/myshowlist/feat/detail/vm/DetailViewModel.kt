@@ -100,7 +100,11 @@ class DetailViewModel(
     private fun refreshDetail() {
         viewModelScope.launch {
             runCatching { repository.refreshDetailIfNeeded(id) }
-                .onFailure { if (_uiState.value is DetailUiState.Loading) _uiState.value = DetailUiState.Error("Failed to load content") }
+                .onFailure {
+                    if (_uiState.value is DetailUiState.Loading) {
+                        _uiState.value = DetailUiState.Error("Failed to load content")
+                    }
+                }
         }
     }
 }
