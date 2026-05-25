@@ -96,4 +96,18 @@ class OptionsViewModelTest {
 
             verify { auth.signOut() }
         }
+
+    @Test
+    fun `logout should still sign out and invoke onComplete when clearUserData throws`() =
+        runTest {
+            coEvery { clearUserDataUseCase() } throws RuntimeException("SQLite failure")
+            val viewModel = OptionsViewModel(auth, clearUserDataUseCase)
+            var callbackInvoked = false
+
+            viewModel.logout { callbackInvoked = true }
+            testDispatcher.scheduler.runCurrent()
+
+            verify { auth.signOut() }
+            assert(callbackInvoked)
+        }
 }

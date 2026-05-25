@@ -15,7 +15,7 @@ class OptionsViewModel(
 
     fun logout(onComplete: () -> Unit) {
         viewModelScope.launch {
-            clearUserDataUseCase()
+            runCatching { clearUserDataUseCase() }
             auth.signOut()
             onComplete()
         }
