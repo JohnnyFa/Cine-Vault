@@ -39,6 +39,8 @@ import com.fagundes.myshowlist.feat.login.data.FirebaseAuthRepository
 import com.fagundes.myshowlist.feat.login.domain.AuthRepository
 import com.fagundes.myshowlist.feat.login.domain.LoginWithGoogleUseCase
 import com.fagundes.myshowlist.feat.login.vm.LoginViewModel
+import com.fagundes.myshowlist.feat.options.domain.usecase.ClearUserDataUseCase
+import com.fagundes.myshowlist.feat.options.vm.OptionsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
@@ -125,11 +127,13 @@ val appModule =
         factory { ObserveFavoritesUseCase(get()) }
         factory { SaveRecentMovieUseCase(get()) }
         factory { ObserveRecentsUseCase(get()) }
+        factory { ClearUserDataUseCase(get(), get()) }
 
         // ---------- ViewModels ----------
         viewModelOf(::LoginViewModel)
         viewModelOf(::HomeViewModel)
         viewModelOf(::CatalogViewModel)
+        viewModelOf(::OptionsViewModel)
 
         viewModel { (id: Int, type: ContentType) ->
             DetailViewModel(

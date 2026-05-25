@@ -18,6 +18,7 @@ private val bottomBarRoutes =
     setOf(
         AppRoutes.HOME,
         AppRoutes.CATALOG,
+        AppRoutes.OPTIONS,
     )
 
 @Composable

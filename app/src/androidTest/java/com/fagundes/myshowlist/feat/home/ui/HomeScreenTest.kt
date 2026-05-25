@@ -31,7 +31,6 @@ class HomeScreenTest {
                 favoritesState = HomeUiState.Loading,
                 recentsState = HomeUiState.Loading,
                 onOpenDetail = { _, _ -> },
-                onLogout = {},
                 onRetry = HomeRetryActions({}, {}, {}),
             )
         }
@@ -51,13 +50,13 @@ class HomeScreenTest {
                 favoritesState = HomeUiState.Success(movieList),
                 recentsState = HomeUiState.Success(movieList),
                 onOpenDetail = { _, _ -> },
-                onLogout = {},
                 onRetry = HomeRetryActions({}, {}, {}),
             )
         }
 
         // We use onAllNodesWithText(movie.title).onFirst() because the same movie might appear in multiple sections
-        composeTestRule.onAllNodesWithText("Test Movie", substring = true).onFirst().assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("Test Movie", substring = true).onFirst()
+            .assertIsDisplayed()
 
         // Scroll to the container instead of searching by text directly while scrolling might be more reliable if items are recycled
         composeTestRule.onNodeWithTag("home_screen_content")
@@ -80,7 +79,6 @@ class HomeScreenTest {
                 favoritesState = HomeUiState.Idle,
                 recentsState = HomeUiState.Idle,
                 onOpenDetail = { _, _ -> },
-                onLogout = {},
                 onRetry =
                     HomeRetryActions(
                         onRetryShowOfTheDay = { retryClicked = true },
@@ -97,28 +95,5 @@ class HomeScreenTest {
         composeTestRule.onAllNodesWithTag("error_retry_button").onFirst().performClick()
 
         assert(retryClicked)
-    }
-
-    @Test
-    fun homeScreen_logoutClick_callsCallback() {
-        var logoutClicked = false
-        composeTestRule.setContent {
-            HomeScreenContent(
-                trendingState = HomeUiState.Idle,
-                forYouState = HomeUiState.Idle,
-                showOfTheDayState = HomeUiState.Idle,
-                favoritesState = HomeUiState.Idle,
-                recentsState = HomeUiState.Idle,
-                onOpenDetail = { _, _ -> },
-                onLogout = { logoutClicked = true },
-                onRetry = HomeRetryActions({}, {}, {}),
-            )
-        }
-
-        // Scroll to logout button
-        composeTestRule.onNodeWithTag("home_screen_content")
-            .performScrollToNode(hasTestTag("logout_button"))
-        composeTestRule.onNodeWithTag("logout_button").performClick()
-        assert(logoutClicked)
     }
 }

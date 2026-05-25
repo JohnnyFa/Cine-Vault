@@ -12,6 +12,7 @@ import com.fagundes.myshowlist.feat.detail.ui.DetailScreen
 import com.fagundes.myshowlist.feat.home.ui.HomeScreen
 import com.fagundes.myshowlist.feat.home.vm.HomeViewModel
 import com.fagundes.myshowlist.feat.login.ui.LoginScreen
+import com.fagundes.myshowlist.feat.options.ui.OptionsScreen
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -41,12 +42,6 @@ fun AppNavGraph(startDestination: String) {
                     onOpenDetail = { id, type ->
                         navController.navigate(AppRoutes.detail(id, type))
                     },
-                    onLogout = {
-                        viewModel.logout()
-                        navController.navigate(AppRoutes.LOGIN) {
-                            popUpTo(0)
-                        }
-                    },
                 )
             }
 
@@ -55,6 +50,16 @@ fun AppNavGraph(startDestination: String) {
                 CatalogScreen(viewModel, onOpenDetail = { id, type ->
                     navController.navigate(AppRoutes.detail(id, type))
                 })
+            }
+
+            composable(AppRoutes.OPTIONS) {
+                OptionsScreen(
+                    onLogout = {
+                        navController.navigate(AppRoutes.LOGIN) {
+                            popUpTo(0)
+                        }
+                    },
+                )
             }
 
             composable(AppRoutes.DETAIL) { backStackEntry ->

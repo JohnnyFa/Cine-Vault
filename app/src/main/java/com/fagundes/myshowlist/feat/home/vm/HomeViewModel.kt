@@ -6,14 +6,12 @@ import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.feat.home.data.repository.HomeRepository
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveFavoritesUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveRecentsUseCase
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val auth: FirebaseAuth,
     private val repository: HomeRepository,
     private val observeFavoritesUseCase: ObserveFavoritesUseCase,
     private val observeRecentsUseCase: ObserveRecentsUseCase,
@@ -101,10 +99,6 @@ class HomeViewModel(
     fun loadRecommended() = refreshHome()
 
     fun loadShowOfTheDay() = refreshHome()
-
-    fun logout() {
-        auth.signOut()
-    }
 }
 
 sealed interface HomeUiState<out T> {

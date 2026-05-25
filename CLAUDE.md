@@ -43,6 +43,24 @@ Read this file before executing any task in this project.
 
 ---
 
+## Testing Requirements
+
+**Every new ViewModel must have a corresponding unit test file.** This is mandatory, not optional.
+
+- Unit tests live under `app/src/test/java/com/fagundes/myshowlist/feat/<feature>/vm/`.
+- Use **MockK** (`mockk`, `every`, `verify`, `coEvery`) for mocking dependencies.
+- Use `StandardTestDispatcher` + `Dispatchers.setMain` / `resetMain` for coroutine tests.
+- At minimum, cover: initial state, each public method/action, and error paths.
+- Register every new `*ViewModelTest` class in `UnitTestSuite.kt`.
+- When modifying a ViewModel (adding/removing methods or constructor params), update its test accordingly.
+
+**Checklist when adding or modifying a ViewModel:**
+1. Create/update `<Feature>ViewModelTest.kt` in the matching test package.
+2. Add the test class to `UnitTestSuite.kt` if it is new.
+3. Remove tests for deleted methods; add tests for new ones.
+
+---
+
 ## Key Files
 
 | File | Purpose |

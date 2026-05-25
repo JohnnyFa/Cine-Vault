@@ -34,4 +34,5 @@
     <string name="label_your_favorites">Your Favorites</string>
     <string name="empty_favorites_message">No favorites yet. Tap the heart icon to save movies.</string>
     <string name="label_recently_viewed">Recently Viewed</string>
+    <string name="label_options">Options</string>
 </resources>

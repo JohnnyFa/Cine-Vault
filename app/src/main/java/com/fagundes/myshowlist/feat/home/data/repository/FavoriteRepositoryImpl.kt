@@ -21,4 +21,8 @@ class FavoriteRepositoryImpl(
             }
         }
     }
+
+    override suspend fun clearAll() {
+        favoriteDao.deleteAll()
+    }
 }
