@@ -38,4 +38,8 @@ class RecentRepositoryImpl(
         )
         recentDao.deleteOldRecents()
     }
+
+    override suspend fun clearAll() {
+        recentDao.deleteAll()
+    }
 }

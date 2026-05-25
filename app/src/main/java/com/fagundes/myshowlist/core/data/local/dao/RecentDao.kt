@@ -17,4 +17,7 @@ interface RecentDao {
 
     @Query("DELETE FROM recents WHERE rowid NOT IN (SELECT rowid FROM recents ORDER BY viewedAt DESC LIMIT 20)")
     suspend fun deleteOldRecents()
+
+    @Query("DELETE FROM recents")
+    suspend fun deleteAll()
 }

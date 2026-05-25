@@ -8,4 +8,6 @@ interface RecentRepository {
     fun observeRecents(): Flow<List<Movie>>
 
     suspend fun saveRecent(movie: FavoriteItem)
+
+    suspend fun clearAll()
 }

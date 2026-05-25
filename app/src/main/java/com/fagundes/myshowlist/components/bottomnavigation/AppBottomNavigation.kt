@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +58,14 @@ fun AppBottomNavigation(
                 selected = currentRoute == AppRoutes.CATALOG,
                 icon = Icons.Default.Search,
                 onClick = { onNavigate(AppRoutes.CATALOG) },
+            )
+
+            Spacer(Modifier.width(32.dp))
+
+            BottomIcon(
+                selected = currentRoute == AppRoutes.OPTIONS,
+                icon = Icons.Default.Person,
+                onClick = { onNavigate(AppRoutes.OPTIONS) },
             )
         }
     }

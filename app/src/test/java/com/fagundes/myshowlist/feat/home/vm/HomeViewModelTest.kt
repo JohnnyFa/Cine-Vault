@@ -5,13 +5,11 @@ import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.feat.home.data.repository.HomeRepository
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveFavoritesUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveRecentsUseCase
-import com.google.firebase.auth.FirebaseAuth
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
-import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -26,7 +24,6 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
-    private val auth: FirebaseAuth = mockk(relaxed = true)
     private val repository: HomeRepository = mockk(relaxed = true)
     private val observeFavoritesUseCase: ObserveFavoritesUseCase = mockk(relaxed = true)
     private val observeRecentsUseCase: ObserveRecentsUseCase = mockk(relaxed = true)
@@ -49,7 +46,7 @@ class HomeViewModelTest {
         every { observeFavoritesUseCase() } returns flowOf(movieList)
         every { observeRecentsUseCase() } returns flowOf(movieList)
 
-        viewModel = HomeViewModel(auth, repository, observeFavoritesUseCase, observeRecentsUseCase)
+        viewModel = HomeViewModel(repository, observeFavoritesUseCase, observeRecentsUseCase)
     }
 
     @After
@@ -93,7 +90,7 @@ class HomeViewModelTest {
         runTest {
             // Force loading state for this test
             every { repository.observePopularMovies() } returns flowOf(emptyList())
-            viewModel = HomeViewModel(auth, repository, observeFavoritesUseCase, observeRecentsUseCase)
+            viewModel = HomeViewModel(repository, observeFavoritesUseCase, observeRecentsUseCase)
             testDispatcher.scheduler.runCurrent()
 
             coEvery { repository.refreshHomeIfNeeded() } throws Exception("Network error")
@@ -104,10 +101,4 @@ class HomeViewModelTest {
             assert(viewModel.trendingState.value is HomeUiState.Error)
             assertEquals("Failed to load trending", (viewModel.trendingState.value as HomeUiState.Error).message)
         }
-
-    @Test
-    fun `logout should call auth signOut`() {
-        viewModel.logout()
-        verify { auth.signOut() }
-    }
 }

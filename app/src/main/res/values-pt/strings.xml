@@ -43,4 +43,5 @@
     <string name="label_your_favorites">Seus Favoritos</string>
     <string name="empty_favorites_message">Nenhum favorito ainda. Toque no ícone de coração para salvar filmes.</string>
     <string name="label_recently_viewed">Vistos Recentemente</string>
+    <string name="label_options">Opções</string>
 </resources>
