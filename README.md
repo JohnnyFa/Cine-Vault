@@ -97,7 +97,7 @@ The project uses `BuildConfig` and `local.properties` to manage secrets and conf
 - `TMDB_BASE_URL`: Defined in `build.gradle.kts` flavors.
 - `JIKAN_BASE_URL`: Defined in `build.gradle.kts` flavors.
 
-## 📄 License
+## 📄 License -
 
 TODO: Add license information.
 
