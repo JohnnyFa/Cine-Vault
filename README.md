@@ -2,228 +2,188 @@
 
 MyShowList (branded as **Cine Vault**) is a modern Android application for discovering and tracking movies and anime. It leverages the TMDB API for movie data and the Jikan API for anime information.
 
-## 🚀 Features
+## Features
 
-- **Movie Discovery**: Browse trending movies, recommended content, and upcoming releases.
-- **Anime Catalog**: Explore anime using the Jikan API.
-- **Unified Search**: Search for movies across the catalog.
-- **Personalized Lists**: Save your favorite shows to a local database.
-- **User Authentication**: Secure login using Firebase Authentication and Google Sign-In.
-- **Multi-language Support**: Support for English and Portuguese.
-- **Modern UI**: Built entirely with Jetpack Compose following Material 3 guidelines.
+- **Movie Discovery**: Browse trending movies, "Show of the Day", recommended content, and upcoming releases.
+- **Anime Catalog**: Explore anime using the Jikan API with genre-based filtering.
+- **Unified Search**: Search movies and anime across the catalog with upcoming release highlights.
+- **Favorites**: Save content to a persistent local favorites list.
+- **Recents**: Automatically tracks recently viewed content.
+- **Content Detail**: Full detail view with metadata, poster hero, and favorite toggle.
+- **User Profile & Options**: View account info and log out from a dedicated options screen.
+- **User Authentication**: Secure login via Firebase Authentication and Google Sign-In.
+- **Multi-language Support**: English and Portuguese.
+- **Shimmer Loading**: Skeleton loading placeholders across all content sections.
+- **Modern UI**: Built entirely with Jetpack Compose following Material 3 guidelines, with edge-to-edge support and a custom floating bottom navigation bar.
 
-## 🛠 Tech Stack
+## Tech Stack
 
-- **Language**: [Kotlin](https://kotlinlang.org/) (2.0.0)
-- **UI Framework**: [Jetpack Compose](https://developer.android.com/compose) with Material 3
-- **Dependency Injection**: [Koin](https://insert-koin.io/) (4.1.1)
-- **Networking**: [Ktor](https://ktor.io/) (3.0.1) with Content Negotiation and Kotlinx Serialization
-- **Local Database**: [Room](https://developer.android.com/training/data-storage/room) (2.8.4)
-- **Authentication**: [Firebase Auth](https://firebase.google.com/docs/auth) & Google Sign-In
-- **Image Loading**: [Coil](https://coil-kt.github.io/coil/)
-- **Navigation**: Compose Navigation
-- **Architecture**: MVVM with Feature-Based Packaging
+| Layer | Library | Version |
+|---|---|---|
+| Language | [Kotlin](https://kotlinlang.org/) | 2.0.0 |
+| UI | [Jetpack Compose](https://developer.android.com/compose) + Material 3 | BOM 2024.09 |
+| Dependency Injection | [Koin](https://insert-koin.io/) | 4.1.1 |
+| Networking | [Ktor](https://ktor.io/) + OkHttp | 3.0.1 |
+| Serialization | [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization) | — |
+| Local Database | [Room](https://developer.android.com/training/data-storage/room) | 2.8.4 |
+| Image Loading | [Coil](https://coil-kt.github.io/coil/) | 2.5.0 |
+| Navigation | [Compose Navigation](https://developer.android.com/jetpack/compose/navigation) | 2.9.6 |
+| Authentication | [Firebase Auth](https://firebase.google.com/docs/auth) + Google Sign-In | — |
+| Architecture | MVVM + Feature-Based Packaging | — |
+| Static Analysis | [Detekt](https://detekt.dev/) + [ktlint](https://pinterest.github.io/ktlint/) | — |
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 app/src/main/java/com/fagundes/myshowlist/
-├── components/          # Shared UI components
-├── core/                # Core infrastructure (DI, DB, Network, Navigation)
-│   ├── data/            # Global data mappers and API interfaces
-│   ├── db/              # Room database configuration
-│   ├── di/              # Koin modules
-│   ├── domain/          # Shared domain models
-│   ├── navigation/      # Navigation graph and routes
-│   └── network/         # Ktor client configurations
-└── feat/                # Feature-based modules
-    ├── catalog/         # Search and discovery catalog
-    ├── detail/          # Content detail view
-    ├── home/            # Home dashboard
-    └── login/           # Authentication flow
+├── components/              # Shared UI components (shimmer, bottom nav, error/empty states)
+├── core/
+│   ├── data/
+│   │   ├── local/           # Room DAOs, entities, enums, mappers
+│   │   ├── mapper/          # DTO → domain model mappers
+│   │   └── remote/          # API interfaces, DTOs, response wrappers
+│   ├── db/                  # AppDatabase configuration
+│   ├── di/                  # Koin module (AppModule.kt)
+│   ├── domain/              # Shared domain models (Movie, Anime, Content)
+│   ├── navigation/          # AppNavGraph.kt + AppRoutes.kt
+│   └── network/             # BaseHttpClient, TMDB/Jikan client configs
+└── feat/
+    ├── catalog/             # Upcoming releases, genre filtering, search
+    ├── detail/              # Content detail view, favorite toggle use cases
+    ├── home/                # Dashboard: trending, recommended, recents, favorites
+    ├── login/               # Firebase/Google Sign-In flow
+    └── options/             # User profile display and logout
 ```
 
-## ⚙️ Requirements
+Each feature follows the `data/ | ui/ | vm/` sub-structure with repositories returning `Result<T>`, ViewModels exposing `StateFlow<UiState>`, and use cases for cross-cutting domain logic.
 
-- **Android Studio**: Ladybug or newer.
+## Requirements
+
+- **Android Studio**: Ladybug or newer
 - **JDK**: 17
-- **Android SDK**: Min SDK 28 (Android 9), Target SDK 36 (Android 15 / "V").
-- **TMDB API Key**: You need an API key from [The Movie Database](https://www.themoviedb.org/documentation/api).
-- **Firebase Configuration**: A `google-services.json` file is required for authentication features.
+- **Android SDK**: Min SDK 28 (Android 9), Target SDK 36
+- **TMDB API Key**: Obtain from [The Movie Database](https://www.themoviedb.org/documentation/api)
+- **Firebase**: A `google-services.json` file for authentication
 
-## 🛠 Setup & Run
+## Setup & Run
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/MyShowList.git
+   git clone https://github.com/JohnnyFa/MyShowList.git
    ```
 
-2. **Add API Keys**:
-   Create a `local.properties` file in the root directory (if it doesn't exist) and add your TMDB API key:
+2. **Add your TMDB API key** to `local.properties` in the root directory:
    ```properties
    TMDB_API_KEY=your_api_key_here
    ```
 
-3. **Firebase Setup**:
-   Place your `google-services.json` file in the `app/` directory.
+3. **Firebase Setup**: Place `google-services.json` in the `app/` directory.
 
-4. **Build and Run**:
-   Open the project in Android Studio and run the `app` module on an emulator or physical device.
+4. **Build and Run**: Open the project in Android Studio and run the `app` module on an emulator or device.
 
-### Build Variants
-The project uses product flavors for different environments:
-- `dev`: Development environment with logging enabled.
-- `staging`: Staging environment for pre-release testing.
-- `prod`: Production environment.
+### Build Flavors
 
-## 📜 Scripts & Commands
+| Flavor | App name | Logging | App ID suffix |
+|---|---|---|---|
+| `dev` | CINE VAULT (Dev) | enabled | `.dev` |
+| `staging` | CINE VAULT (Staging) | enabled | `.staging` |
+| `prod` | CINE VAULT | disabled | — |
 
-Use the Gradle wrapper to run common tasks:
+## Gradle Commands
 
-- **Build the project**: `./gradlew assembleDebug`
-- **Run Unit Tests**: `./gradlew test`
-- **Run Instrumented Tests**: `./gradlew connectedAndroidTest`
-- **Lint check**: `./gradlew lint`
+```bash
+# Build
+./gradlew assembleDebug
+./gradlew assembleDevDebug
 
-## 🧪 Testing
+# Tests
+./gradlew test                    # Unit tests
+./gradlew connectedAndroidTest    # Instrumented tests
 
-- **Unit Tests**: Located in `app/src/test/`. Uses [MockK](https://mockk.io/) for mocking.
-- **Instrumented Tests**: Located in `app/src/androidTest/`. Uses Compose Test Rule and Espresso.
+# Static analysis
+./gradlew ktlintCheck
+./gradlew detekt
+./gradlew lint
+```
 
-## 🔑 Environment Variables
+## Testing
 
-The project uses `BuildConfig` and `local.properties` to manage secrets and configurations:
-- `TMDB_API_KEY`: Defined in `local.properties`.
-- `TMDB_BASE_URL`: Defined in `build.gradle.kts` flavors.
-- `JIKAN_BASE_URL`: Defined in `build.gradle.kts` flavors.
+Unit tests live under `app/src/test/java/com/fagundes/myshowlist/feat/<feature>/vm/`.
 
-## 📄 License -
+- **Mocking**: [MockK](https://mockk.io/) (`mockk`, `coEvery`, `verify`)
+- **Coroutines**: `StandardTestDispatcher` + `Dispatchers.setMain` / `resetMain`
+- **Coverage**: Every ViewModel must have a test covering initial state, each public action, and error paths
+- **Suite**: All `*ViewModelTest` classes are registered in `UnitTestSuite.kt`
 
-TODO: Add license information.
+Instrumented tests live under `app/src/androidTest/` and use Compose Test Rule and Espresso.
 
----
-*Developed by [Johnny Fagundes](https://github.com/johnnyfagundes)*
+## Environment Variables
 
-## 🔄 CI/CD (GitHub Actions)
+| Variable | Source |
+|---|---|
+| `TMDB_API_KEY` | `local.properties` |
+| `TMDB_BASE_URL` | `build.gradle.kts` per flavor |
+| `JIKAN_BASE_URL` | `build.gradle.kts` per flavor |
+| `LOGGING_ENABLED` | `build.gradle.kts` per flavor |
+
+## CI/CD (GitHub Actions)
 
 ### Workflow Structure
 
 ```text
 .github/workflows/
-├── android-ci.yml                 # PR quality gates + flavor builds + instrumentation tests
-└── firebase-distribution.yml      # Staging auto distribution + prod manual distribution
+├── android-ci.yml              # PR quality gates + flavor builds
+└── firebase-distribution.yml   # Staging and production distribution
 ```
 
-### PR CI Pipeline
+### PR CI Pipeline (`android-ci.yml`)
 
-`android-ci.yml` runs on every pull request and executes:
+Runs on every pull request:
 - `ktlintCheck`
-- `detekt` (reporting mode during adoption)
-- Android `lint`
-- warnings verification (`-PwarningsAsErrors=true`)
-- unit tests (`test`)
-- instrumentation tests (`connectedCheck` on emulator, independent job to avoid being skipped when lint/static-analysis fails)
-- flavor builds:
-  - `assembleDevDebug`
-  - `assembleStagingDebug`
-  - `assembleProdDebug`
+- `detekt` (reporting mode)
+- Android `lint` with `-PwarningsAsErrors=true`
+- Unit tests (`test`)
+- Instrumentation tests (`connectedCheck` on a headless API 35 emulator — independent job so lint failures don't skip it)
+- Flavor builds: `assembleDevDebug`, `assembleStagingDebug`, `assembleProdDebug`
 
-Key CI settings:
-- Java 17 (Temurin)
-- Android SDK setup via `android-actions/setup-android@v3`
-- Gradle cache + configuration cache support via `gradle/actions/setup-gradle@v4`
-- Headless emulator on API 35 with startup optimizations (`-no-window`, `-no-boot-anim`, animation disabled)
+Key settings: Java 17 (Temurin), `android-actions/setup-android@v3`, `gradle/actions/setup-gradle@v4` with cache.
 
-### Firebase App Distribution CD
+### Firebase App Distribution (`firebase-distribution.yml`)
 
-`firebase-distribution.yml` handles deployments:
-
-1. **Dev/Staging distribution by tag**
-   - Trigger: git tag like `v1.0.0-dev-1`
-   - Build: `assembleStagingRelease`
-   - Uploads APK to Firebase App Distribution using `FIREBASE_APP_ID_STAGING`
-
-2. **Production distribution by tag**
-   - Trigger: git tag like `v1.0.0-1`
-   - Build: `assembleProdRelease`
-   - Uploads APK to Firebase App Distribution using `FIREBASE_APP_ID_PROD`
+| Trigger tag | Build | Destination |
+|---|---|---|
+| `v1.0.0-dev-1` | `assembleStagingRelease` | Firebase App Distribution (staging) |
+| `v1.0.0-1` | `assembleProdRelease` | Firebase App Distribution (prod) |
 
 Release notes are generated automatically from recent commit messages.
 
 ### Required GitHub Secrets
 
-Create the following secrets in `Settings > Secrets and variables > Actions`:
-
-- `TMDB_API_KEY`
-- `FIREBASE_TOKEN`
-- `FIREBASE_APP_ID_STAGING`
-- `FIREBASE_APP_ID_PROD`
-
-Example values:
-
-```text
-TMDB_API_KEY=your_tmdb_api_key
-FIREBASE_TOKEN=1//0gExampleFirebaseCLIToken
-FIREBASE_APP_ID_STAGING=1:1234567890:android:abcdef123456staging
-FIREBASE_APP_ID_PROD=1:1234567890:android:abcdef123456prod
+```
+TMDB_API_KEY
+FIREBASE_TOKEN
+FIREBASE_APP_ID_STAGING
+FIREBASE_APP_ID_PROD
 ```
 
-### How to generate Firebase CLI token
-
+Generate `FIREBASE_TOKEN`:
 ```bash
 npm install -g firebase-tools
 firebase login:ci
 ```
 
-Copy the generated token and save it as `FIREBASE_TOKEN`.
+Retrieve `FIREBASE_APP_ID_*` from Firebase Console → Project settings → Your apps, or from `mobilesdk_app_id` in `google-services.json`.
 
-### How to retrieve Firebase App IDs
+### Branch Strategy
 
-Option A (Firebase Console):
-- Open Firebase project → Project settings → Your apps.
-- Copy the **App ID** for staging/prod Android apps.
+- `main` — stable, production-ready
+- `develop` — integration branch for features
+- `feat/*` — feature branches, PR into `develop`
+- Tags drive distribution: `vX.Y.Z-dev-N` (staging), `vX.Y.Z-N` (prod)
 
-Option B (`google-services.json`):
-- Find `mobilesdk_app_id` per flavor's Firebase config file.
+## License
 
-### Firebase Testers & Groups
+TODO: Add license information.
 
-In Firebase Console → App Distribution:
-- Create groups such as `internal-testers`, `qa`, `prod-beta`.
-- Add tester emails to each group.
-- Keep staging and prod groups separate.
-
-### Secrets and Sensitive Configuration Strategy
-
-- Keep local developer values in `local.properties` only for local runs.
-- In CI/CD, generate `local.properties` from GitHub secrets at runtime.
-- Never hardcode tokens/keys in Gradle files or workflow YAML.
-
-### Production Recommendations
-
-- **Gradle optimization**
-  - Keep Gradle, AGP, Kotlin, and dependencies updated.
-  - Enable `org.gradle.caching=true` and `org.gradle.configuration-cache=true` (if all plugins are compatible).
-  - Use parallel workers based on runner cores.
-
-- **CI speed improvements**
-  - Split quality/unit tests and instrumentation tests into separate jobs.
-  - Keep emulator job dependent on fast checks to fail early.
-  - Consider path-based filters to skip Android jobs for docs-only changes.
-
-- **Test strategy**
-  - Run unit/static checks on every PR.
-  - Run instrumentation tests on every PR for critical branches, or on labeled PRs if build minutes are constrained.
-  - Add smoke instrumentation suite for PRs and full suite nightly.
-
-- **Release minification in CI**
-  - Yes, keep release minification enabled in CI for staging/prod to catch R8/proguard regressions early.
-
-- **Branch strategy**
-- `main`: stable production-ready branch
-- `develop`: integration branch for features
-- `staging`: optional pre-release hardening branch
-- feature branches via PR into `develop`
-- tag-driven distribution:
-  - Dev/Staging: `vX.Y.Z-dev-N` (example: `v1.0.0-dev-1`)
-  - Production: `vX.Y.Z-N` (example: `v1.0.0-1`)
+---
+*Developed by [Johnny Fagundes](https://github.com/johnnyfagundes)*
