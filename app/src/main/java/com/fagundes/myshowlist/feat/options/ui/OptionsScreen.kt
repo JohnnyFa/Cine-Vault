@@ -87,33 +87,11 @@ fun OptionsScreenContent(
     onConfirmClear: () -> Unit,
     onDismissClear: () -> Unit,
 ) {
-    val clearDialogTitle = when (uiState.pendingClearAction) {
-        ClearAction.Favorites -> stringResource(R.string.dialog_clear_favorites_title)
-        ClearAction.Recents -> stringResource(R.string.dialog_clear_recents_title)
-        ClearAction.Cache -> stringResource(R.string.dialog_clear_cache_title)
-        null -> ""
-    }
-
-    if (uiState.pendingClearAction != null) {
-        AlertDialog(
-            onDismissRequest = onDismissClear,
-            title = { Text(clearDialogTitle) },
-            text = { Text(stringResource(R.string.dialog_clear_message)) },
-            confirmButton = {
-                TextButton(onClick = onConfirmClear) {
-                    Text(stringResource(R.string.action_confirm), color = NeonRed)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismissClear) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            },
-            containerColor = SurfaceElevated,
-            titleContentColor = TextPrimary,
-            textContentColor = TextSecondary,
-        )
-    }
+    ClearConfirmationDialog(
+        action = uiState.pendingClearAction,
+        onConfirm = onConfirmClear,
+        onDismiss = onDismissClear,
+    )
 
     Column(
         modifier =
@@ -126,94 +104,112 @@ fun OptionsScreenContent(
                 .padding(bottom = 72.dp),
     ) {
         Spacer(Modifier.height(16.dp))
-
-        Text(
-            text = stringResource(R.string.label_options),
-            style = MaterialTheme.typography.titleLarge,
-            color = TextPrimary,
-        )
-
+        Text(stringResource(R.string.label_options), style = MaterialTheme.typography.titleLarge, color = TextPrimary)
         Spacer(Modifier.height(24.dp))
-
         ProfileCard(displayName = displayName, email = email, photoUrl = photoUrl)
-
         Spacer(Modifier.height(32.dp))
-
         SectionLabel(stringResource(R.string.label_data_management))
-
         Spacer(Modifier.height(12.dp))
-
-        DataRow(
-            icon = Icons.Filled.Favorite,
-            label = stringResource(R.string.label_your_favorites),
-            description = stringResource(R.string.desc_favorites_data),
-            count = uiState.favoritesCount,
-            onClear = { onRequestClear(ClearAction.Favorites) },
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        DataRow(
-            icon = Icons.Filled.History,
-            label = stringResource(R.string.label_recently_viewed),
-            description = stringResource(R.string.desc_recents_data),
-            count = uiState.recentsCount,
-            onClear = { onRequestClear(ClearAction.Recents) },
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        DataRow(
-            icon = Icons.Filled.Storage,
-            label = stringResource(R.string.label_cache),
-            description = stringResource(R.string.desc_cache_data),
-            count = null,
-            onClear = { onRequestClear(ClearAction.Cache) },
-        )
-
+        DataManagementSection(uiState = uiState, onRequestClear = onRequestClear)
         Spacer(Modifier.height(32.dp))
-
         SectionLabel(stringResource(R.string.label_about))
-
         Spacer(Modifier.height(12.dp))
-
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .background(SurfaceElevated, RoundedCornerShape(12.dp))
-                    .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Info,
-                contentDescription = null,
-                tint = TextSecondary,
-                modifier = Modifier.size(20.dp),
-            )
-            Spacer(Modifier.width(12.dp))
-            Column {
-                Text(
-                    text = stringResource(R.string.app_name),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = TextPrimary,
-                )
-                Text(
-                    text = "${stringResource(R.string.label_version)} ${BuildConfig.VERSION_NAME}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary,
-                )
-            }
-        }
-
+        AboutCard()
         Spacer(Modifier.height(32.dp))
-
         Button(
             onClick = onLogout,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = NeonRed),
         ) {
             Text(stringResource(R.string.leave))
+        }
+    }
+}
+
+@Composable
+private fun ClearConfirmationDialog(
+    action: ClearAction?,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    if (action == null) return
+
+    val title =
+        when (action) {
+            ClearAction.Favorites -> stringResource(R.string.dialog_clear_favorites_title)
+            ClearAction.Recents -> stringResource(R.string.dialog_clear_recents_title)
+            ClearAction.Cache -> stringResource(R.string.dialog_clear_cache_title)
+        }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = { Text(stringResource(R.string.dialog_clear_message)) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(stringResource(R.string.action_confirm), color = NeonRed)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        },
+        containerColor = SurfaceElevated,
+        titleContentColor = TextPrimary,
+        textContentColor = TextSecondary,
+    )
+}
+
+@Composable
+private fun DataManagementSection(
+    uiState: OptionsUiState,
+    onRequestClear: (ClearAction) -> Unit,
+) {
+    DataRow(
+        icon = Icons.Filled.Favorite,
+        label = stringResource(R.string.label_your_favorites),
+        description = stringResource(R.string.desc_favorites_data),
+        count = uiState.favoritesCount,
+        onClear = { onRequestClear(ClearAction.Favorites) },
+    )
+    Spacer(Modifier.height(8.dp))
+    DataRow(
+        icon = Icons.Filled.History,
+        label = stringResource(R.string.label_recently_viewed),
+        description = stringResource(R.string.desc_recents_data),
+        count = uiState.recentsCount,
+        onClear = { onRequestClear(ClearAction.Recents) },
+    )
+    Spacer(Modifier.height(8.dp))
+    DataRow(
+        icon = Icons.Filled.Storage,
+        label = stringResource(R.string.label_cache),
+        description = stringResource(R.string.desc_cache_data),
+        count = null,
+        onClear = { onRequestClear(ClearAction.Cache) },
+    )
+}
+
+@Composable
+private fun AboutCard() {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(SurfaceElevated, RoundedCornerShape(12.dp))
+                .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(imageVector = Icons.Filled.Info, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(12.dp))
+        Column {
+            Text(stringResource(R.string.app_name), style = MaterialTheme.typography.bodyLarge, color = TextPrimary)
+            Text(
+                text = "${stringResource(R.string.label_version)} ${BuildConfig.VERSION_NAME}",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary,
+            )
         }
     }
 }
@@ -256,18 +252,10 @@ private fun ProfileCard(
 
         Column {
             if (!displayName.isNullOrBlank()) {
-                Text(
-                    text = displayName,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = TextPrimary,
-                )
+                Text(text = displayName, style = MaterialTheme.typography.bodyLarge, color = TextPrimary)
             }
             if (!email.isNullOrBlank()) {
-                Text(
-                    text = email,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary,
-                )
+                Text(text = email, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
             }
         }
     }
@@ -275,11 +263,7 @@ private fun ProfileCard(
 
 @Composable
 private fun SectionLabel(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelMedium,
-        color = TextMuted,
-    )
+    Text(text = text, style = MaterialTheme.typography.labelMedium, color = TextMuted)
 }
 
 @Composable
@@ -299,24 +283,12 @@ private fun DataRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(1f),
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = TextSecondary,
-                modifier = Modifier.size(20.dp),
-            )
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+            Icon(imageVector = icon, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(12.dp))
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = label,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextPrimary,
-                    )
+                    Text(text = label, style = MaterialTheme.typography.bodyMedium, color = TextPrimary)
                     if (count != null) {
                         Spacer(Modifier.width(8.dp))
                         Box(
@@ -325,28 +297,16 @@ private fun DataRow(
                                     .background(Divider, RoundedCornerShape(4.dp))
                                     .padding(horizontal = 6.dp, vertical = 2.dp),
                         ) {
-                            Text(
-                                text = count.toString(),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = TextSecondary,
-                            )
+                            Text(text = count.toString(), style = MaterialTheme.typography.labelSmall, color = TextSecondary)
                         }
                     }
                 }
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextMuted,
-                )
+                Text(text = description, style = MaterialTheme.typography.bodySmall, color = TextMuted)
             }
         }
 
         TextButton(onClick = onClear) {
-            Text(
-                text = stringResource(R.string.action_clear),
-                color = NeonRed,
-                style = MaterialTheme.typography.labelMedium,
-            )
+            Text(text = stringResource(R.string.action_clear), color = NeonRed, style = MaterialTheme.typography.labelMedium)
         }
     }
 }

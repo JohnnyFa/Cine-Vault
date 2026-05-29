@@ -24,7 +24,9 @@ data class OptionsUiState(
 
 sealed interface ClearAction {
     data object Favorites : ClearAction
+
     data object Recents : ClearAction
+
     data object Cache : ClearAction
 }
 
@@ -37,7 +39,6 @@ class OptionsViewModel(
     private val clearRecentsUseCase: ClearRecentsUseCase,
     private val clearCacheUseCase: ClearCacheUseCase,
 ) : ViewModel() {
-
     val currentUser: FirebaseUser? = auth.currentUser
 
     private val _uiState = MutableStateFlow(OptionsUiState())
