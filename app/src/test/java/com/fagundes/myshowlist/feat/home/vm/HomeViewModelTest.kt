@@ -6,12 +6,14 @@ import com.fagundes.myshowlist.feat.home.data.repository.HomeRepository
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveFavoritesUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveRecentsUseCase
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -39,7 +41,6 @@ class HomeViewModelTest {
         mockkStatic(Log::class)
         every { Log.d(any(), any()) } returns 0
 
-        // Set up default successful responses for init block
         every { repository.observePopularMovies() } returns flowOf(movieList)
         every { repository.observeRecommendedMovies() } returns flowOf(movieList)
         every { repository.observeShowOfTheDay() } returns flowOf(movie)
@@ -88,7 +89,6 @@ class HomeViewModelTest {
     @Test
     fun `loadPopular should update trendingState to Error on failure if still loading`() =
         runTest {
-            // Force loading state for this test
             every { repository.observePopularMovies() } returns flowOf(emptyList())
             viewModel = HomeViewModel(repository, observeFavoritesUseCase, observeRecentsUseCase)
             testDispatcher.scheduler.runCurrent()
@@ -100,5 +100,32 @@ class HomeViewModelTest {
 
             assert(viewModel.trendingState.value is HomeUiState.Error)
             assertEquals("Failed to load trending", (viewModel.trendingState.value as HomeUiState.Error).message)
+        }
+
+    @Test
+    fun `should auto-refresh and enter Loading when popular movies are wiped from cache after successful load`() =
+        runTest {
+            val popularFlow = MutableStateFlow(movieList)
+            every { repository.observePopularMovies() } returns popularFlow
+            viewModel = HomeViewModel(repository, observeFavoritesUseCase, observeRecentsUseCase)
+            testDispatcher.scheduler.runCurrent()
+
+            assert(viewModel.trendingState.value is HomeUiState.Success)
+
+            popularFlow.value = emptyList()
+            testDispatcher.scheduler.runCurrent()
+
+            assert(viewModel.trendingState.value is HomeUiState.Loading)
+            coVerify(atLeast = 2) { repository.refreshHomeIfNeeded() }
+        }
+
+    @Test
+    fun `trendingState should be Loading when popular movies are empty on initial load`() =
+        runTest {
+            every { repository.observePopularMovies() } returns flowOf(emptyList())
+            viewModel = HomeViewModel(repository, observeFavoritesUseCase, observeRecentsUseCase)
+            testDispatcher.scheduler.runCurrent()
+
+            assert(viewModel.trendingState.value is HomeUiState.Loading)
         }
 }
