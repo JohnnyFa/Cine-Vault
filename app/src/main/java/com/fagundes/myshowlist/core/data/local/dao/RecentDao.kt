@@ -15,6 +15,9 @@ interface RecentDao {
     @Query("SELECT * FROM recents ORDER BY viewedAt DESC LIMIT 20")
     fun observeRecents(): Flow<List<RecentEntity>>
 
+    @Query("SELECT COUNT(*) FROM recents")
+    fun observeCount(): Flow<Int>
+
     @Query("DELETE FROM recents WHERE rowid NOT IN (SELECT rowid FROM recents ORDER BY viewedAt DESC LIMIT 20)")
     suspend fun deleteOldRecents()
 

@@ -22,6 +22,8 @@ class FavoriteRepositoryImpl(
         }
     }
 
+    override fun observeCount(): Flow<Int> = favoriteDao.observeCount()
+
     override suspend fun clearAll() {
         favoriteDao.deleteAll()
     }

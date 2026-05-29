@@ -39,7 +39,12 @@ import com.fagundes.myshowlist.feat.login.data.FirebaseAuthRepository
 import com.fagundes.myshowlist.feat.login.domain.AuthRepository
 import com.fagundes.myshowlist.feat.login.domain.LoginWithGoogleUseCase
 import com.fagundes.myshowlist.feat.login.vm.LoginViewModel
+import com.fagundes.myshowlist.feat.options.domain.usecase.ClearCacheUseCase
+import com.fagundes.myshowlist.feat.options.domain.usecase.ClearFavoritesUseCase
+import com.fagundes.myshowlist.feat.options.domain.usecase.ClearRecentsUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearUserDataUseCase
+import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveFavoritesCountUseCase
+import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveRecentsCountUseCase
 import com.fagundes.myshowlist.feat.options.vm.OptionsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
@@ -128,6 +133,11 @@ val appModule =
         factory { SaveRecentMovieUseCase(get()) }
         factory { ObserveRecentsUseCase(get()) }
         factory { ClearUserDataUseCase(get(), get()) }
+        factory { ObserveFavoritesCountUseCase(get()) }
+        factory { ObserveRecentsCountUseCase(get()) }
+        factory { ClearFavoritesUseCase(get()) }
+        factory { ClearRecentsUseCase(get()) }
+        factory { ClearCacheUseCase(get(), get()) }
 
         // ---------- ViewModels ----------
         viewModelOf(::LoginViewModel)

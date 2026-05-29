@@ -39,6 +39,8 @@ class RecentRepositoryImpl(
         recentDao.deleteOldRecents()
     }
 
+    override fun observeCount(): Flow<Int> = recentDao.observeCount()
+
     override suspend fun clearAll() {
         recentDao.deleteAll()
     }

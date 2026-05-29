@@ -20,4 +20,7 @@ interface MovieDetailCacheDao {
 
     @Query("DELETE FROM movie_detail_cache WHERE cachedAt < :olderThan")
     suspend fun deleteExpiredCache(olderThan: Long)
+
+    @Query("DELETE FROM movie_detail_cache")
+    suspend fun deleteAll()
 }

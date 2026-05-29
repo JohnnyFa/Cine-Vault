@@ -33,4 +33,7 @@ interface ContentDao {
 
     @Query("DELETE FROM content WHERE cachedAt < :olderThan")
     suspend fun deleteExpiredCache(olderThan: Long)
+
+    @Query("DELETE FROM content")
+    suspend fun deleteAll()
 }
