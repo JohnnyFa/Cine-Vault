@@ -44,4 +44,18 @@
     <string name="empty_favorites_message">Nenhum favorito ainda. Toque no ícone de coração para salvar filmes.</string>
     <string name="label_recently_viewed">Vistos Recentemente</string>
     <string name="label_options">Opções</string>
+    <string name="label_data_management">Gerenciamento de dados</string>
+    <string name="label_cache">Cache de conteúdo</string>
+    <string name="action_clear">Limpar</string>
+    <string name="desc_favorites_data">Seus filmes e séries salvos</string>
+    <string name="desc_recents_data">Títulos vistos recentemente</string>
+    <string name="desc_cache_data">Respostas temporárias da API</string>
+    <string name="label_about">Sobre</string>
+    <string name="label_version">Versão</string>
+    <string name="action_confirm">Confirmar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="dialog_clear_favorites_title">Limpar Favoritos?</string>
+    <string name="dialog_clear_recents_title">Limpar Recentes?</string>
+    <string name="dialog_clear_cache_title">Limpar Cache?</string>
+    <string name="dialog_clear_message">Esta ação não pode ser desfeita.</string>
 </resources>

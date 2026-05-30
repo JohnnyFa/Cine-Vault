@@ -34,6 +34,9 @@ interface FavoriteDao {
     @Query("SELECT * FROM favorites ORDER BY favoritedAt DESC")
     fun observeAllFavorites(): Flow<List<FavoriteEntity>>
 
+    @Query("SELECT COUNT(*) FROM favorites")
+    fun observeCount(): Flow<Int>
+
     @Query("DELETE FROM favorites")
     suspend fun deleteAll()
 }

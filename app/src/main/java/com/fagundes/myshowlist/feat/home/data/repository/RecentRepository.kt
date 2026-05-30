@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.Flow
 interface RecentRepository {
     fun observeRecents(): Flow<List<Movie>>
 
+    fun observeCount(): Flow<Int>
+
     suspend fun saveRecent(movie: FavoriteItem)
 
     suspend fun clearAll()

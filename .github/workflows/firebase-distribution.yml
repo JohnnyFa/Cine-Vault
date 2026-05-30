@@ -48,7 +48,7 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
 
       - name: Build staging release artifact
-        run: ./gradlew assembleStagingRelease --stacktrace
+        run: ./gradlew assembleStagingRelease --no-daemon --stacktrace
 
       - name: Build release notes from tag commits
         id: release_notes
@@ -105,7 +105,7 @@ jobs:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
 
       - name: Build prod release artifact
-        run: ./gradlew assembleProdRelease --stacktrace
+        run: ./gradlew assembleProdRelease --no-daemon --stacktrace
 
       - name: Build release notes from tag commits
         id: release_notes

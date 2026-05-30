@@ -6,5 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface FavoriteRepository {
     fun observeAllFavorites(): Flow<List<Movie>>
 
+    fun observeCount(): Flow<Int>
+
     suspend fun clearAll()
 }

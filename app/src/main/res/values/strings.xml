@@ -35,4 +35,18 @@
     <string name="empty_favorites_message">No favorites yet. Tap the heart icon to save movies.</string>
     <string name="label_recently_viewed">Recently Viewed</string>
     <string name="label_options">Options</string>
+    <string name="label_data_management">Data Management</string>
+    <string name="label_cache">Content Cache</string>
+    <string name="action_clear">Clear</string>
+    <string name="desc_favorites_data">Your saved movies and shows</string>
+    <string name="desc_recents_data">Titles you have recently viewed</string>
+    <string name="desc_cache_data">Temporary API responses</string>
+    <string name="label_about">About</string>
+    <string name="label_version">Version</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="dialog_clear_favorites_title">Clear Favorites?</string>
+    <string name="dialog_clear_recents_title">Clear Recents?</string>
+    <string name="dialog_clear_cache_title">Clear Cache?</string>
+    <string name="dialog_clear_message">This action cannot be undone.</string>
 </resources>
