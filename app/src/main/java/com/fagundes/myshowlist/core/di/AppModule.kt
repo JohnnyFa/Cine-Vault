@@ -16,6 +16,7 @@ import com.fagundes.myshowlist.core.network.provideTmdbHttpClient
 import com.fagundes.myshowlist.feat.catalog.data.repository.CatalogRepository
 import com.fagundes.myshowlist.feat.catalog.data.repository.CatalogRepositoryImpl
 import com.fagundes.myshowlist.feat.catalog.vm.CatalogViewModel
+import com.fagundes.myshowlist.feat.catalog.vm.UpcomingViewModel
 import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepository
 import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepositoryImpl
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveFavoriteStateUseCase
@@ -143,6 +144,7 @@ val appModule =
         viewModelOf(::LoginViewModel)
         viewModelOf(::HomeViewModel)
         viewModelOf(::CatalogViewModel)
+        viewModelOf(::UpcomingViewModel)
         viewModelOf(::OptionsViewModel)
 
         viewModel { (id: Int, type: ContentType) ->

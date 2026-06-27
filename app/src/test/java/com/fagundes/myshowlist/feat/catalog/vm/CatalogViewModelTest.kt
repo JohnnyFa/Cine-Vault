@@ -12,6 +12,8 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -170,5 +172,21 @@ class CatalogViewModelTest {
 
             assertTrue(viewModel.uiState.value is CatalogUiState.Error)
             assertEquals("Erro ao carregar catálogo", (viewModel.uiState.value as CatalogUiState.Error).message)
+        }
+
+    @Test
+    fun `onSeeAllUpcoming should emit SeeAllUpcoming nav event`() =
+        runTest {
+            viewModel = CatalogViewModel(repository)
+            testDispatcher.scheduler.runCurrent()
+
+            var emittedEvent: CatalogNavEvent? = null
+            val job = launch { emittedEvent = viewModel.navEvent.first() }
+
+            viewModel.onSeeAllUpcoming()
+            testDispatcher.scheduler.runCurrent()
+
+            assertEquals(CatalogNavEvent.SeeAllUpcoming, emittedEvent)
+            job.cancel()
         }
 }
