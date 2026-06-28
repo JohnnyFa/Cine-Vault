@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,6 +36,7 @@ import com.fagundes.myshowlist.feat.catalog.ui.components.CatalogSearchBar
 import com.fagundes.myshowlist.feat.catalog.ui.components.CategoryChipsRow
 import com.fagundes.myshowlist.feat.catalog.ui.components.UpcomingHighlightCard
 import com.fagundes.myshowlist.feat.catalog.ui.components.UpcomingMovieItem
+import com.fagundes.myshowlist.feat.catalog.vm.CatalogNavEvent
 import com.fagundes.myshowlist.feat.catalog.vm.CatalogUiState
 import com.fagundes.myshowlist.feat.catalog.vm.CatalogViewModel
 import com.fagundes.myshowlist.ui.theme.Background
@@ -44,9 +46,18 @@ import com.fagundes.myshowlist.ui.theme.MyShowListTheme
 fun CatalogScreen(
     viewModel: CatalogViewModel,
     onOpenDetail: (Int, ContentType) -> Unit,
+    onSeeAllUpcoming: () -> Unit,
 ) {
     val state by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.navEvent.collect { event ->
+            when (event) {
+                CatalogNavEvent.SeeAllUpcoming -> onSeeAllUpcoming()
+            }
+        }
+    }
 
     CatalogScreenContent(
         state = state,

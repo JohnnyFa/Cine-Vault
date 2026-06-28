@@ -7,7 +7,9 @@ import androidx.navigation.compose.rememberNavController
 import com.fagundes.myshowlist.components.bottomnavigation.MainScaffold
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.feat.catalog.ui.CatalogScreen
+import com.fagundes.myshowlist.feat.catalog.ui.UpcomingScreen
 import com.fagundes.myshowlist.feat.catalog.vm.CatalogViewModel
+import com.fagundes.myshowlist.feat.catalog.vm.UpcomingViewModel
 import com.fagundes.myshowlist.feat.detail.ui.DetailScreen
 import com.fagundes.myshowlist.feat.home.ui.HomeScreen
 import com.fagundes.myshowlist.feat.home.vm.HomeViewModel
@@ -47,9 +49,26 @@ fun AppNavGraph(startDestination: String) {
 
             composable(AppRoutes.CATALOG) {
                 val viewModel: CatalogViewModel = koinViewModel()
-                CatalogScreen(viewModel, onOpenDetail = { id, type ->
-                    navController.navigate(AppRoutes.detail(id, type))
-                })
+                CatalogScreen(
+                    viewModel = viewModel,
+                    onOpenDetail = { id, type ->
+                        navController.navigate(AppRoutes.detail(id, type))
+                    },
+                    onSeeAllUpcoming = {
+                        navController.navigate(AppRoutes.UPCOMING)
+                    },
+                )
+            }
+
+            composable(AppRoutes.UPCOMING) {
+                val viewModel: UpcomingViewModel = koinViewModel()
+                UpcomingScreen(
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() },
+                    onOpenDetail = { id, type ->
+                        navController.navigate(AppRoutes.detail(id, type))
+                    },
+                )
             }
 
             composable(AppRoutes.OPTIONS) {

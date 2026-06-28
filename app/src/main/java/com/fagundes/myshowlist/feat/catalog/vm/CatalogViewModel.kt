@@ -7,7 +7,9 @@ import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.feat.catalog.data.repository.CatalogRepository
 import com.fagundes.myshowlist.feat.catalog.domain.MovieGenre
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -23,6 +25,9 @@ class CatalogViewModel(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
+    private val _navEvent = MutableSharedFlow<CatalogNavEvent>()
+    val navEvent: SharedFlow<CatalogNavEvent> = _navEvent
+
     private var baseMovies: List<Movie> = emptyList()
 
     init {
@@ -34,7 +39,7 @@ class CatalogViewModel(
     }
 
     fun onSeeAllUpcoming() {
-        print("implementacao futura")
+        viewModelScope.launch { _navEvent.emit(CatalogNavEvent.SeeAllUpcoming) }
     }
 
     fun retry() {
@@ -162,3 +167,7 @@ data class CatalogContentState(
     val movies: List<Movie> = emptyList(),
     val featuredMovie: Movie? = null,
 )
+
+sealed interface CatalogNavEvent {
+    object SeeAllUpcoming : CatalogNavEvent
+}
