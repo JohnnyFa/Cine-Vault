@@ -184,6 +184,7 @@ Retrieve `FIREBASE_APP_ID_*` from Firebase Console → Project settings → Your
 ## License
 
 TODO: Add license information.
+Future features:
 
 ---
 *Developed by [Johnny Fagundes](https://github.com/johnnyfagundes)*
