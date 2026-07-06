@@ -6,7 +6,8 @@ MyShowList (branded as **Cine Vault**) is a modern Android application for disco
 
 - **Movie Discovery**: Browse trending movies, "Show of the Day", recommended content, and upcoming releases.
 - **Anime Catalog**: Explore anime using the Jikan API with genre-based filtering.
-- **Unified Search**: Search movies and anime across the catalog with upcoming release highlights.
+- **Upcoming Movies**: Dedicated screen listing upcoming theatrical releases with highlight cards.
+- **Unified Search**: Search movies and anime across the catalog.
 - **Favorites**: Save content to a persistent local favorites list.
 - **Recents**: Automatically tracks recently viewed content.
 - **Content Detail**: Full detail view with metadata, poster hero, and favorite toggle.
@@ -26,8 +27,10 @@ MyShowList (branded as **Cine Vault**) is a modern Android application for disco
 | Networking | [Ktor](https://ktor.io/) + OkHttp | 3.0.1 |
 | Serialization | [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization) | — |
 | Local Database | [Room](https://developer.android.com/training/data-storage/room) | 2.8.4 |
+| Coroutines | [Kotlinx Coroutines](https://github.com/Kotlin/kotlinx.coroutines) | 1.10.2 |
 | Image Loading | [Coil](https://coil-kt.github.io/coil/) | 2.5.0 |
 | Navigation | [Compose Navigation](https://developer.android.com/jetpack/compose/navigation) | 2.9.6 |
+| Splash Screen | [Core Splashscreen](https://developer.android.com/develop/ui/views/launch/splash-screen) | 1.2.0 |
 | Authentication | [Firebase Auth](https://firebase.google.com/docs/auth) + Google Sign-In | — |
 | Architecture | MVVM + Feature-Based Packaging | — |
 | Static Analysis | [Detekt](https://detekt.dev/) + [ktlint](https://pinterest.github.io/ktlint/) | — |
@@ -45,10 +48,11 @@ app/src/main/java/com/fagundes/myshowlist/
 │   ├── db/                  # AppDatabase configuration
 │   ├── di/                  # Koin module (AppModule.kt)
 │   ├── domain/              # Shared domain models (Movie, Anime, Content)
+│   ├── language/            # LanguageHelper for multi-language support
 │   ├── navigation/          # AppNavGraph.kt + AppRoutes.kt
 │   └── network/             # BaseHttpClient, TMDB/Jikan client configs
 └── feat/
-    ├── catalog/             # Upcoming releases, genre filtering, search
+    ├── catalog/             # Catalog, search, genre filtering, upcoming movies screen
     ├── detail/              # Content detail view, favorite toggle use cases
     ├── home/                # Dashboard: trending, recommended, recents, favorites
     ├── login/               # Firebase/Google Sign-In flow
@@ -184,7 +188,6 @@ Retrieve `FIREBASE_APP_ID_*` from Firebase Console → Project settings → Your
 ## License
 
 TODO: Add license information.
-Future features:
 
 ---
 *Developed by [Johnny Fagundes](https://github.com/johnnyfagundes)*
