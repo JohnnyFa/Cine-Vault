@@ -1,24 +1,37 @@
+# TODO: Before this workflow can run, add the following GitHub Secrets:
+#   - KEYSTORE_BASE64       — base64-encoded .jks file (run: base64 -i your.jks | pbcopy)
+#   - KEYSTORE_PASSWORD     — the keystore password
+#   - KEY_ALIAS             — the key alias inside the keystore
+#   - KEY_PASSWORD          — the key password
+#   - TMDB_API_KEY          — TMDB API key (already required by CI)
+#   - FIREBASE_APP_ID_STAGING — Firebase App ID for the staging app
+#                              (found in Firebase Console → Project Settings → Your Apps)
+#   - FIREBASE_TOKEN        — Firebase CI token
+#                              TODO: Migrate to Google service account auth; FIREBASE_TOKEN
+#                              is deprecated. Generate a service account in Firebase Console
+#                              → Project Settings → Service accounts, then use
+#                              GOOGLE_APPLICATION_CREDENTIALS instead of token.
+
 name: Firebase App Distribution
 
 on:
   push:
     tags:
-      - 'v*-dev-*'
-      - 'v*.*.*-*'
+      # Matches: v1.3.9-dev+23  (dev pre-release tags only)
+      - 'v*-dev+*'
 
 permissions:
   contents: read
 
 concurrency:
-  group: cd-${{ github.workflow }}-${{ github.ref }}
+  group: cd-firebase-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  distribute-dev:
-    name: Distribute Dev/Staging Release
-    if: contains(github.ref_name, '-dev-')
+  distribute:
+    name: Build & Distribute to Firebase
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 40
 
     steps:
       - name: Checkout
@@ -38,19 +51,42 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Generate local.properties for CI
+      - name: Extract version from tag
+        id: version
+        # Tag format: v1.3.9-dev+23 → versionName=1.3.9-dev, versionCode=23
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION_CODE="${TAG##*+}"
+          VERSION_NAME="${TAG#v}"
+          VERSION_NAME="${VERSION_NAME%+*}"
+          echo "code=${VERSION_CODE}" >> "$GITHUB_OUTPUT"
+          echo "name=${VERSION_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Resolved: versionName=${VERSION_NAME}, versionCode=${VERSION_CODE}"
+
+      - name: Decode and write keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
+          echo "KEYSTORE_FILE=$(pwd)/keystore.jks" >> "$GITHUB_ENV"
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> "$GITHUB_ENV"
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> "$GITHUB_ENV"
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> "$GITHUB_ENV"
+
+      - name: Generate local.properties
         run: |
           cat <<EOF > local.properties
           sdk.dir=$ANDROID_HOME
-          TMDB_API_KEY=${TMDB_API_KEY}
+          TMDB_API_KEY=${{ secrets.TMDB_API_KEY }}
           EOF
-        env:
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
 
-      - name: Build staging release artifact
-        run: ./gradlew assembleStagingRelease --no-daemon --stacktrace
+      - name: Build staging release APK
+        run: |
+          ./gradlew assembleStagingRelease \
+            -PversionCode=${{ steps.version.outputs.code }} \
+            -PversionName=${{ steps.version.outputs.name }} \
+            --no-daemon \
+            --stacktrace
 
-      - name: Build release notes from tag commits
+      - name: Build release notes from commits
         id: release_notes
         run: |
           NOTES=$(git log -n 20 --pretty=format:'- %h %s (%an)')
@@ -62,68 +98,11 @@ jobs:
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
 
-      - name: Upload staging release to Firebase App Distribution
+      - name: Upload to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID_STAGING }}
           token: ${{ secrets.FIREBASE_TOKEN }}
           groups: internal-testers,qa
           file: app/build/outputs/apk/staging/release/app-staging-release.apk
-          releaseNotes: ${{ steps.release_notes.outputs.notes }}
-
-  distribute-prod:
-    name: Distribute Production Release
-    if: startsWith(github.ref_name, 'v') && !contains(github.ref_name, '-dev-')
-    runs-on: ubuntu-latest
-    timeout-minutes: 35
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Generate local.properties for CI
-        run: |
-          cat <<EOF > local.properties
-          sdk.dir=$ANDROID_HOME
-          TMDB_API_KEY=${TMDB_API_KEY}
-          EOF
-        env:
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-
-      - name: Build prod release artifact
-        run: ./gradlew assembleProdRelease --no-daemon --stacktrace
-
-      - name: Build release notes from tag commits
-        id: release_notes
-        run: |
-          NOTES=$(git log -n 20 --pretty=format:'- %h %s (%an)')
-          {
-            echo 'notes<<EOF'
-            echo "Release: ${{ github.ref_name }}"
-            echo
-            echo "${NOTES}"
-            echo 'EOF'
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Upload prod release to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1
-        with:
-          appId: ${{ secrets.FIREBASE_APP_ID_PROD }}
-          token: ${{ secrets.FIREBASE_TOKEN }}
-          groups: internal-testers,prod-beta
-          file: app/build/outputs/apk/prod/release/app-prod-release.apk
           releaseNotes: ${{ steps.release_notes.outputs.notes }}

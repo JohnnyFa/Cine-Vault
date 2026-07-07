@@ -19,16 +19,31 @@ val localProperties =
         }
     }
 
+fun getLocalOrEnv(key: String): String? = localProperties.getProperty(key) ?: System.getenv(key)
+
 android {
     namespace = "com.fagundes.myshowlist"
     compileSdk = 36
+
+    signingConfigs {
+        create("release") {
+            val keystorePath = getLocalOrEnv("KEYSTORE_FILE")
+            if (keystorePath != null) {
+                storeFile = file(keystorePath)
+                storePassword = getLocalOrEnv("KEYSTORE_PASSWORD")
+                keyAlias = getLocalOrEnv("KEY_ALIAS")
+                keyPassword = getLocalOrEnv("KEY_PASSWORD")
+            }
+        }
+    }
 
     defaultConfig {
         applicationId = "com.fagundes.myshowlist"
         minSdk = 28
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        // Overridable via -PversionCode / -PversionName for tag-based CI releases
+        versionCode = providers.gradleProperty("versionCode").orNull?.toInt() ?: 1
+        versionName = providers.gradleProperty("versionName").orNull ?: "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -64,6 +79,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            val releaseSigningConfig = signingConfigs.getByName("release")
+            if (releaseSigningConfig.storeFile != null) {
+                signingConfig = releaseSigningConfig
+            }
         }
     }
 
