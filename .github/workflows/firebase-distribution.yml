@@ -80,10 +80,13 @@ jobs:
           EOF
 
       - name: Build staging release APK
+        env:
+          VERSION_CODE: ${{ steps.version.outputs.code }}
+          VERSION_NAME: ${{ steps.version.outputs.name }}
         run: |
           ./gradlew assembleStagingRelease \
-            -PversionCode=${{ steps.version.outputs.code }} \
-            -PversionName=${{ steps.version.outputs.name }} \
+            -PversionCode="${VERSION_CODE}" \
+            -PversionName="${VERSION_NAME}" \
             --no-daemon \
             --stacktrace
 
