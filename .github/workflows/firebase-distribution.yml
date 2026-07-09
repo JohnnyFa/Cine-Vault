@@ -54,8 +54,9 @@ jobs:
       - name: Extract version from tag
         id: version
         # Tag format: v1.3.9-dev+23 → versionName=1.3.9-dev, versionCode=23
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
-          TAG="${{ github.ref_name }}"
           VERSION_CODE="${TAG##*+}"
           VERSION_NAME="${TAG#v}"
           VERSION_NAME="${VERSION_NAME%+*}"
@@ -88,11 +89,13 @@ jobs:
 
       - name: Build release notes from commits
         id: release_notes
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
           NOTES=$(git log -n 20 --pretty=format:'- %h %s (%an)')
           {
             echo 'notes<<EOF'
-            echo "Release: ${{ github.ref_name }}"
+            echo "Release: ${TAG}"
             echo
             echo "${NOTES}"
             echo 'EOF'

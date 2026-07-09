@@ -77,8 +77,9 @@ jobs:
       - name: Extract version from tag
         id: version
         # Tag format: v1.3.9+23 → versionName=1.3.9, versionCode=23
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
-          TAG="${{ github.ref_name }}"
           VERSION_CODE="${TAG##*+}"
           VERSION_NAME="${TAG#v}"
           VERSION_NAME="${VERSION_NAME%+*}"
