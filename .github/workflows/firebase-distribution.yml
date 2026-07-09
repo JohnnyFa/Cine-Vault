@@ -18,7 +18,7 @@ on:
   push:
     tags:
       # Matches: v1.3.9-dev+23  (dev pre-release tags only)
-      - 'v*-dev+*'
+      - 'v*-dev[+]*'
 
 permissions:
   contents: read

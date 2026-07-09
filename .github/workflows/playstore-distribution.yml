@@ -39,7 +39,7 @@ on:
   push:
     tags:
       # Matches v1.3.9+23 but also v1.3.9-dev+23 — the job-level `if` filters out dev tags.
-      - 'v*+*'
+      - 'v*[+]*'
 
 permissions:
   contents: read
