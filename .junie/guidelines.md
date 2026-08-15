@@ -2,6 +2,9 @@
 
 This document provides a comprehensive overview of the MyShowList Android project to help AI agents and developers understand the architecture, tech stack, and best practices.
 
+> **Canonical source:** `CLAUDE.md` plus the path-scoped rules in `.claude/rules/`.
+> This file is a summary; if the two disagree, `.claude/rules/` wins.
+
 ## 🏗 Project Architecture & Patterns
 - **Feature-Based Packaging**: Code is organized by feature under `app/src/main/java/com/fagundes/myshowlist/feat/`. Each feature typically contains:
     - `data/`: Repositories and DataSources.

@@ -1,100 +1,56 @@
-# CLAUDE.md — MyShowList
+# CLAUDE.md — MyShowList (CINE VAULT)
 
-Read this file before executing any task in this project.
+Android app: Jetpack Compose, Koin, Ktor, Room, Firebase Auth. Package root `com.fagundes.myshowlist`.
 
----
+## Build & test commands
 
-## Architecture & Patterns
+Every variant carries a flavor (`dev`/`staging`/`prod` on the `environment` dimension). **`assembleDebug` and `testDebugUnitTest` do not exist.**
 
-- **Feature-Based Packaging**: Features live under `app/src/main/java/com/fagundes/myshowlist/feat/`. Each feature contains:
-  - `data/`: Repositories and DataSources.
-  - `ui/`: Compose screens and components.
-  - `vm/`: ViewModels and UI state definitions.
-- **MVVM Pattern**: ViewModels expose UI state via `StateFlow`.
-- **UI State**: Use `sealed interface` (e.g., `Idle`, `Loading`, `Success`, `Error`). See `HomeViewModel.kt` as reference.
-- **Dependency Injection**: Koin. All definitions in `core/di/AppModule.kt`. Use `koinViewModel()` in Compose. Register new ViewModels with `viewModelOf(::YourViewModel)`.
-- **Networking**: Ktor with `baseHttpClient`. Client configs (TMDB/Jikan) live in `AppModule.kt`.
-- **Database**: Room — see `core/db/` and `core/data/local/`.
-- **Auth**: Firebase Authentication.
-- **Serialization**: Kotlinx Serialization.
-- **Image Loading**: Coil.
+```bash
+./gradlew assembleDevDebug          # compile
+./gradlew testDevDebugUnitTest      # unit tests
+./gradlew installDevDebug           # install on device/emulator
+./gradlew ktlintFormat              # auto-fix formatting
+```
 
----
+Run `/check` before pushing — it mirrors the CI gate, including `-PwarningsAsErrors=true`, which is the usual reason a green local build fails on the PR.
 
-## Data Flow
+## Architecture
 
-1. `MovieApi`/`AnimeApi` (Ktor) → `RemoteDataSource` → `Repository`
-2. `ContentDao` (Room) → `LocalDataSource` → `Repository`
-3. Repository merges sources, returns `Result<T>`
-4. ViewModel calls repository, updates `MutableStateFlow`
-5. UI observes `StateFlow`, renders from `UiState`
+```
+Api (Ktor) ──> RemoteDataSource ──┐
+                                  ├──> Repository ──> ViewModel ──> Compose UI
+Dao (Room) ──> LocalDataSource ───┘
+```
 
----
+- **Feature packaging**: `feat/<feature>/{data,domain,ui,vm}/`. Shared code in `core/`, shared composables in `components/`.
+- **MVVM**: ViewModels expose `StateFlow` of a per-feature `sealed interface <Name>UiState` (`Idle`/`Loading`/`Success`/`Error`). Reference: `feat/home/vm/HomeViewModel.kt`.
+- **Return types**: suspend one-shots return `Result<T>`; observation functions return `Flow<T>` unwrapped. Repositories return `core/domain` models — never DTOs or Room entities.
+- **DI**: Koin, single `appModule` in `core/di/AppModule.kt`. A ViewModel that isn't registered there crashes at navigation time, not at build time.
+- **Navigation**: string routes in `core/navigation/AppRoutes.kt` + `AppNavGraph.kt`. Not type-safe routes. `koinViewModel()` is called only inside `composable {}` blocks.
+- **Room**: `AppDatabase` at version 5 with hand-written migrations. `fallbackToDestructiveMigration(false)` — a schema change without a migration crashes at startup.
 
-## Key Conventions
+## Non-negotiable: every ViewModel has a test
 
-- **Return types**: Always use `Result<T>` for repository return types.
-- **Naming**: PascalCase for classes, camelCase for functions/variables.
-- **New features**: Follow `feat/<feature_name>/data|ui|vm` structure.
-- **Shared components**: Go into `com.fagundes.myshowlist.components`.
-- **Mappers**: Convert DTOs to domain models (e.g., `MovieMapper.kt`).
-- **Navigation**: Type-safe Compose Navigation via `AppNavGraph.kt` and `AppRoutes.kt`.
-- **Edge-to-edge**: Always apply `safeDrawingPadding()` or appropriate insets. Never ignore system bar overlaps.
+Add or change a ViewModel → create/update `app/src/test/java/com/fagundes/myshowlist/feat/<feature>/vm/<Name>ViewModelTest.kt` (MockK + `StandardTestDispatcher`) **and** register it in `UnitTestSuite.kt`. Delete a method → delete its test.
 
----
+## Secrets
 
-## Testing Requirements
+`local.properties` (`sdk.dir`, `TMDB_API_KEY`), `app/google-services.json`, and any keystore are off-limits: never read, print, or edit them. Build files reach secrets through `getLocalOrEnv(key)` only.
 
-**Every new ViewModel must have a corresponding unit test file.** This is mandatory, not optional.
+## Detailed conventions load automatically
 
-- Unit tests live under `app/src/test/java/com/fagundes/myshowlist/feat/<feature>/vm/`.
-- Use **MockK** (`mockk`, `every`, `verify`, `coEvery`) for mocking dependencies.
-- Use `StandardTestDispatcher` + `Dispatchers.setMain` / `resetMain` for coroutine tests.
-- At minimum, cover: initial state, each public method/action, and error paths.
-- Register every new `*ViewModelTest` class in `UnitTestSuite.kt`.
-- When modifying a ViewModel (adding/removing methods or constructor params), update its test accordingly.
+`.claude/rules/` holds path-scoped rules that enter context when you touch matching files — no need to read them up front:
 
-**Checklist when adding or modifying a ViewModel:**
-1. Create/update `<Feature>ViewModelTest.kt` in the matching test package.
-2. Add the test class to `UnitTestSuite.kt` if it is new.
-3. Remove tests for deleted methods; add tests for new ones.
+| Rule | Applies to |
+|---|---|
+| `viewmodel.md` | `feat/**/vm/*.kt` |
+| `compose-ui.md` | `feat/**/ui/**`, `components/**` |
+| `data-layer.md` | `**/data/**`, `core/db/**`, `core/network/**` |
+| `testing.md` | `app/src/test/**`, `app/src/androidTest/**` |
+| `gradle-build.md` | `*.gradle.kts`, `libs.versions.toml` |
+| `di-and-navigation.md` | `core/di/*`, `core/navigation/*` |
 
----
+Skills load on demand too — `add-remote-endpoint` and `room-migration` are project-specific; `edge-to-edge`, `navigation-3`, `testing-setup`, `styles`, `adaptive`, `r8-analyzer`, `agp-9-upgrade`, and others come from [android/skills](https://github.com/android/skills). Invoke them rather than improvising these migrations.
 
-## Key Files
-
-| File | Purpose |
-|------|---------|
-| `core/di/AppModule.kt` | Central DI registry |
-| `core/navigation/AppNavGraph.kt` | Navigation routing |
-| `core/network/BaseHttpClient.kt` | Ktor configuration |
-| `feat/home/vm/HomeViewModel.kt` | Reference for UI state pattern |
-
----
-
-## Android Skills — When to Read `.skills/` Files
-
-Read the relevant skill file **before** working on these tasks:
-
-| Task | Skill File |
-|------|-----------|
-| Edge-to-edge UI, system bars, IME, `safeDrawingPadding()` | `.skills/edge-to-edge.md` |
-| Upgrading Android Gradle Plugin to v9+ | `.skills/agp-9-upgrade.md` |
-| Type-safe Compose Navigation or Navigation 3 migration | `.skills/navigation-3.md` |
-| Migrating XML layouts to Jetpack Compose | `.skills/migrate-xml-views-to-jetpack-compose.md` |
-| R8/ProGuard keep rules and app size optimization | `.skills/r8-analyzer.md` |
-| Upgrading Google Play Billing Library | `.skills/play-billing-library-version-upgrade.md` |
-
-### Quick Reference — Skill Triggers
-
-**edge-to-edge**: Requires SDK 35+. Call `enableEdgeToEdge()` before `setContent`. Use `Scaffold` with `innerPadding`; apply `contentPadding` to lazy lists. Use `Modifier.safeDrawingPadding()` outside Scaffolds. For IME: prefer `Modifier.fitInside(WindowInsetsRulers.Ime.current)`. Never double-apply insets.
-
-**agp-9-upgrade**: Run AGP Upgrade Assistant first. Then update KSP ≥ 2.3.6, migrate to built-in Kotlin, migrate to new DSL, handle kapt → KSP, update BuildConfig. Verify with `./gradlew help` and `./gradlew build --dry-run`.
-
-**navigation-3**: Covers type-safe nav keys, `NavDisplay`, multiple back stacks, conditional navigation, Koin integration, dialogs, bottom sheets, and list-detail layouts. Full recipes in `.skills/navigation-3.md`.
-
-**migrate-xml-views-to-jetpack-compose**: 10-step process: identify candidate → analyze → plan → capture UI → set up Compose deps → theming → migrate layout → replace usages → validate → remove XML. Do not migrate entire theme, only the minimum required.
-
-**r8-analyzer**: Creates `R8_Configuration_Analysis.md`. Checks R8 config, evaluates keep rules, identifies redundant/broad rules, suggests narrower alternatives. Does not modify keep rule files directly.
-
-**play-billing-library-version-upgrade**: Detects effective PBL version from code, plans direct or stepped migration path, applies all deprecation/breaking changes, runs `./gradlew assembleDebug` for verification.
+<!-- .skills/*.md holds an older flat copy of six Android skills, kept for Junie and other agents. Claude uses the installed skills instead. -->

@@ -2,6 +2,9 @@
 
 Guidelines for AI agents to be productive in this Android codebase.
 
+> **Canonical source:** `CLAUDE.md` plus the path-scoped rules in `.claude/rules/`.
+> This file is a summary for agents that don't read those; if the two disagree, `.claude/rules/` wins.
+
 ### 🏗 Architecture & Patterns
 - **Feature-Based Packaging**: Code is organized by feature under `feat/`. Each feature typically contains `data`, `ui`, and `vm` sub-packages.
 - **MVVM Pattern**: ViewModels use `StateFlow` to expose UI state.

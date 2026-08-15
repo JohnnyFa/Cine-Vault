@@ -8,3 +8,11 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Claude Code — local / secret config.
+# Everything else under .claude/ (settings.json, rules/, commands/, agents/,
+# hooks/, skills/) is committed so the setup survives a fresh clone.
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/.kt-touched
+.mcp.json
