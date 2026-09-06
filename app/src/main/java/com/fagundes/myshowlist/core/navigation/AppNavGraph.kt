@@ -6,10 +6,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fagundes.myshowlist.components.bottomnavigation.MainScaffold
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
-import com.fagundes.myshowlist.feat.catalog.ui.CatalogScreen
-import com.fagundes.myshowlist.feat.catalog.ui.UpcomingScreen
-import com.fagundes.myshowlist.feat.catalog.vm.CatalogViewModel
-import com.fagundes.myshowlist.feat.catalog.vm.UpcomingViewModel
+import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogScreen
+import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogViewModel
+import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingScreen
+import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewModel
 import com.fagundes.myshowlist.feat.detail.ui.DetailScreen
 import com.fagundes.myshowlist.feat.home.ui.HomeScreen
 import com.fagundes.myshowlist.feat.home.vm.HomeViewModel

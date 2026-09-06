@@ -1,11 +1,18 @@
 ---
 paths:
   - "app/src/main/java/com/fagundes/myshowlist/feat/**/vm/*.kt"
+  - "app/src/main/java/com/fagundes/myshowlist/feat/**/presentation/**/*ViewModel.kt"
+  - "app/src/main/java/com/fagundes/myshowlist/feat/**/presentation/**/*UiState.kt"
 ---
 
 # ViewModel rules
 
 Reference implementation: `feat/home/vm/HomeViewModel.kt`.
+
+**Two layouts coexist while the clean-architecture migration is in progress.** `feat/catalog` is
+migrated: `presentation/<screen>/` holds the screen, its ViewModel and its `<Name>UiState.kt`.
+Everything else still uses the older `ui/` + `vm/` split. Follow whichever layout the feature you
+are editing already uses; see CLAUDE.md.
 
 ## Structure
 
@@ -21,7 +28,9 @@ Reference implementation: `feat/home/vm/HomeViewModel.kt`.
 
 ## UI state
 
-Declare a `sealed interface` in the same file as the ViewModel, below the class:
+In migrated features (`presentation/`), the state contract lives in its own `<Name>UiState.kt`
+beside the ViewModel — see `feat/catalog/presentation/catalog/CatalogUiState.kt`. In the older
+layout it is declared in the same file as the ViewModel, below the class:
 
 ```kotlin
 sealed interface HomeUiState<out T> {
@@ -40,7 +49,8 @@ Repository suspend calls return `Result<T>`; wrap fallible work in `runCatching 
 
 ## Testing is mandatory
 
-Every ViewModel has a matching `<Name>ViewModelTest.kt` under
-`app/src/test/java/com/fagundes/myshowlist/feat/<feature>/vm/`, registered in `UnitTestSuite.kt`.
+Every ViewModel has a matching `<Name>ViewModelTest.kt` in the test source set at the **same
+package as the ViewModel itself** (`feat/<feature>/vm/` in the older layout,
+`feat/<feature>/presentation/<screen>/` in migrated ones), registered in `UnitTestSuite.kt`.
 
 When you add a public method, add a test for it. When you change the constructor, update the test's construction. When you delete a method, delete its test. See `.claude/rules/testing.md`.

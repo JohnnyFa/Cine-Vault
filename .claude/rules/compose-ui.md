@@ -1,6 +1,7 @@
 ---
 paths:
   - "app/src/main/java/com/fagundes/myshowlist/feat/**/ui/**/*.kt"
+  - "app/src/main/java/com/fagundes/myshowlist/feat/**/presentation/**/*.kt"
   - "app/src/main/java/com/fagundes/myshowlist/components/**/*.kt"
   - "app/src/main/java/com/fagundes/myshowlist/ui/**/*.kt"
 ---
@@ -36,7 +37,9 @@ private fun HomeScreenContent(trendingState: HomeUiState<List<Movie>>, ...) { ..
 
 - `modifier: Modifier = Modifier` is the first optional parameter, and the caller's modifier is applied to the outermost layout node.
 - Hoist state: components take values and `on<Event>` lambdas, never a ViewModel.
-- Shared components go in `com.fagundes.myshowlist.components`; feature-local ones in `feat/<feature>/ui/components/`.
+- Shared components go in `com.fagundes.myshowlist.components`; feature-local ones in
+  `feat/<feature>/ui/components/`, or `feat/<feature>/presentation/components/` in features
+  already migrated to the clean-architecture layout (currently `catalog`).
 - Add a `@Preview` composable wrapped in `MyShowListTheme { }` for `ScreenContent` and non-trivial components.
 - Use `Modifier.testTag(...)` on nodes that instrumented tests need to find.
 

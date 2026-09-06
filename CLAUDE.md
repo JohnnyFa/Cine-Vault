@@ -19,12 +19,30 @@ Run `/check` before pushing — it mirrors the CI gate, including `-PwarningsAsE
 
 ```
 Api (Ktor) ──> RemoteDataSource ──┐
-                                  ├──> Repository ──> ViewModel ──> Compose UI
-Dao (Room) ──> LocalDataSource ───┘
+                                  ├──> Repository ──> UseCase ──> ViewModel ──> Compose UI
+Dao (Room) ──> LocalDataSource ───┘        (data)      (domain)      (presentation)
 ```
 
-- **Feature packaging**: `feat/<feature>/{data,domain,ui,vm}/`. Shared code in `core/`, shared composables in `components/`.
-- **MVVM**: ViewModels expose `StateFlow` of a per-feature `sealed interface <Name>UiState` (`Idle`/`Loading`/`Success`/`Error`). Reference: `feat/home/vm/HomeViewModel.kt`.
+Dependencies point inward: **presentation → domain ← data**. `domain` knows nothing about Ktor,
+Room or Compose. A repository *interface* is a domain contract and lives in `domain/repository/`;
+only its implementation lives in `data/repository/`.
+
+- **Feature packaging** — `feat/catalog` is the reference for the target layout:
+
+  ```
+  feat/<feature>/
+  ├── data/{remote,local,repository}/     # DTO mapping, caching, <Name>RepositoryImpl
+  ├── domain/{model,repository,usecase}/  # pure Kotlin: models, contracts, use cases
+  └── presentation/
+      ├── <screen>/                       # <Name>Screen.kt + <Name>ViewModel.kt + <Name>UiState.kt
+      └── components/                     # feature-local composables
+  ```
+
+  **Migration in progress**: only `catalog` uses this layout. `home`, `detail`, `login` and `options`
+  still use the older `feat/<feature>/{data,domain,ui,vm}/` split, with the repository interface
+  under `data/`. Follow whichever layout the feature you are editing already uses; don't half-convert
+  a feature. Shared code in `core/`, shared composables in `components/`.
+- **MVVM**: ViewModels expose `StateFlow` of a per-feature `sealed interface <Name>UiState` (`Idle`/`Loading`/`Success`/`Error`). References: `feat/catalog/presentation/catalog/CatalogViewModel.kt` (migrated), `feat/home/vm/HomeViewModel.kt` (older layout).
 - **Return types**: suspend one-shots return `Result<T>`; observation functions return `Flow<T>` unwrapped. Repositories return `core/domain` models — never DTOs or Room entities.
 - **DI**: Koin, single `appModule` in `core/di/AppModule.kt`. A ViewModel that isn't registered there crashes at navigation time, not at build time.
 - **Navigation**: string routes in `core/navigation/AppRoutes.kt` + `AppNavGraph.kt`. Not type-safe routes. `koinViewModel()` is called only inside `composable {}` blocks.
@@ -32,7 +50,9 @@ Dao (Room) ──> LocalDataSource ───┘
 
 ## Non-negotiable: every ViewModel has a test
 
-Add or change a ViewModel → create/update `app/src/test/java/com/fagundes/myshowlist/feat/<feature>/vm/<Name>ViewModelTest.kt` (MockK + `StandardTestDispatcher`) **and** register it in `UnitTestSuite.kt`. Delete a method → delete its test.
+Add or change a ViewModel → create/update its test under `app/src/test/java/` **in the same package as the ViewModel** (`feat/<feature>/presentation/<screen>/` in migrated features, `feat/<feature>/vm/` in the rest), using MockK + `StandardTestDispatcher`, **and** register it in `UnitTestSuite.kt`. Delete a method → delete its test.
+
+Use cases that carry real logic (a branch, a guard, a mapping) get a test too, under `feat/<feature>/domain/usecase/`; thin one-line forwards to a repository do not.
 
 ## Secrets
 
@@ -44,8 +64,8 @@ Add or change a ViewModel → create/update `app/src/test/java/com/fagundes/mysh
 
 | Rule | Applies to |
 |---|---|
-| `viewmodel.md` | `feat/**/vm/*.kt` |
-| `compose-ui.md` | `feat/**/ui/**`, `components/**` |
+| `viewmodel.md` | `feat/**/vm/*.kt`, `feat/**/presentation/**/*ViewModel.kt`, `**/*UiState.kt` |
+| `compose-ui.md` | `feat/**/ui/**`, `feat/**/presentation/**`, `components/**` |
 | `data-layer.md` | `**/data/**`, `core/db/**`, `core/network/**` |
 | `testing.md` | `app/src/test/**`, `app/src/androidTest/**` |
 | `gradle-build.md` | `*.gradle.kts`, `libs.versions.toml` |

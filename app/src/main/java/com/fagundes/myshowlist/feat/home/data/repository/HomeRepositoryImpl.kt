@@ -1,19 +1,19 @@
 package com.fagundes.myshowlist.feat.home.data.repository
 
 import com.fagundes.myshowlist.core.CACHE_DURATION
+import com.fagundes.myshowlist.core.data.local.datasource.ContentLocalDataSource
 import com.fagundes.myshowlist.core.data.local.enum.ContentCategory
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.data.local.mapper.toEntity
 import com.fagundes.myshowlist.core.data.local.mapper.toMovie
 import com.fagundes.myshowlist.core.domain.Movie
-import com.fagundes.myshowlist.feat.home.data.local.datasource.HomeLocalDataSource
 import com.fagundes.myshowlist.feat.home.data.remote.HomeRemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class HomeRepositoryImpl(
-    private val local: HomeLocalDataSource,
+    private val local: ContentLocalDataSource,
     private val remote: HomeRemoteDataSource,
 ) : HomeRepository {
     override fun observePopularMovies(): Flow<List<Movie>> =

@@ -1,6 +1,6 @@
 package com.fagundes.myshowlist
 
-import com.fagundes.myshowlist.feat.catalog.ui.CatalogScreenTest
+import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogScreenTest
 import com.fagundes.myshowlist.feat.home.ui.HomeScreenTest
 import com.fagundes.myshowlist.feat.login.ui.LoginScreenTest
 import org.junit.runner.RunWith

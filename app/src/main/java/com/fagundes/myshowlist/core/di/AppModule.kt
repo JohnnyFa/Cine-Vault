@@ -5,6 +5,8 @@ import com.fagundes.myshowlist.core.data.local.dao.ContentDao
 import com.fagundes.myshowlist.core.data.local.dao.FavoriteDao
 import com.fagundes.myshowlist.core.data.local.dao.MovieDetailCacheDao
 import com.fagundes.myshowlist.core.data.local.dao.RecentDao
+import com.fagundes.myshowlist.core.data.local.datasource.ContentLocalDataSource
+import com.fagundes.myshowlist.core.data.local.datasource.ContentLocalDataSourceImpl
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.data.remote.api.AnimeApi
 import com.fagundes.myshowlist.core.data.remote.api.MovieApi
@@ -13,17 +15,20 @@ import com.fagundes.myshowlist.core.db.MIGRATION_3_4
 import com.fagundes.myshowlist.core.db.MIGRATION_4_5
 import com.fagundes.myshowlist.core.network.provideJikanHttpClient
 import com.fagundes.myshowlist.core.network.provideTmdbHttpClient
-import com.fagundes.myshowlist.feat.catalog.data.repository.CatalogRepository
+import com.fagundes.myshowlist.feat.catalog.data.remote.CatalogRemoteDataSource
+import com.fagundes.myshowlist.feat.catalog.data.remote.CatalogRemoteDataSourceImpl
 import com.fagundes.myshowlist.feat.catalog.data.repository.CatalogRepositoryImpl
-import com.fagundes.myshowlist.feat.catalog.vm.CatalogViewModel
-import com.fagundes.myshowlist.feat.catalog.vm.UpcomingViewModel
+import com.fagundes.myshowlist.feat.catalog.domain.repository.CatalogRepository
+import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetMoviesByGenreUseCase
+import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetUpcomingMoviesUseCase
+import com.fagundes.myshowlist.feat.catalog.domain.usecase.SearchMoviesUseCase
+import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogViewModel
+import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewModel
 import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepository
 import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepositoryImpl
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveFavoriteStateUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ToggleFavoriteUseCase
 import com.fagundes.myshowlist.feat.detail.vm.DetailViewModel
-import com.fagundes.myshowlist.feat.home.data.local.datasource.HomeLocalDataSource
-import com.fagundes.myshowlist.feat.home.data.local.datasource.HomeLocalDataSourceImpl
 import com.fagundes.myshowlist.feat.home.data.remote.HomeRemoteDataSource
 import com.fagundes.myshowlist.feat.home.data.remote.HomeRemoteDataSourceImpl
 import com.fagundes.myshowlist.feat.home.data.repository.FavoriteRepository
@@ -96,9 +101,13 @@ val appModule =
             HomeRemoteDataSourceImpl(movieApi = get())
         }
 
+        single<CatalogRemoteDataSource> {
+            CatalogRemoteDataSourceImpl(movieApi = get())
+        }
+
         // ---------- Local DataSource ----------
-        single<HomeLocalDataSource> {
-            HomeLocalDataSourceImpl(get())
+        single<ContentLocalDataSource> {
+            ContentLocalDataSourceImpl(get())
         }
 
         // ---------- Repository ----------
@@ -111,7 +120,7 @@ val appModule =
 
         single<CatalogRepository> {
             CatalogRepositoryImpl(
-                movieApi = get(),
+                remote = get(),
                 local = get(),
             )
         }
@@ -128,6 +137,7 @@ val appModule =
             RecentRepositoryImpl(get())
         }
 
+        // ---------- UseCases ----------
         factory { ObserveFavoriteStateUseCase(get()) }
         factory { ToggleFavoriteUseCase(get()) }
         factory { ObserveFavoritesUseCase(get()) }
@@ -139,6 +149,9 @@ val appModule =
         factory { ClearFavoritesUseCase(get()) }
         factory { ClearRecentsUseCase(get()) }
         factory { ClearCacheUseCase(get(), get()) }
+        factory { GetUpcomingMoviesUseCase(get()) }
+        factory { GetMoviesByGenreUseCase(get()) }
+        factory { SearchMoviesUseCase(get()) }
 
         // ---------- ViewModels ----------
         viewModelOf(::LoginViewModel)
