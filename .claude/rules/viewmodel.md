@@ -10,9 +10,9 @@ paths:
 Reference implementation: `feat/home/presentation/home/HomeViewModel.kt`.
 
 **Two layouts coexist while the clean-architecture migration is in progress.** `feat/catalog`,
-`feat/detail` and `feat/home` are migrated: `presentation/<screen>/` holds the screen, its
-ViewModel and its `<Name>UiState.kt`. `login` and `options` still use the older `ui/` + `vm/`
-split. Follow whichever layout the feature you
+`feat/detail`, `feat/home` and `feat/login` are migrated: `presentation/<screen>/` holds the
+screen, its ViewModel and its `<Name>UiState.kt`. Only `options` still uses the older `ui/` +
+`vm/` split. Follow whichever layout the feature you
 are editing already uses; see CLAUDE.md.
 
 ## Structure
@@ -20,7 +20,10 @@ are editing already uses; see CLAUDE.md.
 - Constructor-inject dependencies. In migrated features that means **use cases only** — a ViewModel
   that injects a repository alongside use cases (as `DetailViewModel` and `HomeViewModel` once
   did) reaches past its own layer. Never `get()` from Koin inside the class.
-- Never reference Android framework types (`Context`, `Resources`, `Intent`) — they make the ViewModel untestable on the JVM. Pass primitives or domain models in.
+- Never reference Android framework types (`Context`, `Resources`, `Intent`) **or third-party
+  SDKs** (`FirebaseAuth`, `GoogleAuthProvider`, Ktor, Room) — they make the ViewModel untestable
+  on the JVM. Pass primitives or domain models in. A test that needs `mockkStatic` or captures
+  SDK callback listeners is telling you the ViewModel is reaching past its layer.
 - Expose state as `StateFlow`, never `MutableStateFlow`:
   ```kotlin
   private val _trendingState = MutableStateFlow<HomeUiState<List<Movie>>>(HomeUiState.Idle)

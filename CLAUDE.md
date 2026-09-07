@@ -38,10 +38,9 @@ only its implementation lives in `data/repository/`.
       └── components/                     # feature-local composables
   ```
 
-  **Migration in progress**: `catalog`, `detail` and `home` use this layout. `login` and `options`
-  still use the older `feat/<feature>/{data,domain,ui,vm}/` split. Follow whichever layout the
-  feature you are editing already uses; don't half-convert a feature. Shared code in `core/`,
-  shared composables in `components/`.
+  **Migration in progress**: `catalog`, `detail`, `home` and `login` use this layout. Only
+  `options` still uses the older `feat/<feature>/{data,domain,ui,vm}/` split. Don't half-convert
+  a feature. Shared code in `core/`, shared composables in `components/`.
 - **No feature imports another feature — this currently holds app-wide, keep it that way.**
   Anything two features need lives in `core/`: `core/domain/ContentItem.kt`,
   `core/domain/repository/{Favorite,Recent}Repository.kt` (consumed by home, options and detail),
@@ -59,6 +58,12 @@ only its implementation lives in `data/repository/`.
 - **Return types**: suspend one-shots return `Result<T>`; observation functions return `Flow<T>` unwrapped. Repositories return `core/domain` models — never DTOs or Room entities.
 - **DI**: Koin, single `appModule` in `core/di/AppModule.kt`. A ViewModel that isn't registered there crashes at navigation time, not at build time.
 - **Navigation**: string routes in `core/navigation/AppRoutes.kt` + `AppNavGraph.kt`. Not type-safe routes. `koinViewModel()` is called only inside `composable {}` blocks.
+- **A ViewModel never talks to an SDK.** Firebase, Google Sign-In, Ktor and Room all belong in
+  `data/`, behind a repository. `LoginViewModel` injected `FirebaseAuth` and re-implemented
+  sign-in inline while the `AuthRepository` chain sat unused; the giveaway was its test, which
+  needed `mockkStatic` and captured SDK listener slots. If a ViewModel test has to mock an SDK
+  type, the ViewModel is in the wrong layer. Launching an intent (Google Sign-In's
+  ActivityResult flow) is the exception and stays in the composable, which has the `Context`.
 - **Room**: `AppDatabase` at version 5 with hand-written migrations. `fallbackToDestructiveMigration(false)` — a schema change without a migration crashes at startup.
 
 ## Non-negotiable: every ViewModel has a test

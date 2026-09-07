@@ -1,4 +1,4 @@
-package com.fagundes.myshowlist.feat.login.ui.components
+package com.fagundes.myshowlist.feat.login.presentation.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

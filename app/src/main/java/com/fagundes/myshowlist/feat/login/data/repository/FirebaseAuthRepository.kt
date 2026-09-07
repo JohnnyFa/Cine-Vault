@@ -1,6 +1,6 @@
-package com.fagundes.myshowlist.feat.login.data
+package com.fagundes.myshowlist.feat.login.data.repository
 
-import com.fagundes.myshowlist.feat.login.domain.AuthRepository
+import com.fagundes.myshowlist.feat.login.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.suspendCancellableCoroutine

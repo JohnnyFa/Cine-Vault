@@ -13,7 +13,8 @@ import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewMo
 import com.fagundes.myshowlist.feat.detail.presentation.detail.DetailScreen
 import com.fagundes.myshowlist.feat.home.presentation.home.HomeScreen
 import com.fagundes.myshowlist.feat.home.presentation.home.HomeViewModel
-import com.fagundes.myshowlist.feat.login.ui.LoginScreen
+import com.fagundes.myshowlist.feat.login.presentation.login.LoginScreen
+import com.fagundes.myshowlist.feat.login.presentation.login.LoginViewModel
 import com.fagundes.myshowlist.feat.options.ui.OptionsScreen
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -27,7 +28,10 @@ fun AppNavGraph(startDestination: String) {
             startDestination = startDestination,
         ) {
             composable(AppRoutes.LOGIN) {
+                val viewModel: LoginViewModel = koinViewModel()
+
                 LoginScreen(
+                    viewModel = viewModel,
                     onLoginSuccess = {
                         navController.navigate(AppRoutes.HOME) {
                             popUpTo(AppRoutes.LOGIN) { inclusive = true }

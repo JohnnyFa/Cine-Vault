@@ -59,10 +59,10 @@ import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveShowOfTheDayUseCa
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveTrendingMoviesUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.RefreshHomeUseCase
 import com.fagundes.myshowlist.feat.home.presentation.home.HomeViewModel
-import com.fagundes.myshowlist.feat.login.data.FirebaseAuthRepository
-import com.fagundes.myshowlist.feat.login.domain.AuthRepository
-import com.fagundes.myshowlist.feat.login.domain.LoginWithGoogleUseCase
-import com.fagundes.myshowlist.feat.login.vm.LoginViewModel
+import com.fagundes.myshowlist.feat.login.data.repository.FirebaseAuthRepository
+import com.fagundes.myshowlist.feat.login.domain.repository.AuthRepository
+import com.fagundes.myshowlist.feat.login.domain.usecase.LoginWithGoogleUseCase
+import com.fagundes.myshowlist.feat.login.presentation.login.LoginViewModel
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearCacheUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearFavoritesUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearRecentsUseCase

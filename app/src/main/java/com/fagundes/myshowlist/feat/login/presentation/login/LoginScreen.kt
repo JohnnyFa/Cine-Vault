@@ -1,4 +1,4 @@
-package com.fagundes.myshowlist.feat.login.ui
+package com.fagundes.myshowlist.feat.login.presentation.login
 
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -33,13 +33,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.components.ErrorText
-import com.fagundes.myshowlist.feat.login.ui.components.GoogleLoginButton
-import com.fagundes.myshowlist.feat.login.ui.components.LoginBackgroundDecorations
-import com.fagundes.myshowlist.feat.login.ui.components.OrDivider
-import com.fagundes.myshowlist.feat.login.ui.components.TermsAndPrivacyText
-import com.fagundes.myshowlist.feat.login.vm.LoginUiEvent
-import com.fagundes.myshowlist.feat.login.vm.LoginUiState
-import com.fagundes.myshowlist.feat.login.vm.LoginViewModel
+import com.fagundes.myshowlist.feat.login.presentation.components.GoogleLoginButton
+import com.fagundes.myshowlist.feat.login.presentation.components.LoginBackgroundDecorations
+import com.fagundes.myshowlist.feat.login.presentation.components.OrDivider
+import com.fagundes.myshowlist.feat.login.presentation.components.TermsAndPrivacyText
 import com.fagundes.myshowlist.ui.theme.CineVaultGradients
 import com.fagundes.myshowlist.ui.theme.TextMuted
 import com.fagundes.myshowlist.ui.theme.TextPrimary
@@ -47,12 +44,11 @@ import com.fagundes.myshowlist.ui.theme.TextSecondary
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun LoginScreen(
+    viewModel: LoginViewModel,
     onLoginSuccess: () -> Unit,
-    viewModel: LoginViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current

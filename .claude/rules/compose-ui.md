@@ -31,7 +31,7 @@ private fun HomeScreenContent(trendingState: HomeUiState<List<Movie>>, ...) { ..
 
 ## ViewModel injection
 
-`koinViewModel()` is called **in `AppNavGraph.kt`**, inside the `composable(...)` block, and the instance is passed down as a parameter. Do not call `koinViewModel()` inside a screen or a component.
+`koinViewModel()` is called **in `AppNavGraph.kt`**, inside the `composable(...)` block, and the instance is passed down as a parameter. Do not call `koinViewModel()` inside a screen or a component — including as a default parameter value, which is how `LoginScreen` drifted. Still outstanding in `DetailScreen` and `OptionsScreen`.
 
 ## Component conventions
 
@@ -39,7 +39,7 @@ private fun HomeScreenContent(trendingState: HomeUiState<List<Movie>>, ...) { ..
 - Hoist state: components take values and `on<Event>` lambdas, never a ViewModel.
 - Shared components go in `com.fagundes.myshowlist.components`; feature-local ones in
   `feat/<feature>/ui/components/`, or `feat/<feature>/presentation/components/` in features
-  already migrated to the clean-architecture layout (currently `catalog`, `detail` and `home`).
+  already migrated to the clean-architecture layout (currently `catalog`, `detail`, `home` and `login`).
 - Add a `@Preview` composable wrapped in `MyShowListTheme { }` for `ScreenContent` and non-trivial components.
 - Use `Modifier.testTag(...)` on nodes that instrumented tests need to find.
 
