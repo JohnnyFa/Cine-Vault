@@ -1,96 +1,54 @@
 package com.fagundes.myshowlist.feat.detail.data.repository
 
 import com.fagundes.myshowlist.core.CACHE_DURATION
-import com.fagundes.myshowlist.core.data.local.dao.FavoriteDao
-import com.fagundes.myshowlist.core.data.local.dao.MovieDetailCacheDao
-import com.fagundes.myshowlist.core.data.local.entity.CachedMovieDetailEntity
-import com.fagundes.myshowlist.core.data.local.entity.FavoriteEntity
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
-import com.fagundes.myshowlist.core.data.remote.api.MovieApi
-import com.fagundes.myshowlist.feat.detail.domain.ContentDetailUi
-import com.fagundes.myshowlist.feat.detail.domain.FavoriteItem
+import com.fagundes.myshowlist.core.domain.ContentItem
+import com.fagundes.myshowlist.feat.detail.data.local.DetailLocalDataSource
+import com.fagundes.myshowlist.feat.detail.data.mapper.toCachedEntity
+import com.fagundes.myshowlist.feat.detail.data.mapper.toContentDetail
+import com.fagundes.myshowlist.feat.detail.data.mapper.toFavoriteEntity
+import com.fagundes.myshowlist.feat.detail.data.remote.DetailRemoteDataSource
+import com.fagundes.myshowlist.feat.detail.domain.model.ContentDetail
+import com.fagundes.myshowlist.feat.detail.domain.repository.DetailRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class DetailRepositoryImpl(
-    private val movieApi: MovieApi,
-    private val favoriteDao: FavoriteDao,
-    private val detailCacheDao: MovieDetailCacheDao,
+    private val remote: DetailRemoteDataSource,
+    private val local: DetailLocalDataSource,
 ) : DetailRepository {
-    private val favoriteCandidates = mutableMapOf<Int, FavoriteItem>()
-
     override fun observeContentDetail(
         id: Int,
-        type: String,
-    ): Flow<ContentDetailUi?> =
-        detailCacheDao.observeMovieById(id).map { cached ->
-            cached?.let {
-                ContentDetailUi(
-                    id = it.id,
-                    title = it.title,
-                    imageUrl = it.posterPath,
-                    overview = it.overview,
-                    rating = it.voteAverage,
-                    type = type,
-                )
-            }
-        }.distinctUntilChanged()
+        type: ContentType,
+    ): Flow<ContentDetail?> =
+        local.observeDetail(id)
+            .map { cached -> cached?.toContentDetail(type) }
+            .distinctUntilChanged()
 
-    override suspend fun refreshDetailIfNeeded(id: Int) {
-        val now = System.currentTimeMillis()
-        val cached = detailCacheDao.getMovieById(id)
-        val expired = cached == null || (now - cached.cachedAt) > CACHE_DURATION
-        if (!expired) return
+    override suspend fun refreshDetailIfNeeded(id: Int): Result<Unit> =
+        runCatching {
+            val now = System.currentTimeMillis()
+            val cached = local.getDetail(id)
+            val expired = cached == null || (now - cached.cachedAt) > CACHE_DURATION
+            if (!expired) return@runCatching
 
-        val remote = movieApi.getContentById(id)
-        detailCacheDao.upsert(
-            CachedMovieDetailEntity(
-                id = remote.id,
-                title = remote.title,
-                overview = remote.overview,
-                backdropPath = remote.backdropPath,
-                posterPath = remote.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" },
-                voteAverage = remote.rating,
-                genres = remote.genres?.joinToString(",") { it.name },
-                runtime = remote.runtime,
-                releaseDate = remote.releaseDate,
-                cachedAt = now,
-            ),
-        )
-        detailCacheDao.deleteExpiredCache(now - CACHE_DURATION)
-    }
-
-    override suspend fun cacheFavoriteCandidate(item: FavoriteItem) {
-        favoriteCandidates[item.id] = item
-    }
+            local.saveDetail(remote.getContentById(id).toCachedEntity(cachedAt = now))
+            local.clearExpiredDetails(now - CACHE_DURATION)
+        }
 
     override fun observeFavoriteState(
         id: Int,
         type: ContentType,
-    ): Flow<Boolean> = favoriteDao.observeById(id, type).map { it != null }
+    ): Flow<Boolean> = local.observeFavorite(id, type).map { it != null }
 
-    override suspend fun toggleFavorite(
-        id: Int,
-        type: ContentType,
-    ): Result<Boolean> =
+    override suspend fun toggleFavorite(item: ContentItem): Result<Boolean> =
         runCatching {
-            if (favoriteDao.isFavorite(id, type)) {
-                favoriteDao.remove(id, type)
+            if (local.isFavorite(item.id, item.type)) {
+                local.removeFavorite(item.id, item.type)
                 false
             } else {
-                val c = checkNotNull(favoriteCandidates[id])
-                favoriteDao.upsert(
-                    FavoriteEntity(
-                        id = c.id,
-                        type = c.type,
-                        title = c.title,
-                        posterUrl = c.posterUrl,
-                        overview = c.overview,
-                        rating = c.rating,
-                        favoritedAt = System.currentTimeMillis(),
-                    ),
-                )
+                local.addFavorite(item.toFavoriteEntity(favoritedAt = System.currentTimeMillis()))
                 true
             }
         }

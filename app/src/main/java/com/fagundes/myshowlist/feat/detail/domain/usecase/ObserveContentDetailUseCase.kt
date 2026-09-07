@@ -1,14 +1,15 @@
 package com.fagundes.myshowlist.feat.detail.domain.usecase
 
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
+import com.fagundes.myshowlist.feat.detail.domain.model.ContentDetail
 import com.fagundes.myshowlist.feat.detail.domain.repository.DetailRepository
 import kotlinx.coroutines.flow.Flow
 
-class ObserveFavoriteStateUseCase(
+class ObserveContentDetailUseCase(
     private val repository: DetailRepository,
 ) {
     operator fun invoke(
-        itemId: Int,
+        id: Int,
         type: ContentType,
-    ): Flow<Boolean> = repository.observeFavoriteState(itemId, type)
+    ): Flow<ContentDetail?> = repository.observeContentDetail(id, type)
 }

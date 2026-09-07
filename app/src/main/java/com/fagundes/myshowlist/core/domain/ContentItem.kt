@@ -1,8 +1,8 @@
-package com.fagundes.myshowlist.feat.detail.domain
+package com.fagundes.myshowlist.core.domain
 
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 
-data class FavoriteItem(
+data class ContentItem(
     val id: Int,
     val type: ContentType,
     val title: String,

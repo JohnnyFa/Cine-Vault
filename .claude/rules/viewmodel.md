@@ -9,14 +9,16 @@ paths:
 
 Reference implementation: `feat/home/vm/HomeViewModel.kt`.
 
-**Two layouts coexist while the clean-architecture migration is in progress.** `feat/catalog` is
-migrated: `presentation/<screen>/` holds the screen, its ViewModel and its `<Name>UiState.kt`.
-Everything else still uses the older `ui/` + `vm/` split. Follow whichever layout the feature you
+**Two layouts coexist while the clean-architecture migration is in progress.** `feat/catalog` and
+`feat/detail` are migrated: `presentation/<screen>/` holds the screen, its ViewModel and its
+`<Name>UiState.kt`. Everything else still uses the older `ui/` + `vm/` split. Follow whichever layout the feature you
 are editing already uses; see CLAUDE.md.
 
 ## Structure
 
-- Constructor-inject dependencies (repository, use cases). Never `get()` from Koin inside the class.
+- Constructor-inject dependencies. In migrated features that means **use cases only** — a ViewModel
+  that injects a repository alongside use cases (as `DetailViewModel` once did) reaches past its
+  own layer. Never `get()` from Koin inside the class.
 - Never reference Android framework types (`Context`, `Resources`, `Intent`) — they make the ViewModel untestable on the JVM. Pass primitives or domain models in.
 - Expose state as `StateFlow`, never `MutableStateFlow`:
   ```kotlin

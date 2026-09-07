@@ -38,11 +38,18 @@ only its implementation lives in `data/repository/`.
       └── components/                     # feature-local composables
   ```
 
-  **Migration in progress**: only `catalog` uses this layout. `home`, `detail`, `login` and `options`
+  **Migration in progress**: `catalog` and `detail` use this layout. `home`, `login` and `options`
   still use the older `feat/<feature>/{data,domain,ui,vm}/` split, with the repository interface
   under `data/`. Follow whichever layout the feature you are editing already uses; don't half-convert
   a feature. Shared code in `core/`, shared composables in `components/`.
-- **MVVM**: ViewModels expose `StateFlow` of a per-feature `sealed interface <Name>UiState` (`Idle`/`Loading`/`Success`/`Error`). References: `feat/catalog/presentation/catalog/CatalogViewModel.kt` (migrated), `feat/home/vm/HomeViewModel.kt` (older layout).
+- **No feature imports another feature.** A model or repository needed by two features belongs in
+  `core/` (`core/domain/ContentItem.kt` and `core/data/local/datasource/` got there this way).
+  `core` never imports `feat/` — except `core/di/AppModule.kt` and `core/navigation/AppNavGraph.kt`,
+  which are composition roots and must see everything.
+  One edge remains: `DetailViewModel` uses home's `SaveRecentMovieUseCase`. `RecentRepository` and
+  `FavoriteRepository` sit in `feat/home/data/repository/` but are consumed by home, options and
+  detail; they belong in `core/` and should move when `home` is migrated.
+- **MVVM**: ViewModels expose `StateFlow` of a per-feature `sealed interface <Name>UiState` (`Idle`/`Loading`/`Success`/`Error`). References: `feat/catalog/presentation/catalog/CatalogViewModel.kt` and `feat/detail/presentation/detail/DetailViewModel.kt` (migrated), `feat/home/vm/HomeViewModel.kt` (older layout).
 - **Return types**: suspend one-shots return `Result<T>`; observation functions return `Flow<T>` unwrapped. Repositories return `core/domain` models — never DTOs or Room entities.
 - **DI**: Koin, single `appModule` in `core/di/AppModule.kt`. A ViewModel that isn't registered there crashes at navigation time, not at build time.
 - **Navigation**: string routes in `core/navigation/AppRoutes.kt` + `AppNavGraph.kt`. Not type-safe routes. `koinViewModel()` is called only inside `composable {}` blocks.

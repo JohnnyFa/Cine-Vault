@@ -2,8 +2,8 @@ package com.fagundes.myshowlist.feat.home.data.repository
 
 import com.fagundes.myshowlist.core.data.local.dao.RecentDao
 import com.fagundes.myshowlist.core.data.local.entity.RecentEntity
+import com.fagundes.myshowlist.core.domain.ContentItem
 import com.fagundes.myshowlist.core.domain.Movie
-import com.fagundes.myshowlist.feat.detail.domain.FavoriteItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -25,7 +25,7 @@ class RecentRepositoryImpl(
         }
     }
 
-    override suspend fun saveRecent(movie: FavoriteItem) {
+    override suspend fun saveRecent(movie: ContentItem) {
         recentDao.upsert(
             RecentEntity(
                 id = movie.id,

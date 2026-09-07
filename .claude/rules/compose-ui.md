@@ -39,7 +39,7 @@ private fun HomeScreenContent(trendingState: HomeUiState<List<Movie>>, ...) { ..
 - Hoist state: components take values and `on<Event>` lambdas, never a ViewModel.
 - Shared components go in `com.fagundes.myshowlist.components`; feature-local ones in
   `feat/<feature>/ui/components/`, or `feat/<feature>/presentation/components/` in features
-  already migrated to the clean-architecture layout (currently `catalog`).
+  already migrated to the clean-architecture layout (currently `catalog` and `detail`).
 - Add a `@Preview` composable wrapped in `MyShowListTheme { }` for `ScreenContent` and non-trivial components.
 - Use `Modifier.testTag(...)` on nodes that instrumented tests need to find.
 

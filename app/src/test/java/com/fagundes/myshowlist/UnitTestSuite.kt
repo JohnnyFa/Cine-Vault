@@ -3,6 +3,7 @@ package com.fagundes.myshowlist
 import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetMoviesByGenreUseCaseTest
 import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogViewModelTest
 import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewModelTest
+import com.fagundes.myshowlist.feat.detail.presentation.detail.DetailViewModelTest
 import com.fagundes.myshowlist.feat.home.vm.HomeViewModelTest
 import com.fagundes.myshowlist.feat.login.vm.LoginViewModelTest
 import com.fagundes.myshowlist.feat.options.vm.OptionsViewModelTest
@@ -16,6 +17,7 @@ import org.junit.runners.Suite
     CatalogViewModelTest::class,
     UpcomingViewModelTest::class,
     GetMoviesByGenreUseCaseTest::class,
+    DetailViewModelTest::class,
     OptionsViewModelTest::class,
 )
 class UnitTestSuite

@@ -1,12 +1,13 @@
-package com.fagundes.myshowlist.feat.detail.vm
+package com.fagundes.myshowlist.feat.detail.presentation.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
-import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepository
-import com.fagundes.myshowlist.feat.detail.domain.ContentDetailUi
-import com.fagundes.myshowlist.feat.detail.domain.FavoriteItem
+import com.fagundes.myshowlist.core.domain.ContentItem
+import com.fagundes.myshowlist.feat.detail.domain.model.ContentDetail
+import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveContentDetailUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveFavoriteStateUseCase
+import com.fagundes.myshowlist.feat.detail.domain.usecase.RefreshContentDetailUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ToggleFavoriteUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.SaveRecentMovieUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,10 +22,11 @@ import kotlinx.coroutines.launch
 class DetailViewModel(
     private val id: Int,
     private val type: ContentType,
-    private val repository: DetailRepository,
-    private val observeFavoriteStateUseCase: ObserveFavoriteStateUseCase,
-    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
-    private val saveRecentMovieUseCase: SaveRecentMovieUseCase,
+    private val observeContentDetail: ObserveContentDetailUseCase,
+    private val refreshContentDetail: RefreshContentDetailUseCase,
+    private val observeFavoriteState: ObserveFavoriteStateUseCase,
+    private val toggleFavorite: ToggleFavoriteUseCase,
+    private val saveRecentMovie: SaveRecentMovieUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<DetailUiState>(DetailUiState.Loading)
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
@@ -34,7 +36,7 @@ class DetailViewModel(
     private val latestFavoriteState = MutableStateFlow(false)
 
     init {
-        observeFavoriteState()
+        observeFavorite()
         observeDetail()
         refreshDetail()
     }
@@ -48,7 +50,7 @@ class DetailViewModel(
                 (state as? DetailUiState.Success)?.copy(isFavoriteLoading = true) ?: state
             }
 
-            toggleFavoriteUseCase(id, type)
+            toggleFavorite(current.ui.toContentItem(type))
                 .onSuccess { isFavorite ->
                     _uiState.update { state ->
                         (state as? DetailUiState.Success)?.copy(isFavoriteLoading = false, isFavorite = isFavorite)
@@ -65,9 +67,9 @@ class DetailViewModel(
         }
     }
 
-    private fun observeFavoriteState() {
+    private fun observeFavorite() {
         viewModelScope.launch {
-            observeFavoriteStateUseCase(id, type).collect { isFavorite ->
+            observeFavoriteState(id, type).collect { isFavorite ->
                 latestFavoriteState.value = isFavorite
                 _uiState.update { state ->
                     (state as? DetailUiState.Success)?.copy(isFavorite = isFavorite) ?: state
@@ -78,19 +80,9 @@ class DetailViewModel(
 
     private fun observeDetail() {
         viewModelScope.launch {
-            repository.observeContentDetail(id, type.name).collect { detail ->
+            observeContentDetail(id, type).collect { detail ->
                 if (detail != null) {
-                    val favoriteItem =
-                        FavoriteItem(
-                            id = detail.id,
-                            type = type,
-                            title = detail.title,
-                            posterUrl = detail.imageUrl,
-                            overview = detail.overview,
-                            rating = detail.rating,
-                        )
-                    repository.cacheFavoriteCandidate(favoriteItem)
-                    saveRecentMovieUseCase(favoriteItem)
+                    saveRecentMovie(detail.toContentItem(type))
                     _uiState.value = DetailUiState.Success(ui = detail, isFavorite = latestFavoriteState.value)
                 }
             }
@@ -99,7 +91,7 @@ class DetailViewModel(
 
     private fun refreshDetail() {
         viewModelScope.launch {
-            runCatching { repository.refreshDetailIfNeeded(id) }
+            refreshContentDetail(id)
                 .onFailure {
                     if (_uiState.value is DetailUiState.Loading) {
                         _uiState.value = DetailUiState.Error("Failed to load content")
@@ -109,20 +101,12 @@ class DetailViewModel(
     }
 }
 
-sealed interface DetailUiState {
-    data object Loading : DetailUiState
-
-    data class Success(
-        val ui: ContentDetailUi,
-        val isFavorite: Boolean = false,
-        val isFavoriteLoading: Boolean = false,
-    ) : DetailUiState
-
-    data class Error(val message: String) : DetailUiState
-}
-
-sealed interface DetailEvent {
-    data class FavoriteUpdated(val isFavorite: Boolean) : DetailEvent
-
-    data class ShowError(val message: String) : DetailEvent
-}
+private fun ContentDetail.toContentItem(type: ContentType): ContentItem =
+    ContentItem(
+        id = id,
+        type = type,
+        title = title,
+        posterUrl = imageUrl,
+        overview = overview,
+        rating = rating,
+    )

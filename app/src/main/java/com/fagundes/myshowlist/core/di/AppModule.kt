@@ -24,11 +24,17 @@ import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetUpcomingMoviesUseC
 import com.fagundes.myshowlist.feat.catalog.domain.usecase.SearchMoviesUseCase
 import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogViewModel
 import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewModel
-import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepository
+import com.fagundes.myshowlist.feat.detail.data.local.DetailLocalDataSource
+import com.fagundes.myshowlist.feat.detail.data.local.DetailLocalDataSourceImpl
+import com.fagundes.myshowlist.feat.detail.data.remote.DetailRemoteDataSource
+import com.fagundes.myshowlist.feat.detail.data.remote.DetailRemoteDataSourceImpl
 import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepositoryImpl
+import com.fagundes.myshowlist.feat.detail.domain.repository.DetailRepository
+import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveContentDetailUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveFavoriteStateUseCase
+import com.fagundes.myshowlist.feat.detail.domain.usecase.RefreshContentDetailUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ToggleFavoriteUseCase
-import com.fagundes.myshowlist.feat.detail.vm.DetailViewModel
+import com.fagundes.myshowlist.feat.detail.presentation.detail.DetailViewModel
 import com.fagundes.myshowlist.feat.home.data.remote.HomeRemoteDataSource
 import com.fagundes.myshowlist.feat.home.data.remote.HomeRemoteDataSourceImpl
 import com.fagundes.myshowlist.feat.home.data.repository.FavoriteRepository
@@ -105,9 +111,17 @@ val appModule =
             CatalogRemoteDataSourceImpl(movieApi = get())
         }
 
+        single<DetailRemoteDataSource> {
+            DetailRemoteDataSourceImpl(movieApi = get())
+        }
+
         // ---------- Local DataSource ----------
         single<ContentLocalDataSource> {
             ContentLocalDataSourceImpl(get())
+        }
+
+        single<DetailLocalDataSource> {
+            DetailLocalDataSourceImpl(detailCacheDao = get(), favoriteDao = get())
         }
 
         // ---------- Repository ----------
@@ -126,7 +140,10 @@ val appModule =
         }
 
         single<DetailRepository> {
-            DetailRepositoryImpl(get(), get(), get())
+            DetailRepositoryImpl(
+                remote = get(),
+                local = get(),
+            )
         }
 
         single<FavoriteRepository> {
@@ -138,6 +155,8 @@ val appModule =
         }
 
         // ---------- UseCases ----------
+        factory { ObserveContentDetailUseCase(get()) }
+        factory { RefreshContentDetailUseCase(get()) }
         factory { ObserveFavoriteStateUseCase(get()) }
         factory { ToggleFavoriteUseCase(get()) }
         factory { ObserveFavoritesUseCase(get()) }
@@ -164,10 +183,11 @@ val appModule =
             DetailViewModel(
                 id = id,
                 type = type,
-                repository = get(),
-                observeFavoriteStateUseCase = get(),
-                toggleFavoriteUseCase = get(),
-                saveRecentMovieUseCase = get(),
+                observeContentDetail = get(),
+                refreshContentDetail = get(),
+                observeFavoriteState = get(),
+                toggleFavorite = get(),
+                saveRecentMovie = get(),
             )
         }
     }

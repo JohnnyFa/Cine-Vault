@@ -4,7 +4,6 @@ import com.fagundes.myshowlist.core.data.local.entity.ContentEntity
 import com.fagundes.myshowlist.core.data.local.enum.ContentCategory
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.domain.Movie
-import com.fagundes.myshowlist.feat.detail.domain.ContentDetailUi
 
 fun ContentEntity.toMovie(): Movie =
     Movie(
@@ -48,14 +47,4 @@ fun Movie.toEntity(
         releaseDate = null,
         category = category,
         cachedAt = System.currentTimeMillis(),
-    )
-
-fun ContentEntity.toDetailUi(): ContentDetailUi =
-    ContentDetailUi(
-        id = id,
-        title = title,
-        imageUrl = posterUrl,
-        overview = overview,
-        rating = rating,
-        type = type.name,
     )

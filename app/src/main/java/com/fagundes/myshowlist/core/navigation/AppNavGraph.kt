@@ -10,7 +10,7 @@ import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogScreen
 import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogViewModel
 import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingScreen
 import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewModel
-import com.fagundes.myshowlist.feat.detail.ui.DetailScreen
+import com.fagundes.myshowlist.feat.detail.presentation.detail.DetailScreen
 import com.fagundes.myshowlist.feat.home.ui.HomeScreen
 import com.fagundes.myshowlist.feat.home.vm.HomeViewModel
 import com.fagundes.myshowlist.feat.login.ui.LoginScreen

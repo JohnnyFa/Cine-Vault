@@ -1,4 +1,4 @@
-package com.fagundes.myshowlist.feat.detail.ui
+package com.fagundes.myshowlist.feat.detail.presentation.detail
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -24,13 +24,10 @@ import androidx.compose.ui.unit.sp
 import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.components.LoadingSection
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
-import com.fagundes.myshowlist.feat.detail.domain.ContentDetailUi
-import com.fagundes.myshowlist.feat.detail.ui.components.FavoriteButton
-import com.fagundes.myshowlist.feat.detail.ui.components.MetaRow
-import com.fagundes.myshowlist.feat.detail.ui.components.PosterHero
-import com.fagundes.myshowlist.feat.detail.vm.DetailEvent
-import com.fagundes.myshowlist.feat.detail.vm.DetailUiState
-import com.fagundes.myshowlist.feat.detail.vm.DetailViewModel
+import com.fagundes.myshowlist.feat.detail.domain.model.ContentDetail
+import com.fagundes.myshowlist.feat.detail.presentation.components.FavoriteButton
+import com.fagundes.myshowlist.feat.detail.presentation.components.MetaRow
+import com.fagundes.myshowlist.feat.detail.presentation.components.PosterHero
 import com.fagundes.myshowlist.ui.theme.Background
 import com.fagundes.myshowlist.ui.theme.TextPrimary
 import com.fagundes.myshowlist.ui.theme.TextSecondary
@@ -84,7 +81,7 @@ fun DetailScreen(
 
 @Composable
 fun DetailContent(
-    ui: ContentDetailUi,
+    ui: ContentDetail,
     isFavorite: Boolean,
     isFavoriteLoading: Boolean,
     onFavoriteClick: () -> Unit,

@@ -1,6 +1,6 @@
-package com.fagundes.myshowlist.feat.detail.domain
+package com.fagundes.myshowlist.feat.detail.domain.model
 
-data class ContentDetailUi(
+data class ContentDetail(
     val id: Int,
     val title: String,
     val imageUrl: String?,
