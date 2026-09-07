@@ -25,12 +25,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.components.EmptySection
 import com.fagundes.myshowlist.components.error.ErrorSection
@@ -46,7 +46,7 @@ fun UpcomingScreen(
     onBack: () -> Unit,
     onOpenDetail: (Int, ContentType) -> Unit,
 ) {
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
         modifier =
