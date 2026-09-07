@@ -11,6 +11,7 @@ import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogViewMode
 import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingScreen
 import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewModel
 import com.fagundes.myshowlist.feat.detail.presentation.detail.DetailScreen
+import com.fagundes.myshowlist.feat.detail.presentation.detail.DetailViewModel
 import com.fagundes.myshowlist.feat.home.presentation.home.HomeScreen
 import com.fagundes.myshowlist.feat.home.presentation.home.HomeViewModel
 import com.fagundes.myshowlist.feat.login.presentation.login.LoginScreen
@@ -18,6 +19,7 @@ import com.fagundes.myshowlist.feat.login.presentation.login.LoginViewModel
 import com.fagundes.myshowlist.feat.options.presentation.options.OptionsScreen
 import com.fagundes.myshowlist.feat.options.presentation.options.OptionsViewModel
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun AppNavGraph(startDestination: String) {
@@ -97,9 +99,10 @@ fun AppNavGraph(startDestination: String) {
                         backStackEntry.arguments!!.getString("type")!!,
                     )
 
+                val viewModel: DetailViewModel = koinViewModel { parametersOf(id, type) }
+
                 DetailScreen(
-                    id = id,
-                    type = type,
+                    viewModel = viewModel,
                     onBack = { navController.popBackStack() },
                 )
             }

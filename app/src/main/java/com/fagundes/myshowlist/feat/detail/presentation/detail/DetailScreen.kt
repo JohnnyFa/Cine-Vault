@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.components.LoadingSection
-import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.feat.detail.domain.model.ContentDetail
 import com.fagundes.myshowlist.feat.detail.presentation.components.FavoriteButton
 import com.fagundes.myshowlist.feat.detail.presentation.components.MetaRow
@@ -31,18 +30,11 @@ import com.fagundes.myshowlist.feat.detail.presentation.components.PosterHero
 import com.fagundes.myshowlist.ui.theme.Background
 import com.fagundes.myshowlist.ui.theme.TextPrimary
 import com.fagundes.myshowlist.ui.theme.TextSecondary
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Composable
 fun DetailScreen(
-    id: Int,
-    type: ContentType,
+    viewModel: DetailViewModel,
     onBack: () -> Unit,
-    viewModel: DetailViewModel =
-        koinViewModel {
-            parametersOf(id, type)
-        },
 ) {
     val context = LocalContext.current
     val state by viewModel.uiState.collectAsState()

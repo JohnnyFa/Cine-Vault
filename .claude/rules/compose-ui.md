@@ -31,7 +31,7 @@ private fun HomeScreenContent(trendingState: HomeUiState<List<Movie>>, ...) { ..
 
 ## ViewModel injection
 
-`koinViewModel()` is called **in `AppNavGraph.kt`**, inside the `composable(...)` block, and the instance is passed down as a parameter. Do not call `koinViewModel()` inside a screen or a component — including as a default parameter value, which is how `LoginScreen` and `OptionsScreen` drifted. Still outstanding in `DetailScreen`.
+`koinViewModel()` is called **in `AppNavGraph.kt`**, inside the `composable(...)` block, and the instance is passed down as a parameter. Do not call `koinViewModel()` inside a screen or a component — including as a default parameter value, which is how `LoginScreen`, `OptionsScreen` and `DetailScreen` each drifted. This now holds for every screen.
 
 ## Component conventions
 
