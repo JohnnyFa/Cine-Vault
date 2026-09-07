@@ -1,6 +1,6 @@
 package com.fagundes.myshowlist.feat.options.domain.usecase
 
-import com.fagundes.myshowlist.feat.home.data.repository.FavoriteRepository
+import com.fagundes.myshowlist.core.domain.repository.FavoriteRepository
 
 class ClearFavoritesUseCase(
     private val favoriteRepository: FavoriteRepository,

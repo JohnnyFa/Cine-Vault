@@ -6,12 +6,17 @@ paths:
 
 # Testing rules
 
-Reference implementation: `app/src/test/java/com/fagundes/myshowlist/feat/home/vm/HomeViewModelTest.kt`.
+Reference implementation: `app/src/test/java/com/fagundes/myshowlist/feat/home/presentation/home/HomeViewModelTest.kt`.
 
 ## Layout
 
-Unit tests mirror the main source package exactly:
-`app/src/test/java/com/fagundes/myshowlist/feat/<feature>/vm/<Name>ViewModelTest.kt`
+Unit tests mirror the main source package exactly, whichever layout the feature uses:
+
+```
+feat/<feature>/vm/<Name>ViewModelTest.kt                        # older layout
+feat/<feature>/presentation/<screen>/<Name>ViewModelTest.kt     # clean-architecture layout
+feat/<feature>/domain/usecase/<Name>UseCaseTest.kt              # use cases with real logic
+```
 
 Every new test class must be added to `UnitTestSuite.kt` — both the `import` and the `@Suite.SuiteClasses` list. A test not in the suite still runs under `testDevDebugUnitTest`, but the suite is the project's declared inventory; keep it accurate.
 

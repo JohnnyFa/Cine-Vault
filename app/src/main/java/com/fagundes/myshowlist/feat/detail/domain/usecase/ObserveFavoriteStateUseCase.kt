@@ -1,7 +1,7 @@
 package com.fagundes.myshowlist.feat.detail.domain.usecase
 
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
-import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepository
+import com.fagundes.myshowlist.feat.detail.domain.repository.DetailRepository
 import kotlinx.coroutines.flow.Flow
 
 class ObserveFavoriteStateUseCase(

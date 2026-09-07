@@ -19,20 +19,58 @@ Run `/check` before pushing — it mirrors the CI gate, including `-PwarningsAsE
 
 ```
 Api (Ktor) ──> RemoteDataSource ──┐
-                                  ├──> Repository ──> ViewModel ──> Compose UI
-Dao (Room) ──> LocalDataSource ───┘
+                                  ├──> Repository ──> UseCase ──> ViewModel ──> Compose UI
+Dao (Room) ──> LocalDataSource ───┘        (data)      (domain)      (presentation)
 ```
 
-- **Feature packaging**: `feat/<feature>/{data,domain,ui,vm}/`. Shared code in `core/`, shared composables in `components/`.
-- **MVVM**: ViewModels expose `StateFlow` of a per-feature `sealed interface <Name>UiState` (`Idle`/`Loading`/`Success`/`Error`). Reference: `feat/home/vm/HomeViewModel.kt`.
+Dependencies point inward: **presentation → domain ← data**. `domain` knows nothing about Ktor,
+Room or Compose. A repository *interface* is a domain contract and lives in `domain/repository/`;
+only its implementation lives in `data/repository/`.
+
+- **Feature packaging** — `feat/catalog` is the reference for the target layout:
+
+  ```
+  feat/<feature>/
+  ├── data/{remote,local,repository}/     # DTO mapping, caching, <Name>RepositoryImpl
+  ├── domain/{model,repository,usecase}/  # pure Kotlin: models, contracts, use cases
+  └── presentation/
+      ├── <screen>/                       # <Name>Screen.kt + <Name>ViewModel.kt + <Name>UiState.kt
+      └── components/                     # feature-local composables
+  ```
+
+  **Every feature uses this layout** — the `ui/` + `vm/` split is gone. Shared code in `core/`,
+  shared composables in `components/`. A feature with no storage of its own has no `data/` at
+  all: `options` is domain + presentation over core's repositories.
+- **No feature imports another feature — this currently holds app-wide, keep it that way.**
+  Anything two features need lives in `core/`: `core/domain/ContentItem.kt`,
+  `core/domain/repository/{Favorite,Recent}Repository.kt` (consumed by home, options and detail),
+  their impls in `core/data/repository/`, and the datasources in `core/data/local/datasource/`.
+  A use case belongs to the feature that *calls* it, not the one that owns the data — which is why
+  `SaveRecentMovieUseCase` lives in `feat/detail` while `ObserveRecentsUseCase` lives in `feat/home`.
+  `core` never imports `feat/` — except `core/di/AppModule.kt` and `core/navigation/AppNavGraph.kt`,
+  which are composition roots and must see everything.
+- **Domain never imports persistence types.** No `androidx.room`, no `core/data/local/dao`, no
+  `core/data/local/entity` under any `domain/` package. A use case that needs to touch storage goes
+  through a repository interface — `ClearCacheUseCase` took two DAOs until `CacheRepository` was
+  added. Known exception: `ContentType` still lives in `core/data/local/enum/` though it is a domain
+  concept; 27 files import it from there, so moving it wants its own commit.
+- **MVVM**: ViewModels expose `StateFlow` of a per-feature `sealed interface <Name>UiState` (`Idle`/`Loading`/`Success`/`Error`). Reference: `feat/home/presentation/home/HomeViewModel.kt`.
 - **Return types**: suspend one-shots return `Result<T>`; observation functions return `Flow<T>` unwrapped. Repositories return `core/domain` models — never DTOs or Room entities.
 - **DI**: Koin, single `appModule` in `core/di/AppModule.kt`. A ViewModel that isn't registered there crashes at navigation time, not at build time.
 - **Navigation**: string routes in `core/navigation/AppRoutes.kt` + `AppNavGraph.kt`. Not type-safe routes. `koinViewModel()` is called only inside `composable {}` blocks.
+- **A ViewModel never talks to an SDK.** Firebase, Google Sign-In, Ktor and Room all belong in
+  `data/`, behind a repository. `LoginViewModel` injected `FirebaseAuth` and re-implemented
+  sign-in inline while the `AuthRepository` chain sat unused; the giveaway was its test, which
+  needed `mockkStatic` and captured SDK listener slots. If a ViewModel test has to mock an SDK
+  type, the ViewModel is in the wrong layer. Launching an intent (Google Sign-In's
+  ActivityResult flow) is the exception and stays in the composable, which has the `Context`.
 - **Room**: `AppDatabase` at version 5 with hand-written migrations. `fallbackToDestructiveMigration(false)` — a schema change without a migration crashes at startup.
 
 ## Non-negotiable: every ViewModel has a test
 
-Add or change a ViewModel → create/update `app/src/test/java/com/fagundes/myshowlist/feat/<feature>/vm/<Name>ViewModelTest.kt` (MockK + `StandardTestDispatcher`) **and** register it in `UnitTestSuite.kt`. Delete a method → delete its test.
+Add or change a ViewModel → create/update its test under `app/src/test/java/` **in the same package as the ViewModel** (`feat/<feature>/presentation/<screen>/` in migrated features, `feat/<feature>/vm/` in the rest), using MockK + `StandardTestDispatcher`, **and** register it in `UnitTestSuite.kt`. Delete a method → delete its test.
+
+Use cases that carry real logic (a branch, a guard, a mapping) get a test too, under `feat/<feature>/domain/usecase/`; thin one-line forwards to a repository do not.
 
 ## Secrets
 
@@ -44,8 +82,8 @@ Add or change a ViewModel → create/update `app/src/test/java/com/fagundes/mysh
 
 | Rule | Applies to |
 |---|---|
-| `viewmodel.md` | `feat/**/vm/*.kt` |
-| `compose-ui.md` | `feat/**/ui/**`, `components/**` |
+| `viewmodel.md` | `feat/**/vm/*.kt`, `feat/**/presentation/**/*ViewModel.kt`, `**/*UiState.kt` |
+| `compose-ui.md` | `feat/**/ui/**`, `feat/**/presentation/**`, `components/**` |
 | `data-layer.md` | `**/data/**`, `core/db/**`, `core/network/**` |
 | `testing.md` | `app/src/test/**`, `app/src/androidTest/**` |
 | `gradle-build.md` | `*.gradle.kts`, `libs.versions.toml` |

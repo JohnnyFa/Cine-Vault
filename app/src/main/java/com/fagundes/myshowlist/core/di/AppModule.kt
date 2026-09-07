@@ -5,48 +5,73 @@ import com.fagundes.myshowlist.core.data.local.dao.ContentDao
 import com.fagundes.myshowlist.core.data.local.dao.FavoriteDao
 import com.fagundes.myshowlist.core.data.local.dao.MovieDetailCacheDao
 import com.fagundes.myshowlist.core.data.local.dao.RecentDao
+import com.fagundes.myshowlist.core.data.local.datasource.ContentLocalDataSource
+import com.fagundes.myshowlist.core.data.local.datasource.ContentLocalDataSourceImpl
+import com.fagundes.myshowlist.core.data.local.datasource.DetailCacheLocalDataSource
+import com.fagundes.myshowlist.core.data.local.datasource.DetailCacheLocalDataSourceImpl
+import com.fagundes.myshowlist.core.data.local.datasource.FavoriteLocalDataSource
+import com.fagundes.myshowlist.core.data.local.datasource.FavoriteLocalDataSourceImpl
+import com.fagundes.myshowlist.core.data.local.datasource.RecentLocalDataSource
+import com.fagundes.myshowlist.core.data.local.datasource.RecentLocalDataSourceImpl
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.data.remote.api.AnimeApi
 import com.fagundes.myshowlist.core.data.remote.api.MovieApi
+import com.fagundes.myshowlist.core.data.repository.CacheRepositoryImpl
+import com.fagundes.myshowlist.core.data.repository.FavoriteRepositoryImpl
+import com.fagundes.myshowlist.core.data.repository.FirebaseAuthRepository
+import com.fagundes.myshowlist.core.data.repository.RecentRepositoryImpl
 import com.fagundes.myshowlist.core.db.AppDatabase
 import com.fagundes.myshowlist.core.db.MIGRATION_3_4
 import com.fagundes.myshowlist.core.db.MIGRATION_4_5
+import com.fagundes.myshowlist.core.domain.repository.AuthRepository
+import com.fagundes.myshowlist.core.domain.repository.CacheRepository
+import com.fagundes.myshowlist.core.domain.repository.FavoriteRepository
+import com.fagundes.myshowlist.core.domain.repository.RecentRepository
 import com.fagundes.myshowlist.core.network.provideJikanHttpClient
 import com.fagundes.myshowlist.core.network.provideTmdbHttpClient
-import com.fagundes.myshowlist.feat.catalog.data.repository.CatalogRepository
+import com.fagundes.myshowlist.feat.catalog.data.remote.CatalogRemoteDataSource
+import com.fagundes.myshowlist.feat.catalog.data.remote.CatalogRemoteDataSourceImpl
 import com.fagundes.myshowlist.feat.catalog.data.repository.CatalogRepositoryImpl
-import com.fagundes.myshowlist.feat.catalog.vm.CatalogViewModel
-import com.fagundes.myshowlist.feat.catalog.vm.UpcomingViewModel
-import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepository
+import com.fagundes.myshowlist.feat.catalog.domain.repository.CatalogRepository
+import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetMoviesByGenreUseCase
+import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetUpcomingMoviesUseCase
+import com.fagundes.myshowlist.feat.catalog.domain.usecase.SearchMoviesUseCase
+import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogViewModel
+import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewModel
+import com.fagundes.myshowlist.feat.detail.data.local.DetailLocalDataSource
+import com.fagundes.myshowlist.feat.detail.data.local.DetailLocalDataSourceImpl
+import com.fagundes.myshowlist.feat.detail.data.remote.DetailRemoteDataSource
+import com.fagundes.myshowlist.feat.detail.data.remote.DetailRemoteDataSourceImpl
 import com.fagundes.myshowlist.feat.detail.data.repository.DetailRepositoryImpl
+import com.fagundes.myshowlist.feat.detail.domain.repository.DetailRepository
+import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveContentDetailUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveFavoriteStateUseCase
+import com.fagundes.myshowlist.feat.detail.domain.usecase.RefreshContentDetailUseCase
+import com.fagundes.myshowlist.feat.detail.domain.usecase.SaveRecentMovieUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ToggleFavoriteUseCase
-import com.fagundes.myshowlist.feat.detail.vm.DetailViewModel
-import com.fagundes.myshowlist.feat.home.data.local.datasource.HomeLocalDataSource
-import com.fagundes.myshowlist.feat.home.data.local.datasource.HomeLocalDataSourceImpl
+import com.fagundes.myshowlist.feat.detail.presentation.detail.DetailViewModel
 import com.fagundes.myshowlist.feat.home.data.remote.HomeRemoteDataSource
 import com.fagundes.myshowlist.feat.home.data.remote.HomeRemoteDataSourceImpl
-import com.fagundes.myshowlist.feat.home.data.repository.FavoriteRepository
-import com.fagundes.myshowlist.feat.home.data.repository.FavoriteRepositoryImpl
-import com.fagundes.myshowlist.feat.home.data.repository.HomeRepository
 import com.fagundes.myshowlist.feat.home.data.repository.HomeRepositoryImpl
-import com.fagundes.myshowlist.feat.home.data.repository.RecentRepository
-import com.fagundes.myshowlist.feat.home.data.repository.RecentRepositoryImpl
+import com.fagundes.myshowlist.feat.home.domain.repository.HomeRepository
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveFavoritesUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveRecentsUseCase
-import com.fagundes.myshowlist.feat.home.domain.usecase.SaveRecentMovieUseCase
-import com.fagundes.myshowlist.feat.home.vm.HomeViewModel
-import com.fagundes.myshowlist.feat.login.data.FirebaseAuthRepository
-import com.fagundes.myshowlist.feat.login.domain.AuthRepository
-import com.fagundes.myshowlist.feat.login.domain.LoginWithGoogleUseCase
-import com.fagundes.myshowlist.feat.login.vm.LoginViewModel
+import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveRecommendedMoviesUseCase
+import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveShowOfTheDayUseCase
+import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveTrendingMoviesUseCase
+import com.fagundes.myshowlist.feat.home.domain.usecase.RefreshHomeUseCase
+import com.fagundes.myshowlist.feat.home.presentation.home.HomeViewModel
+import com.fagundes.myshowlist.feat.login.domain.usecase.LoginWithGoogleUseCase
+import com.fagundes.myshowlist.feat.login.presentation.login.LoginViewModel
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearCacheUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearFavoritesUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearRecentsUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearUserDataUseCase
+import com.fagundes.myshowlist.feat.options.domain.usecase.GetCurrentUserUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveFavoritesCountUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveRecentsCountUseCase
-import com.fagundes.myshowlist.feat.options.vm.OptionsViewModel
+import com.fagundes.myshowlist.feat.options.domain.usecase.SignOutUseCase
+import com.fagundes.myshowlist.feat.options.presentation.options.OptionsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
@@ -96,9 +121,33 @@ val appModule =
             HomeRemoteDataSourceImpl(movieApi = get())
         }
 
+        single<CatalogRemoteDataSource> {
+            CatalogRemoteDataSourceImpl(movieApi = get())
+        }
+
+        single<DetailRemoteDataSource> {
+            DetailRemoteDataSourceImpl(movieApi = get())
+        }
+
         // ---------- Local DataSource ----------
-        single<HomeLocalDataSource> {
-            HomeLocalDataSourceImpl(get())
+        single<ContentLocalDataSource> {
+            ContentLocalDataSourceImpl(get())
+        }
+
+        single<FavoriteLocalDataSource> {
+            FavoriteLocalDataSourceImpl(get())
+        }
+
+        single<RecentLocalDataSource> {
+            RecentLocalDataSourceImpl(get())
+        }
+
+        single<DetailCacheLocalDataSource> {
+            DetailCacheLocalDataSourceImpl(get())
+        }
+
+        single<DetailLocalDataSource> {
+            DetailLocalDataSourceImpl(detailCache = get(), favoriteDao = get())
         }
 
         // ---------- Repository ----------
@@ -111,25 +160,42 @@ val appModule =
 
         single<CatalogRepository> {
             CatalogRepositoryImpl(
-                movieApi = get(),
+                remote = get(),
                 local = get(),
             )
         }
 
         single<DetailRepository> {
-            DetailRepositoryImpl(get(), get(), get())
+            DetailRepositoryImpl(
+                remote = get(),
+                local = get(),
+            )
         }
 
         single<FavoriteRepository> {
-            FavoriteRepositoryImpl(get())
+            FavoriteRepositoryImpl(local = get())
         }
 
         single<RecentRepository> {
-            RecentRepositoryImpl(get())
+            RecentRepositoryImpl(local = get())
         }
 
+        single<CacheRepository> {
+            CacheRepositoryImpl(
+                content = get(),
+                detailCache = get(),
+            )
+        }
+
+        // ---------- UseCases ----------
+        factory { ObserveContentDetailUseCase(get()) }
+        factory { RefreshContentDetailUseCase(get()) }
         factory { ObserveFavoriteStateUseCase(get()) }
         factory { ToggleFavoriteUseCase(get()) }
+        factory { ObserveTrendingMoviesUseCase(get()) }
+        factory { ObserveRecommendedMoviesUseCase(get()) }
+        factory { ObserveShowOfTheDayUseCase(get()) }
+        factory { RefreshHomeUseCase(get()) }
         factory { ObserveFavoritesUseCase(get()) }
         factory { SaveRecentMovieUseCase(get()) }
         factory { ObserveRecentsUseCase(get()) }
@@ -138,7 +204,12 @@ val appModule =
         factory { ObserveRecentsCountUseCase(get()) }
         factory { ClearFavoritesUseCase(get()) }
         factory { ClearRecentsUseCase(get()) }
-        factory { ClearCacheUseCase(get(), get()) }
+        factory { ClearCacheUseCase(get()) }
+        factory { GetCurrentUserUseCase(get()) }
+        factory { SignOutUseCase(get()) }
+        factory { GetUpcomingMoviesUseCase(get()) }
+        factory { GetMoviesByGenreUseCase(get()) }
+        factory { SearchMoviesUseCase(get()) }
 
         // ---------- ViewModels ----------
         viewModelOf(::LoginViewModel)
@@ -151,10 +222,11 @@ val appModule =
             DetailViewModel(
                 id = id,
                 type = type,
-                repository = get(),
-                observeFavoriteStateUseCase = get(),
-                toggleFavoriteUseCase = get(),
-                saveRecentMovieUseCase = get(),
+                observeContentDetail = get(),
+                refreshContentDetail = get(),
+                observeFavoriteState = get(),
+                toggleFavorite = get(),
+                saveRecentMovie = get(),
             )
         }
     }

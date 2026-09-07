@@ -1,10 +1,12 @@
 package com.fagundes.myshowlist.core.data.local.mapper
 
 import com.fagundes.myshowlist.core.data.local.entity.ContentEntity
+import com.fagundes.myshowlist.core.data.local.entity.FavoriteEntity
+import com.fagundes.myshowlist.core.data.local.entity.RecentEntity
 import com.fagundes.myshowlist.core.data.local.enum.ContentCategory
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
+import com.fagundes.myshowlist.core.domain.ContentItem
 import com.fagundes.myshowlist.core.domain.Movie
-import com.fagundes.myshowlist.feat.detail.domain.ContentDetailUi
 
 fun ContentEntity.toMovie(): Movie =
     Movie(
@@ -50,12 +52,32 @@ fun Movie.toEntity(
         cachedAt = System.currentTimeMillis(),
     )
 
-fun ContentEntity.toDetailUi(): ContentDetailUi =
-    ContentDetailUi(
+fun FavoriteEntity.toMovie(): Movie =
+    Movie(
         id = id,
         title = title,
-        imageUrl = posterUrl,
+        posterUrl = posterUrl,
         overview = overview,
         rating = rating,
-        type = type.name,
+        type = type,
+    )
+
+fun RecentEntity.toMovie(): Movie =
+    Movie(
+        id = id,
+        title = title,
+        posterUrl = posterUrl,
+        overview = null,
+        rating = rating,
+        type = type,
+    )
+
+fun ContentItem.toRecentEntity(viewedAt: Long): RecentEntity =
+    RecentEntity(
+        id = id,
+        type = type,
+        title = title,
+        posterUrl = posterUrl,
+        rating = rating,
+        viewedAt = viewedAt,
     )
