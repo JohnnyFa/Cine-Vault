@@ -120,7 +120,7 @@ private fun LazyListScope.favoritesItem(
         Box(modifier = Modifier.testTag("favorites_container")) {
             FavoritesSection(
                 movies = movies,
-                onMovieClick = { movie -> onOpenDetail(movie.id, ContentType.MOVIE) },
+                onMovieClick = { movie -> onOpenDetail(movie.id, movie.type) },
             )
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -157,7 +157,7 @@ private fun LazyListScope.trendingItem(
                 is HomeUiState.Success ->
                     TrendingNowSection(
                         movies = state.data,
-                        onMovieClick = { movie -> onOpenDetail(movie.id, ContentType.MOVIE) },
+                        onMovieClick = { movie -> onOpenDetail(movie.id, movie.type) },
                     )
                 is HomeUiState.Error -> ErrorSection(onRetry = onRetry)
                 else -> Unit
@@ -179,7 +179,7 @@ private fun LazyListScope.recommendedItem(
                 is HomeUiState.Success ->
                     RecommendedForYouSection(
                         movies = state.data,
-                        onMovieClick = { movie -> onOpenDetail(movie.id, ContentType.MOVIE) },
+                        onMovieClick = { movie -> onOpenDetail(movie.id, movie.type) },
                     )
                 is HomeUiState.Error -> ErrorSection(onRetry = onRetry)
                 else -> Unit

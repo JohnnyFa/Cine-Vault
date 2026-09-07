@@ -52,8 +52,6 @@ fun Movie.toEntity(
         cachedAt = System.currentTimeMillis(),
     )
 
-// NOTE: type is deliberately not carried over — FavoriteRepositoryImpl never set it, so every
-// favorite reads back as ContentType.MOVIE. Preserved as-is; see the favorites type bug.
 fun FavoriteEntity.toMovie(): Movie =
     Movie(
         id = id,
@@ -61,6 +59,7 @@ fun FavoriteEntity.toMovie(): Movie =
         posterUrl = posterUrl,
         overview = overview,
         rating = rating,
+        type = type,
     )
 
 fun RecentEntity.toMovie(): Movie =

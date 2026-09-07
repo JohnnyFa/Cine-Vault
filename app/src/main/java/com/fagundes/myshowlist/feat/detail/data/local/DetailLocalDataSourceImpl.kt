@@ -1,26 +1,26 @@
 package com.fagundes.myshowlist.feat.detail.data.local
 
 import com.fagundes.myshowlist.core.data.local.dao.FavoriteDao
-import com.fagundes.myshowlist.core.data.local.dao.MovieDetailCacheDao
+import com.fagundes.myshowlist.core.data.local.datasource.DetailCacheLocalDataSource
 import com.fagundes.myshowlist.core.data.local.entity.CachedMovieDetailEntity
 import com.fagundes.myshowlist.core.data.local.entity.FavoriteEntity
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import kotlinx.coroutines.flow.Flow
 
 class DetailLocalDataSourceImpl(
-    private val detailCacheDao: MovieDetailCacheDao,
+    private val detailCache: DetailCacheLocalDataSource,
     private val favoriteDao: FavoriteDao,
 ) : DetailLocalDataSource {
-    override fun observeDetail(id: Int): Flow<CachedMovieDetailEntity?> = detailCacheDao.observeMovieById(id)
+    override fun observeDetail(id: Int): Flow<CachedMovieDetailEntity?> = detailCache.observeDetail(id)
 
-    override suspend fun getDetail(id: Int): CachedMovieDetailEntity? = detailCacheDao.getMovieById(id)
+    override suspend fun getDetail(id: Int): CachedMovieDetailEntity? = detailCache.getDetail(id)
 
     override suspend fun saveDetail(detail: CachedMovieDetailEntity) {
-        detailCacheDao.upsert(detail)
+        detailCache.saveDetail(detail)
     }
 
     override suspend fun clearExpiredDetails(olderThan: Long) {
-        detailCacheDao.deleteExpiredCache(olderThan)
+        detailCache.clearExpired(olderThan)
     }
 
     override fun observeFavorite(

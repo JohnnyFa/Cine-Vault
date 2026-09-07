@@ -1,14 +1,9 @@
 package com.fagundes.myshowlist.feat.options.domain.usecase
 
-import com.fagundes.myshowlist.core.data.local.dao.ContentDao
-import com.fagundes.myshowlist.core.data.local.dao.MovieDetailCacheDao
+import com.fagundes.myshowlist.core.domain.repository.CacheRepository
 
 class ClearCacheUseCase(
-    private val contentDao: ContentDao,
-    private val movieDetailCacheDao: MovieDetailCacheDao,
+    private val cacheRepository: CacheRepository,
 ) {
-    suspend operator fun invoke() {
-        contentDao.deleteAll()
-        movieDetailCacheDao.deleteAll()
-    }
+    suspend operator fun invoke() = cacheRepository.clearAll()
 }

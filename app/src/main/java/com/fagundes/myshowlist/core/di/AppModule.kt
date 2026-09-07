@@ -7,6 +7,8 @@ import com.fagundes.myshowlist.core.data.local.dao.MovieDetailCacheDao
 import com.fagundes.myshowlist.core.data.local.dao.RecentDao
 import com.fagundes.myshowlist.core.data.local.datasource.ContentLocalDataSource
 import com.fagundes.myshowlist.core.data.local.datasource.ContentLocalDataSourceImpl
+import com.fagundes.myshowlist.core.data.local.datasource.DetailCacheLocalDataSource
+import com.fagundes.myshowlist.core.data.local.datasource.DetailCacheLocalDataSourceImpl
 import com.fagundes.myshowlist.core.data.local.datasource.FavoriteLocalDataSource
 import com.fagundes.myshowlist.core.data.local.datasource.FavoriteLocalDataSourceImpl
 import com.fagundes.myshowlist.core.data.local.datasource.RecentLocalDataSource
@@ -14,11 +16,13 @@ import com.fagundes.myshowlist.core.data.local.datasource.RecentLocalDataSourceI
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.data.remote.api.AnimeApi
 import com.fagundes.myshowlist.core.data.remote.api.MovieApi
+import com.fagundes.myshowlist.core.data.repository.CacheRepositoryImpl
 import com.fagundes.myshowlist.core.data.repository.FavoriteRepositoryImpl
 import com.fagundes.myshowlist.core.data.repository.RecentRepositoryImpl
 import com.fagundes.myshowlist.core.db.AppDatabase
 import com.fagundes.myshowlist.core.db.MIGRATION_3_4
 import com.fagundes.myshowlist.core.db.MIGRATION_4_5
+import com.fagundes.myshowlist.core.domain.repository.CacheRepository
 import com.fagundes.myshowlist.core.domain.repository.FavoriteRepository
 import com.fagundes.myshowlist.core.domain.repository.RecentRepository
 import com.fagundes.myshowlist.core.network.provideJikanHttpClient
@@ -136,8 +140,12 @@ val appModule =
             RecentLocalDataSourceImpl(get())
         }
 
+        single<DetailCacheLocalDataSource> {
+            DetailCacheLocalDataSourceImpl(get())
+        }
+
         single<DetailLocalDataSource> {
-            DetailLocalDataSourceImpl(detailCacheDao = get(), favoriteDao = get())
+            DetailLocalDataSourceImpl(detailCache = get(), favoriteDao = get())
         }
 
         // ---------- Repository ----------
@@ -170,6 +178,13 @@ val appModule =
             RecentRepositoryImpl(local = get())
         }
 
+        single<CacheRepository> {
+            CacheRepositoryImpl(
+                content = get(),
+                detailCache = get(),
+            )
+        }
+
         // ---------- UseCases ----------
         factory { ObserveContentDetailUseCase(get()) }
         factory { RefreshContentDetailUseCase(get()) }
@@ -187,7 +202,7 @@ val appModule =
         factory { ObserveRecentsCountUseCase(get()) }
         factory { ClearFavoritesUseCase(get()) }
         factory { ClearRecentsUseCase(get()) }
-        factory { ClearCacheUseCase(get(), get()) }
+        factory { ClearCacheUseCase(get()) }
         factory { GetUpcomingMoviesUseCase(get()) }
         factory { GetMoviesByGenreUseCase(get()) }
         factory { SearchMoviesUseCase(get()) }

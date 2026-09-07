@@ -50,6 +50,11 @@ only its implementation lives in `data/repository/`.
   `SaveRecentMovieUseCase` lives in `feat/detail` while `ObserveRecentsUseCase` lives in `feat/home`.
   `core` never imports `feat/` — except `core/di/AppModule.kt` and `core/navigation/AppNavGraph.kt`,
   which are composition roots and must see everything.
+- **Domain never imports persistence types.** No `androidx.room`, no `core/data/local/dao`, no
+  `core/data/local/entity` under any `domain/` package. A use case that needs to touch storage goes
+  through a repository interface — `ClearCacheUseCase` took two DAOs until `CacheRepository` was
+  added. Known exception: `ContentType` still lives in `core/data/local/enum/` though it is a domain
+  concept; 27 files import it from there, so moving it wants its own commit.
 - **MVVM**: ViewModels expose `StateFlow` of a per-feature `sealed interface <Name>UiState` (`Idle`/`Loading`/`Success`/`Error`). Reference: `feat/home/presentation/home/HomeViewModel.kt`.
 - **Return types**: suspend one-shots return `Result<T>`; observation functions return `Flow<T>` unwrapped. Repositories return `core/domain` models — never DTOs or Room entities.
 - **DI**: Koin, single `appModule` in `core/di/AppModule.kt`. A ViewModel that isn't registered there crashes at navigation time, not at build time.

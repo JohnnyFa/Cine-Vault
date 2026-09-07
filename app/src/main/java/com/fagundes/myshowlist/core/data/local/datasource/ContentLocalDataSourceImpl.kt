@@ -23,4 +23,8 @@ class ContentLocalDataSourceImpl(
     override suspend fun clearExpired(olderThan: Long) {
         dao.deleteExpiredCache(olderThan)
     }
+
+    override suspend fun clearAll() {
+        dao.deleteAll()
+    }
 }

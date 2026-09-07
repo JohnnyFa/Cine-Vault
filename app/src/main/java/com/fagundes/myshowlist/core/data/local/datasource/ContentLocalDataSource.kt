@@ -15,4 +15,6 @@ interface ContentLocalDataSource {
     suspend fun getMoviesByCategory(category: ContentCategory): List<ContentEntity>
 
     suspend fun clearExpired(olderThan: Long)
+
+    suspend fun clearAll()
 }
