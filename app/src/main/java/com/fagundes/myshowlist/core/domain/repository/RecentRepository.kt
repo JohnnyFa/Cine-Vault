@@ -1,4 +1,4 @@
-package com.fagundes.myshowlist.feat.home.data.repository
+package com.fagundes.myshowlist.core.domain.repository
 
 import com.fagundes.myshowlist.core.domain.ContentItem
 import com.fagundes.myshowlist.core.domain.Movie
@@ -9,7 +9,7 @@ interface RecentRepository {
 
     fun observeCount(): Flow<Int>
 
-    suspend fun saveRecent(movie: ContentItem)
+    suspend fun saveRecent(item: ContentItem)
 
     suspend fun clearAll()
 }

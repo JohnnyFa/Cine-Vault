@@ -1,4 +1,4 @@
-package com.fagundes.myshowlist.feat.home.data.repository
+package com.fagundes.myshowlist.feat.home.domain.repository
 
 import com.fagundes.myshowlist.core.domain.Movie
 import kotlinx.coroutines.flow.Flow
@@ -10,5 +10,5 @@ interface HomeRepository {
 
     fun observeShowOfTheDay(): Flow<Movie?>
 
-    suspend fun refreshHomeIfNeeded()
+    suspend fun refreshHomeIfNeeded(): Result<Unit>
 }

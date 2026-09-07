@@ -8,8 +8,8 @@ import com.fagundes.myshowlist.feat.detail.domain.model.ContentDetail
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveContentDetailUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveFavoriteStateUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.RefreshContentDetailUseCase
+import com.fagundes.myshowlist.feat.detail.domain.usecase.SaveRecentMovieUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ToggleFavoriteUseCase
-import com.fagundes.myshowlist.feat.home.domain.usecase.SaveRecentMovieUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow

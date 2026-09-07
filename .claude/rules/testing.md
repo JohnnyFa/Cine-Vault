@@ -6,7 +6,7 @@ paths:
 
 # Testing rules
 
-Reference implementation: `app/src/test/java/com/fagundes/myshowlist/feat/home/vm/HomeViewModelTest.kt`.
+Reference implementation: `app/src/test/java/com/fagundes/myshowlist/feat/home/presentation/home/HomeViewModelTest.kt`.
 
 ## Layout
 

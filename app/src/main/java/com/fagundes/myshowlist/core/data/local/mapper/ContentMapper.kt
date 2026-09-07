@@ -1,8 +1,11 @@
 package com.fagundes.myshowlist.core.data.local.mapper
 
 import com.fagundes.myshowlist.core.data.local.entity.ContentEntity
+import com.fagundes.myshowlist.core.data.local.entity.FavoriteEntity
+import com.fagundes.myshowlist.core.data.local.entity.RecentEntity
 import com.fagundes.myshowlist.core.data.local.enum.ContentCategory
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
+import com.fagundes.myshowlist.core.domain.ContentItem
 import com.fagundes.myshowlist.core.domain.Movie
 
 fun ContentEntity.toMovie(): Movie =
@@ -47,4 +50,35 @@ fun Movie.toEntity(
         releaseDate = null,
         category = category,
         cachedAt = System.currentTimeMillis(),
+    )
+
+// NOTE: type is deliberately not carried over — FavoriteRepositoryImpl never set it, so every
+// favorite reads back as ContentType.MOVIE. Preserved as-is; see the favorites type bug.
+fun FavoriteEntity.toMovie(): Movie =
+    Movie(
+        id = id,
+        title = title,
+        posterUrl = posterUrl,
+        overview = overview,
+        rating = rating,
+    )
+
+fun RecentEntity.toMovie(): Movie =
+    Movie(
+        id = id,
+        title = title,
+        posterUrl = posterUrl,
+        overview = null,
+        rating = rating,
+        type = type,
+    )
+
+fun ContentItem.toRecentEntity(viewedAt: Long): RecentEntity =
+    RecentEntity(
+        id = id,
+        type = type,
+        title = title,
+        posterUrl = posterUrl,
+        rating = rating,
+        viewedAt = viewedAt,
     )

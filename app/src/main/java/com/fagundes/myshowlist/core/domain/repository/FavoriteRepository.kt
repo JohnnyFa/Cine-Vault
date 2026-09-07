@@ -1,4 +1,4 @@
-package com.fagundes.myshowlist.feat.home.data.repository
+package com.fagundes.myshowlist.core.domain.repository
 
 import com.fagundes.myshowlist.core.domain.Movie
 import kotlinx.coroutines.flow.Flow

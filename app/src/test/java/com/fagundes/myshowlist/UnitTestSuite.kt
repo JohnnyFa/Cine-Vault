@@ -4,7 +4,7 @@ import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetMoviesByGenreUseCa
 import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogViewModelTest
 import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewModelTest
 import com.fagundes.myshowlist.feat.detail.presentation.detail.DetailViewModelTest
-import com.fagundes.myshowlist.feat.home.vm.HomeViewModelTest
+import com.fagundes.myshowlist.feat.home.presentation.home.HomeViewModelTest
 import com.fagundes.myshowlist.feat.login.vm.LoginViewModelTest
 import com.fagundes.myshowlist.feat.options.vm.OptionsViewModelTest
 import org.junit.runner.RunWith

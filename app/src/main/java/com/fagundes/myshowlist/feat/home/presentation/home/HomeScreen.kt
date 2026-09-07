@@ -1,4 +1,4 @@
-package com.fagundes.myshowlist.feat.home.ui
+package com.fagundes.myshowlist.feat.home.presentation.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -21,15 +21,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fagundes.myshowlist.components.error.ErrorSection
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.domain.Movie
-import com.fagundes.myshowlist.feat.home.ui.components.FavoritesSection
-import com.fagundes.myshowlist.feat.home.ui.components.RecentsSection
-import com.fagundes.myshowlist.feat.home.ui.components.RecommendedForYouSection
-import com.fagundes.myshowlist.feat.home.ui.components.ShowOfTheDaySection
-import com.fagundes.myshowlist.feat.home.ui.components.TrendingNowSection
-import com.fagundes.myshowlist.feat.home.ui.components.skeleton.CarouselSkeleton
-import com.fagundes.myshowlist.feat.home.ui.components.skeleton.ShowOfTheDaySkeleton
-import com.fagundes.myshowlist.feat.home.vm.HomeUiState
-import com.fagundes.myshowlist.feat.home.vm.HomeViewModel
+import com.fagundes.myshowlist.feat.home.presentation.components.FavoritesSection
+import com.fagundes.myshowlist.feat.home.presentation.components.RecentsSection
+import com.fagundes.myshowlist.feat.home.presentation.components.RecommendedForYouSection
+import com.fagundes.myshowlist.feat.home.presentation.components.ShowOfTheDaySection
+import com.fagundes.myshowlist.feat.home.presentation.components.TrendingNowSection
+import com.fagundes.myshowlist.feat.home.presentation.components.skeleton.CarouselSkeleton
+import com.fagundes.myshowlist.feat.home.presentation.components.skeleton.ShowOfTheDaySkeleton
 import com.fagundes.myshowlist.ui.theme.MyShowListTheme
 
 @Composable

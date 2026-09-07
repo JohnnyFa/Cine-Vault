@@ -11,8 +11,8 @@ import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogViewMode
 import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingScreen
 import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewModel
 import com.fagundes.myshowlist.feat.detail.presentation.detail.DetailScreen
-import com.fagundes.myshowlist.feat.home.ui.HomeScreen
-import com.fagundes.myshowlist.feat.home.vm.HomeViewModel
+import com.fagundes.myshowlist.feat.home.presentation.home.HomeScreen
+import com.fagundes.myshowlist.feat.home.presentation.home.HomeViewModel
 import com.fagundes.myshowlist.feat.login.ui.LoginScreen
 import com.fagundes.myshowlist.feat.options.ui.OptionsScreen
 import org.koin.compose.viewmodel.koinViewModel

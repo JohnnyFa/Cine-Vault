@@ -8,6 +8,7 @@ import com.fagundes.myshowlist.core.data.local.mapper.toEntity
 import com.fagundes.myshowlist.core.data.local.mapper.toMovie
 import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.feat.home.data.remote.HomeRemoteDataSource
+import com.fagundes.myshowlist.feat.home.domain.repository.HomeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -31,15 +32,16 @@ class HomeRepositoryImpl(
             .map { it.firstOrNull()?.toMovie() }
             .distinctUntilChanged()
 
-    override suspend fun refreshHomeIfNeeded() {
-        val now = System.currentTimeMillis()
-        val minValid = now - CACHE_DURATION
-        local.clearExpired(minValid)
+    override suspend fun refreshHomeIfNeeded(): Result<Unit> =
+        runCatching {
+            val now = System.currentTimeMillis()
+            val minValid = now - CACHE_DURATION
+            local.clearExpired(minValid)
 
-        refreshCategoryIfNeeded(ContentCategory.POPULAR, minValid) { remote.getPopularMovies() }
-        refreshCategoryIfNeeded(ContentCategory.RECOMMENDED, minValid) { remote.getRecommendedMovies() }
-        refreshCategoryIfNeeded(ContentCategory.SHOW_OF_THE_DAY, minValid) { listOf(remote.getShowOfTheDay()) }
-    }
+            refreshCategoryIfNeeded(ContentCategory.POPULAR, minValid) { remote.getPopularMovies() }
+            refreshCategoryIfNeeded(ContentCategory.RECOMMENDED, minValid) { remote.getRecommendedMovies() }
+            refreshCategoryIfNeeded(ContentCategory.SHOW_OF_THE_DAY, minValid) { listOf(remote.getShowOfTheDay()) }
+        }
 
     private suspend fun refreshCategoryIfNeeded(
         category: ContentCategory,

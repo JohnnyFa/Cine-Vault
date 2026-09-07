@@ -1,4 +1,4 @@
-package com.fagundes.myshowlist.feat.home.ui.components.skeleton
+package com.fagundes.myshowlist.feat.home.presentation.components.skeleton
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

@@ -1,4 +1,4 @@
-package com.fagundes.myshowlist.feat.home.ui
+package com.fagundes.myshowlist.feat.home.presentation.home
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
@@ -10,7 +10,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import com.fagundes.myshowlist.core.domain.Movie
-import com.fagundes.myshowlist.feat.home.vm.HomeUiState
 import org.junit.Rule
 import org.junit.Test
 

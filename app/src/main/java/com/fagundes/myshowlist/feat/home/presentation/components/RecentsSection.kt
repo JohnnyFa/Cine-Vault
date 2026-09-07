@@ -1,4 +1,4 @@
-package com.fagundes.myshowlist.feat.home.ui.components
+package com.fagundes.myshowlist.feat.home.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,14 +24,15 @@ import com.fagundes.myshowlist.ui.theme.AccentRed
 import com.fagundes.myshowlist.ui.theme.TextPrimary
 
 @Composable
-fun TrendingNowSection(
+fun RecentsSection(
     movies: List<Movie>,
     onMovieClick: (Movie) -> Unit,
 ) {
+    if (movies.isEmpty()) return
+
     Column(
         modifier = Modifier.fillMaxWidth(),
     ) {
-        // Header
         Row(
             modifier =
                 Modifier
@@ -40,7 +41,7 @@ fun TrendingNowSection(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.TrendingUp,
+                imageVector = Icons.Default.History,
                 contentDescription = null,
                 tint = AccentRed,
                 modifier = Modifier.size(20.dp),
@@ -49,7 +50,7 @@ fun TrendingNowSection(
             Spacer(Modifier.width(8.dp))
 
             Text(
-                text = stringResource(R.string.label_trending_now),
+                text = stringResource(R.string.label_recently_viewed),
                 style = MaterialTheme.typography.titleLarge,
                 color = TextPrimary,
             )

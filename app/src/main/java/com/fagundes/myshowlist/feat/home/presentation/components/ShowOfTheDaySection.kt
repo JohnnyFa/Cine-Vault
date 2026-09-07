@@ -1,4 +1,4 @@
-package com.fagundes.myshowlist.feat.home.ui.components
+package com.fagundes.myshowlist.feat.home.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

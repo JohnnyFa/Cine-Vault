@@ -1,11 +1,14 @@
-package com.fagundes.myshowlist.feat.home.vm
+package com.fagundes.myshowlist.feat.home.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fagundes.myshowlist.core.domain.Movie
-import com.fagundes.myshowlist.feat.home.data.repository.HomeRepository
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveFavoritesUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveRecentsUseCase
+import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveRecommendedMoviesUseCase
+import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveShowOfTheDayUseCase
+import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveTrendingMoviesUseCase
+import com.fagundes.myshowlist.feat.home.domain.usecase.RefreshHomeUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,9 +17,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val repository: HomeRepository,
-    private val observeFavoritesUseCase: ObserveFavoritesUseCase,
-    private val observeRecentsUseCase: ObserveRecentsUseCase,
+    private val observeTrendingMovies: ObserveTrendingMoviesUseCase,
+    private val observeRecommendedMovies: ObserveRecommendedMoviesUseCase,
+    private val observeShowOfTheDay: ObserveShowOfTheDayUseCase,
+    private val refreshHomeUseCase: RefreshHomeUseCase,
+    private val observeFavorites: ObserveFavoritesUseCase,
+    private val observeRecents: ObserveRecentsUseCase,
 ) : ViewModel() {
     private val _trendingState = MutableStateFlow<HomeUiState<List<Movie>>>(HomeUiState.Idle)
     val trendingState: StateFlow<HomeUiState<List<Movie>>> = _trendingState.asStateFlow()
@@ -38,14 +44,14 @@ class HomeViewModel(
     init {
         observeHomeSections()
         refreshHome()
-        observeFavorites()
-        observeRecents()
+        observeFavoriteSection()
+        observeRecentSection()
     }
 
     // Each delegate is a single-expression call — no nesting, no branching here.
     private fun observeHomeSections() {
-        observeListSection(repository.observePopularMovies(), _trendingState)
-        observeListSection(repository.observeRecommendedMovies(), _forYouState)
+        observeListSection(observeTrendingMovies(), _trendingState)
+        observeListSection(observeRecommendedMovies(), _forYouState)
         observeShowOfTheDaySection()
     }
 
@@ -67,7 +73,7 @@ class HomeViewModel(
 
     private fun observeShowOfTheDaySection() {
         viewModelScope.launch {
-            repository.observeShowOfTheDay().collect { movie ->
+            observeShowOfTheDay().collect { movie ->
                 if (movie == null) {
                     refreshIfPreviouslyLoaded(_showOfTheDayState.value)
                     _showOfTheDayState.value = HomeUiState.Loading
@@ -83,17 +89,17 @@ class HomeViewModel(
         if (currentState is HomeUiState.Success) refreshHome()
     }
 
-    private fun observeFavorites() {
+    private fun observeFavoriteSection() {
         viewModelScope.launch {
-            observeFavoritesUseCase().collect { movies ->
+            observeFavorites().collect { movies ->
                 _favoritesState.value = HomeUiState.Success(movies)
             }
         }
     }
 
-    private fun observeRecents() {
+    private fun observeRecentSection() {
         viewModelScope.launch {
-            observeRecentsUseCase().collect { movies ->
+            observeRecents().collect { movies ->
                 _recentsState.value = HomeUiState.Success(movies)
             }
         }
@@ -105,7 +111,7 @@ class HomeViewModel(
     }
 
     private suspend fun doRefreshHome() {
-        runCatching { repository.refreshHomeIfNeeded() }
+        refreshHomeUseCase()
             .onFailure {
                 _trendingState.setErrorIfLoading("Failed to load trending")
                 _forYouState.setErrorIfLoading("Failed to load recommended")
@@ -123,14 +129,4 @@ class HomeViewModel(
 // Replaces the repeated if-is-Loading-then-set-Error pattern inside onFailure.
 private fun <T> MutableStateFlow<HomeUiState<T>>.setErrorIfLoading(message: String) {
     if (value is HomeUiState.Loading) value = HomeUiState.Error(message)
-}
-
-sealed interface HomeUiState<out T> {
-    object Idle : HomeUiState<Nothing>
-
-    object Loading : HomeUiState<Nothing>
-
-    data class Success<T>(val data: T) : HomeUiState<T>
-
-    data class Error(val message: String) : HomeUiState<Nothing>
 }
