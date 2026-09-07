@@ -18,10 +18,12 @@ import com.fagundes.myshowlist.core.data.remote.api.AnimeApi
 import com.fagundes.myshowlist.core.data.remote.api.MovieApi
 import com.fagundes.myshowlist.core.data.repository.CacheRepositoryImpl
 import com.fagundes.myshowlist.core.data.repository.FavoriteRepositoryImpl
+import com.fagundes.myshowlist.core.data.repository.FirebaseAuthRepository
 import com.fagundes.myshowlist.core.data.repository.RecentRepositoryImpl
 import com.fagundes.myshowlist.core.db.AppDatabase
 import com.fagundes.myshowlist.core.db.MIGRATION_3_4
 import com.fagundes.myshowlist.core.db.MIGRATION_4_5
+import com.fagundes.myshowlist.core.domain.repository.AuthRepository
 import com.fagundes.myshowlist.core.domain.repository.CacheRepository
 import com.fagundes.myshowlist.core.domain.repository.FavoriteRepository
 import com.fagundes.myshowlist.core.domain.repository.RecentRepository
@@ -59,17 +61,17 @@ import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveShowOfTheDayUseCa
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveTrendingMoviesUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.RefreshHomeUseCase
 import com.fagundes.myshowlist.feat.home.presentation.home.HomeViewModel
-import com.fagundes.myshowlist.feat.login.data.repository.FirebaseAuthRepository
-import com.fagundes.myshowlist.feat.login.domain.repository.AuthRepository
 import com.fagundes.myshowlist.feat.login.domain.usecase.LoginWithGoogleUseCase
 import com.fagundes.myshowlist.feat.login.presentation.login.LoginViewModel
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearCacheUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearFavoritesUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearRecentsUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearUserDataUseCase
+import com.fagundes.myshowlist.feat.options.domain.usecase.GetCurrentUserUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveFavoritesCountUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveRecentsCountUseCase
-import com.fagundes.myshowlist.feat.options.vm.OptionsViewModel
+import com.fagundes.myshowlist.feat.options.domain.usecase.SignOutUseCase
+import com.fagundes.myshowlist.feat.options.presentation.options.OptionsViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
@@ -203,6 +205,8 @@ val appModule =
         factory { ClearFavoritesUseCase(get()) }
         factory { ClearRecentsUseCase(get()) }
         factory { ClearCacheUseCase(get()) }
+        factory { GetCurrentUserUseCase(get()) }
+        factory { SignOutUseCase(get()) }
         factory { GetUpcomingMoviesUseCase(get()) }
         factory { GetMoviesByGenreUseCase(get()) }
         factory { SearchMoviesUseCase(get()) }

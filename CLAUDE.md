@@ -38,9 +38,9 @@ only its implementation lives in `data/repository/`.
       └── components/                     # feature-local composables
   ```
 
-  **Migration in progress**: `catalog`, `detail`, `home` and `login` use this layout. Only
-  `options` still uses the older `feat/<feature>/{data,domain,ui,vm}/` split. Don't half-convert
-  a feature. Shared code in `core/`, shared composables in `components/`.
+  **Every feature uses this layout** — the `ui/` + `vm/` split is gone. Shared code in `core/`,
+  shared composables in `components/`. A feature with no storage of its own has no `data/` at
+  all: `options` is domain + presentation over core's repositories.
 - **No feature imports another feature — this currently holds app-wide, keep it that way.**
   Anything two features need lives in `core/`: `core/domain/ContentItem.kt`,
   `core/domain/repository/{Favorite,Recent}Repository.kt` (consumed by home, options and detail),

@@ -1,13 +1,15 @@
-package com.fagundes.myshowlist.feat.options.vm
+package com.fagundes.myshowlist.feat.options.presentation.options
 
+import com.fagundes.myshowlist.core.domain.AuthUser
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearCacheUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearFavoritesUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearRecentsUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearUserDataUseCase
+import com.fagundes.myshowlist.feat.options.domain.usecase.GetCurrentUserUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveFavoritesCountUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveRecentsCountUseCase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
+import com.fagundes.myshowlist.feat.options.domain.usecase.SignOutUseCase
+import io.mockk.Ordering
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -16,7 +18,9 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -24,12 +28,14 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OptionsViewModelTest {
-    private val auth: FirebaseAuth = mockk(relaxed = true)
+    private val getCurrentUser: GetCurrentUserUseCase = mockk()
+    private val signOut: SignOutUseCase = mockk(relaxed = true)
     private val clearUserDataUseCase: ClearUserDataUseCase = mockk(relaxed = true)
     private val observeFavoritesCountUseCase: ObserveFavoritesCountUseCase = mockk()
     private val observeRecentsCountUseCase: ObserveRecentsCountUseCase = mockk()
@@ -41,6 +47,7 @@ class OptionsViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+        every { getCurrentUser() } returns null
         coEvery { clearUserDataUseCase() } returns Unit
         every { observeFavoritesCountUseCase() } returns flowOf(0)
         every { observeRecentsCountUseCase() } returns flowOf(0)
@@ -54,32 +61,33 @@ class OptionsViewModelTest {
 
     private fun createViewModel() =
         OptionsViewModel(
-            auth = auth,
-            clearUserDataUseCase = clearUserDataUseCase,
-            observeFavoritesCountUseCase = observeFavoritesCountUseCase,
-            observeRecentsCountUseCase = observeRecentsCountUseCase,
-            clearFavoritesUseCase = clearFavoritesUseCase,
-            clearRecentsUseCase = clearRecentsUseCase,
-            clearCacheUseCase = clearCacheUseCase,
+            getCurrentUser = getCurrentUser,
+            signOut = signOut,
+            clearUserData = clearUserDataUseCase,
+            observeFavoritesCount = observeFavoritesCountUseCase,
+            observeRecentsCount = observeRecentsCountUseCase,
+            clearFavorites = clearFavoritesUseCase,
+            clearRecents = clearRecentsUseCase,
+            clearCache = clearCacheUseCase,
         )
 
     @Test
-    fun `currentUser should reflect the user returned by FirebaseAuth`() {
-        val user: FirebaseUser = mockk()
-        every { auth.currentUser } returns user
+    fun `state should expose the signed-in user`() {
+        val user = AuthUser(displayName = "John Doe", email = "john@example.com", photoUrl = "/photo.jpg")
+        every { getCurrentUser() } returns user
 
         val viewModel = createViewModel()
 
-        assertEquals(user, viewModel.currentUser)
+        assertEquals(user, viewModel.uiState.value.user)
     }
 
     @Test
-    fun `currentUser should be null when no user is signed in`() {
-        every { auth.currentUser } returns null
+    fun `state user should be null when no one is signed in`() {
+        every { getCurrentUser() } returns null
 
         val viewModel = createViewModel()
 
-        assertNull(viewModel.currentUser)
+        assertNull(viewModel.uiState.value.user)
     }
 
     @Test
@@ -90,6 +98,19 @@ class OptionsViewModelTest {
         assertEquals(0, viewModel.uiState.value.recentsCount)
         assertNull(viewModel.uiState.value.pendingClearAction)
     }
+
+    @Test
+    fun `counts should reflect the observed use cases`() =
+        runTest {
+            every { observeFavoritesCountUseCase() } returns flowOf(4)
+            every { observeRecentsCountUseCase() } returns flowOf(9)
+
+            val viewModel = createViewModel()
+            testDispatcher.scheduler.runCurrent()
+
+            assertEquals(4, viewModel.uiState.value.favoritesCount)
+            assertEquals(9, viewModel.uiState.value.recentsCount)
+        }
 
     @Test
     fun `requestClear should set the pending action`() {
@@ -174,52 +195,47 @@ class OptionsViewModelTest {
     fun `logout should clear user data before signing out`() =
         runTest {
             val viewModel = createViewModel()
-            var callbackInvoked = false
 
-            viewModel.logout { callbackInvoked = true }
+            viewModel.logout()
             testDispatcher.scheduler.runCurrent()
 
-            coVerify(ordering = io.mockk.Ordering.ORDERED) {
+            coVerify(ordering = Ordering.ORDERED) {
                 clearUserDataUseCase()
-                auth.signOut()
+                signOut()
             }
-            assert(callbackInvoked)
         }
 
     @Test
-    fun `logout should invoke onComplete callback after clearing data`() =
-        runTest {
-            val viewModel = createViewModel()
-            var callbackInvoked = false
-
-            viewModel.logout { callbackInvoked = true }
-            testDispatcher.scheduler.runCurrent()
-
-            assert(callbackInvoked)
-        }
-
-    @Test
-    fun `logout should call auth signOut`() =
+    fun `logout should emit LoggedOut once sign-out completes`() =
         runTest {
             val viewModel = createViewModel()
 
-            viewModel.logout {}
+            var event: OptionsEvent? = null
+            val job = launch { event = viewModel.events.first() }
             testDispatcher.scheduler.runCurrent()
 
-            verify { auth.signOut() }
+            viewModel.logout()
+            testDispatcher.scheduler.runCurrent()
+
+            assertEquals(OptionsEvent.LoggedOut, event)
+            job.cancel()
         }
 
     @Test
-    fun `logout should still sign out and invoke onComplete when clearUserData throws`() =
+    fun `logout should still sign out and emit when clearing user data throws`() =
         runTest {
             coEvery { clearUserDataUseCase() } throws RuntimeException("SQLite failure")
             val viewModel = createViewModel()
-            var callbackInvoked = false
 
-            viewModel.logout { callbackInvoked = true }
+            var event: OptionsEvent? = null
+            val job = launch { event = viewModel.events.first() }
             testDispatcher.scheduler.runCurrent()
 
-            verify { auth.signOut() }
-            assert(callbackInvoked)
+            viewModel.logout()
+            testDispatcher.scheduler.runCurrent()
+
+            verify { signOut() }
+            assertTrue(event is OptionsEvent.LoggedOut)
+            job.cancel()
         }
 }

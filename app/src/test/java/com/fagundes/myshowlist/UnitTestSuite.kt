@@ -8,7 +8,7 @@ import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewMo
 import com.fagundes.myshowlist.feat.detail.presentation.detail.DetailViewModelTest
 import com.fagundes.myshowlist.feat.home.presentation.home.HomeViewModelTest
 import com.fagundes.myshowlist.feat.login.presentation.login.LoginViewModelTest
-import com.fagundes.myshowlist.feat.options.vm.OptionsViewModelTest
+import com.fagundes.myshowlist.feat.options.presentation.options.OptionsViewModelTest
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
 

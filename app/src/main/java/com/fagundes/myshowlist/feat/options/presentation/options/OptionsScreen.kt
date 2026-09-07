@@ -1,4 +1,4 @@
-package com.fagundes.myshowlist.feat.options.ui
+package com.fagundes.myshowlist.feat.options.presentation.options
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,9 +44,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.fagundes.myshowlist.BuildConfig
 import com.fagundes.myshowlist.R
-import com.fagundes.myshowlist.feat.options.vm.ClearAction
-import com.fagundes.myshowlist.feat.options.vm.OptionsUiState
-import com.fagundes.myshowlist.feat.options.vm.OptionsViewModel
 import com.fagundes.myshowlist.ui.theme.Background
 import com.fagundes.myshowlist.ui.theme.Divider
 import com.fagundes.myshowlist.ui.theme.MyShowListTheme
@@ -54,22 +52,28 @@ import com.fagundes.myshowlist.ui.theme.SurfaceElevated
 import com.fagundes.myshowlist.ui.theme.TextMuted
 import com.fagundes.myshowlist.ui.theme.TextPrimary
 import com.fagundes.myshowlist.ui.theme.TextSecondary
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun OptionsScreen(
+    viewModel: OptionsViewModel,
     onLogout: () -> Unit,
-    viewModel: OptionsViewModel = koinViewModel(),
 ) {
-    val user = viewModel.currentUser
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                OptionsEvent.LoggedOut -> onLogout()
+            }
+        }
+    }
+
     OptionsScreenContent(
-        displayName = user?.displayName,
-        email = user?.email,
-        photoUrl = user?.photoUrl?.toString(),
+        displayName = uiState.user?.displayName,
+        email = uiState.user?.email,
+        photoUrl = uiState.user?.photoUrl,
         uiState = uiState,
-        onLogout = { viewModel.logout(onLogout) },
+        onLogout = viewModel::logout,
         onRequestClear = viewModel::requestClear,
         onConfirmClear = viewModel::confirmClear,
         onDismissClear = viewModel::dismissClearDialog,

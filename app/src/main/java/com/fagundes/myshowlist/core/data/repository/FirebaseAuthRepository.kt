@@ -1,6 +1,7 @@
-package com.fagundes.myshowlist.feat.login.data.repository
+package com.fagundes.myshowlist.core.data.repository
 
-import com.fagundes.myshowlist.feat.login.domain.repository.AuthRepository
+import com.fagundes.myshowlist.core.domain.AuthUser
+import com.fagundes.myshowlist.core.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -24,4 +25,17 @@ class FirebaseAuthRepository(
                     cont.resume(Result.failure(e))
                 }
         }
+
+    override fun currentUser(): AuthUser? =
+        firebaseAuth.currentUser?.let { user ->
+            AuthUser(
+                displayName = user.displayName,
+                email = user.email,
+                photoUrl = user.photoUrl?.toString(),
+            )
+        }
+
+    override fun signOut() {
+        firebaseAuth.signOut()
+    }
 }

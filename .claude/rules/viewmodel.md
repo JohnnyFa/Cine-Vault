@@ -9,10 +9,9 @@ paths:
 
 Reference implementation: `feat/home/presentation/home/HomeViewModel.kt`.
 
-**Two layouts coexist while the clean-architecture migration is in progress.** `feat/catalog`,
-`feat/detail`, `feat/home` and `feat/login` are migrated: `presentation/<screen>/` holds the
-screen, its ViewModel and its `<Name>UiState.kt`. Only `options` still uses the older `ui/` +
-`vm/` split. Follow whichever layout the feature you
+**Every feature uses the same layout**: `presentation/<screen>/` holds the screen, its ViewModel
+and its `<Name>UiState.kt` (which also carries the feature's event interface, if it has one).
+There is no `ui/` or `vm/` package left anywhere. Follow whichever layout the feature you
 are editing already uses; see CLAUDE.md.
 
 ## Structure
@@ -31,6 +30,9 @@ are editing already uses; see CLAUDE.md.
   ```
 - Launch work with `viewModelScope.launch`. Never `GlobalScope`, never a raw `CoroutineScope`.
 - Guard re-entrant refreshes with a `Job?` field (`if (job?.isActive == true) return`) — see `HomeViewModel.refreshHome()`.
+- Signal navigation with a `SharedFlow` event the screen collects, never by taking a callback
+  parameter — `OptionsViewModel.logout(onComplete)` used to do the latter. See
+  `OptionsEvent.LoggedOut` and `LoginUiEvent.NavigateHome`.
 
 ## UI state
 

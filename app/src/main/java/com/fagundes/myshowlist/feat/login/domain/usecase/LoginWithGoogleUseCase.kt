@@ -1,6 +1,6 @@
 package com.fagundes.myshowlist.feat.login.domain.usecase
 
-import com.fagundes.myshowlist.feat.login.domain.repository.AuthRepository
+import com.fagundes.myshowlist.core.domain.repository.AuthRepository
 
 class LoginWithGoogleUseCase(
     private val repository: AuthRepository,
