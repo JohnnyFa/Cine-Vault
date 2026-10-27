@@ -178,6 +178,7 @@ fun LoginScreenContent(
 
             TextButton(
                 onClick = onContinueAsGuest,
+                enabled = state !is LoginUiState.Loading,
                 modifier = Modifier.testTag("login_guest_button"),
             ) {
                 Text(

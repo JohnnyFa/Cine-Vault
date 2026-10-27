@@ -9,6 +9,7 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -17,6 +18,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -121,6 +123,26 @@ class LoginViewModelTest {
             verify(exactly = 1) { continueAsGuest() }
             assertEquals(LoginUiEvent.NavigateHome, event)
             assertEquals(LoginUiState.Idle, viewModel.uiState.value)
+            job.cancel()
+        }
+
+    @Test
+    fun `onContinueAsGuest should be ignored while Google sign-in is pending`() =
+        runTest {
+            // Sign-in never completes, so the state stays Loading for the whole test.
+            coEvery { loginWithGoogle(TOKEN) } coAnswers { awaitCancellation() }
+            viewModel.onGoogleTokenReceived(TOKEN)
+
+            var event: LoginUiEvent? = null
+            val job = launch { event = viewModel.uiEvent.first() }
+            testDispatcher.scheduler.runCurrent()
+
+            viewModel.onContinueAsGuest()
+            testDispatcher.scheduler.runCurrent()
+
+            verify(exactly = 0) { continueAsGuest() }
+            assertEquals(LoginUiState.Loading, viewModel.uiState.value)
+            assertNull(event)
             job.cancel()
         }
 

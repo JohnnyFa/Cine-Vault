@@ -42,6 +42,8 @@ class LoginViewModel(
     }
 
     fun onContinueAsGuest() {
+        // Firebase can't cancel a pending Google sign-in; letting a guest in now would sign them in behind their back.
+        if (_uiState.value is LoginUiState.Loading) return
         continueAsGuest()
         _uiEvent.tryEmit(LoginUiEvent.NavigateHome)
     }
