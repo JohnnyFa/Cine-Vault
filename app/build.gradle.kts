@@ -47,11 +47,10 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val tmdbApiKey =
-            localProperties.getProperty("TMDB_API_KEY") ?: ""
+        val tmdbApiKey = getLocalOrEnv("TMDB_API_KEY") ?: ""
 
         if (tmdbApiKey.isEmpty()) {
-            println("WARNING: TMDB_API_KEY not found in local.properties. TMDB API calls will fail.")
+            println("WARNING: TMDB_API_KEY not found in local.properties or the environment. TMDB API calls will fail.")
         }
 
         buildConfigField(
