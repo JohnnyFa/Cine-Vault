@@ -72,6 +72,12 @@ Add or change a ViewModel → create/update its test under `app/src/test/java/` 
 
 Use cases that carry real logic (a branch, a guard, a mapping) get a test too, under `feat/<feature>/domain/usecase/`; thin one-line forwards to a repository do not.
 
+## Git workflow
+
+- **Never commit on `main`.** Branch first: `feat/<name>`, `fix/<name>`, `refactor/<name>`, `ci/<name>`, `docs/<name>`.
+- **Run `/review` before every commit.** It checks the branch, staged secrets and junk, the architecture rules, tests, and the CI gate, and nothing is committed until it says *Ready to commit*.
+- **Delete the branch as soon as its PR is merged**, both on GitHub and locally: `gh pr merge <n> --merge --delete-branch`, or `git push origin --delete <branch>` + `git branch -d <branch>` after a merge on GitHub. Never reuse a merged branch; start a new one from an up-to-date `main`.
+
 ## Secrets
 
 `local.properties` (`sdk.dir`, `TMDB_API_KEY`), `app/google-services.json`, and any keystore are off-limits: never read, print, or edit them. Build files reach secrets through `getLocalOrEnv(key)` only.
