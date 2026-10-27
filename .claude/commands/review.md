@@ -21,25 +21,31 @@ git branch --show-current
 
 ```
 git status --short
-git diff HEAD
+git diff --cached     # staged: exactly what the commit will contain
+git diff              # unstaged: what will be left out
 ```
 
-Also read every untracked file that will be added. If there is nothing to commit, say so and stop.
+Read the two diffs separately. Never use `git diff HEAD` alone: it compares the working tree with `HEAD` and skips the index, so a line that was staged and then deleted only in the working tree (`MM` in `git status`) shows up nowhere, yet still gets committed.
 
-Review the whole change, not just the staged part: an unstaged edit that the staged one depends on is a broken commit.
+- **The commit is `git diff --cached`.** Every check below runs against it.
+- **A file marked `MM`** has staged and unstaged edits. Resolve it before the commit: stage the rest (`git add <file>`) or drop it on purpose. Don't declare the commit ready while the index and the working tree disagree about what the file says.
+- **Unstaged edits the staged ones depend on** (a call site staged without the function it calls) make a broken commit: stage them too.
+- **Untracked files** that belong to the change get added and read; the rest stay out.
+
+If both diffs are empty and there is nothing untracked to add, say so and stop.
 
 ## 3. Commit hygiene — blockers
 
-Any of these blocks the commit:
+Any of these blocks the commit. Look for them in `git diff --cached` and the names in `git diff --cached --name-only`, which is what actually lands:
 
-- **Secrets.** `local.properties`, `*.jks`, `*.keystore`, `*.p12`, `keystore.properties`, or a literal key/token in code or Gradle files (`api_key=`, `TMDB_API_KEY = "…"`, `eyJ…` JWTs, 32-char hex strings). Secrets reach the build only through `getLocalOrEnv(key)`. Do not open these files to check them; `git status` showing them as staged is enough. `app/google-services.json` is already tracked on purpose — only flag it if it changed.
+- **Secrets.** `local.properties`, `*.jks`, `*.keystore`, `*.p12`, `keystore.properties`, or a literal key/token in code or Gradle files (`api_key=`, `TMDB_API_KEY = "…"`, `eyJ…` JWTs, 32-char hex strings). Secrets reach the build only through `getLocalOrEnv(key)`. Do not open these files to check them; their name in `git diff --cached --name-only` is enough. `app/google-services.json` is already tracked on purpose — only flag it if it changed.
 - **Build output and local junk.** `build/`, `.kotlin/`, `.idea/`, `*.apk`, `*.aab`, `captures/`, `.DS_Store`, `.claude/settings.local.json`.
 - **Leftovers.** `println`, debug `Log.d` calls added for investigation, commented-out code, `TODO` without context.
 - **Unrelated changes.** Edits that don't belong to this commit's purpose go to their own commit or branch.
 
 ## 4. Code review
 
-Hand the diff to the `android-code-reviewer` agent: it holds the architecture and convention checklist (`.claude/rules/*.md`). Tell it to review the uncommitted diff (`git diff HEAD` plus untracked files), not `main...HEAD`.
+Hand the diff to the `android-code-reviewer` agent: it holds the architecture and convention checklist (`.claude/rules/*.md`). Tell it to review the staged diff (`git diff --cached`) as the commit, with the unstaged diff (`git diff`) as context only, and not `main...HEAD`.
 
 On top of that, check these points, which have slipped through before:
 
