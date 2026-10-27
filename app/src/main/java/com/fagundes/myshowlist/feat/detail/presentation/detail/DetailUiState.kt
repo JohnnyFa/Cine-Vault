@@ -21,6 +21,8 @@ sealed interface DetailEvent {
         val isFavorite: Boolean,
     ) : DetailEvent
 
+    data object RequireSignIn : DetailEvent
+
     data class ShowError(
         val message: String,
     ) : DetailEvent

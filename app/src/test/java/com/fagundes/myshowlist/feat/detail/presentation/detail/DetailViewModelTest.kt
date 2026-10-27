@@ -2,6 +2,7 @@ package com.fagundes.myshowlist.feat.detail.presentation.detail
 
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.domain.ContentItem
+import com.fagundes.myshowlist.core.domain.SignInRequiredException
 import com.fagundes.myshowlist.feat.detail.domain.model.ContentDetail
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveContentDetailUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveFavoriteStateUseCase
@@ -212,6 +213,28 @@ class DetailViewModelTest {
             val state = viewModel.uiState.value as DetailUiState.Success
             assertFalse(state.isFavoriteLoading)
             assertTrue(event is DetailEvent.ShowError)
+            job.cancel()
+        }
+
+    @Test
+    fun `onFavoriteClick for a guest should clear loading and emit RequireSignIn`() =
+        runTest {
+            coEvery { toggleFavorite(any()) } returns Result.failure(SignInRequiredException())
+
+            viewModel = buildViewModel()
+            testDispatcher.scheduler.runCurrent()
+
+            var event: DetailEvent? = null
+            val job = launch { event = viewModel.events.first() }
+            testDispatcher.scheduler.runCurrent()
+
+            viewModel.onFavoriteClick()
+            testDispatcher.scheduler.runCurrent()
+
+            val state = viewModel.uiState.value as DetailUiState.Success
+            assertFalse(state.isFavoriteLoading)
+            assertFalse(state.isFavorite)
+            assertEquals(DetailEvent.RequireSignIn, event)
             job.cancel()
         }
 

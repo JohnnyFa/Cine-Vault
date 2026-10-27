@@ -1,10 +1,12 @@
 package com.fagundes.myshowlist.feat.login.presentation.login
 
+import com.fagundes.myshowlist.feat.login.domain.usecase.ContinueAsGuestUseCase
 import com.fagundes.myshowlist.feat.login.domain.usecase.LoginWithGoogleUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -22,13 +24,14 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
     private val loginWithGoogle: LoginWithGoogleUseCase = mockk()
+    private val continueAsGuest: ContinueAsGuestUseCase = mockk(relaxed = true)
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var viewModel: LoginViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = LoginViewModel(loginWithGoogle)
+        viewModel = LoginViewModel(loginWithGoogle, continueAsGuest)
     }
 
     @After
@@ -103,6 +106,22 @@ class LoginViewModelTest {
             testDispatcher.scheduler.runCurrent()
 
             assertEquals("Erro Firebase", (viewModel.uiState.value as LoginUiState.Error).message)
+        }
+
+    @Test
+    fun `onContinueAsGuest should start a guest session and emit NavigateHome`() =
+        runTest {
+            var event: LoginUiEvent? = null
+            val job = launch { event = viewModel.uiEvent.first() }
+            testDispatcher.scheduler.runCurrent()
+
+            viewModel.onContinueAsGuest()
+            testDispatcher.scheduler.runCurrent()
+
+            verify(exactly = 1) { continueAsGuest() }
+            assertEquals(LoginUiEvent.NavigateHome, event)
+            assertEquals(LoginUiState.Idle, viewModel.uiState.value)
+            job.cancel()
         }
 
     private companion object {

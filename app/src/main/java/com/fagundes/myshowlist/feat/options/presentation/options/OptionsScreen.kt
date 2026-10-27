@@ -69,8 +69,8 @@ fun OptionsScreen(
     }
 
     OptionsScreenContent(
-        displayName = uiState.user?.displayName,
-        email = uiState.user?.email,
+        displayName = if (uiState.isGuest) stringResource(R.string.guest_profile_name) else uiState.user?.displayName,
+        email = if (uiState.isGuest) stringResource(R.string.guest_profile_desc) else uiState.user?.email,
         photoUrl = uiState.user?.photoUrl,
         uiState = uiState,
         onLogout = viewModel::logout,
@@ -125,7 +125,7 @@ fun OptionsScreenContent(
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = NeonRed),
         ) {
-            Text(stringResource(R.string.leave))
+            Text(stringResource(if (uiState.isGuest) R.string.sign_in else R.string.leave))
         }
     }
 }
@@ -170,14 +170,17 @@ private fun DataManagementSection(
     uiState: OptionsUiState,
     onRequestClear: (ClearAction) -> Unit,
 ) {
-    DataRow(
-        icon = Icons.Filled.Favorite,
-        label = stringResource(R.string.label_your_favorites),
-        description = stringResource(R.string.desc_favorites_data),
-        count = uiState.favoritesCount,
-        onClear = { onRequestClear(ClearAction.Favorites) },
-    )
-    Spacer(Modifier.height(8.dp))
+    // Guests can't favourite, so there is nothing to clear.
+    if (!uiState.isGuest) {
+        DataRow(
+            icon = Icons.Filled.Favorite,
+            label = stringResource(R.string.label_your_favorites),
+            description = stringResource(R.string.desc_favorites_data),
+            count = uiState.favoritesCount,
+            onClear = { onRequestClear(ClearAction.Favorites) },
+        )
+        Spacer(Modifier.height(8.dp))
+    }
     DataRow(
         icon = Icons.Filled.History,
         label = stringResource(R.string.label_recently_viewed),
@@ -324,6 +327,23 @@ fun OptionsScreenPreview() {
             email = "john.doe@example.com",
             photoUrl = null,
             uiState = OptionsUiState(favoritesCount = 12, recentsCount = 5),
+            onLogout = {},
+            onRequestClear = {},
+            onConfirmClear = {},
+            onDismissClear = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Guest")
+@Composable
+fun OptionsScreenGuestPreview() {
+    MyShowListTheme {
+        OptionsScreenContent(
+            displayName = stringResource(R.string.guest_profile_name),
+            email = stringResource(R.string.guest_profile_desc),
+            photoUrl = null,
+            uiState = OptionsUiState(isGuest = true, recentsCount = 3),
             onLogout = {},
             onRequestClear = {},
             onConfirmClear = {},

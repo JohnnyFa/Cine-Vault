@@ -97,6 +97,7 @@ fun LoginScreen(
         onLoginClick = {
             launcher.launch(googleSignInClient.signInIntent)
         },
+        onContinueAsGuest = viewModel::onContinueAsGuest,
     )
 }
 

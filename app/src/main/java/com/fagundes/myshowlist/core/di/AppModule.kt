@@ -1,5 +1,6 @@
 package com.fagundes.myshowlist.core.di
 
+import android.content.Context
 import androidx.room.Room
 import com.fagundes.myshowlist.core.data.local.dao.ContentDao
 import com.fagundes.myshowlist.core.data.local.dao.FavoriteDao
@@ -11,6 +12,8 @@ import com.fagundes.myshowlist.core.data.local.datasource.DetailCacheLocalDataSo
 import com.fagundes.myshowlist.core.data.local.datasource.DetailCacheLocalDataSourceImpl
 import com.fagundes.myshowlist.core.data.local.datasource.FavoriteLocalDataSource
 import com.fagundes.myshowlist.core.data.local.datasource.FavoriteLocalDataSourceImpl
+import com.fagundes.myshowlist.core.data.local.datasource.GuestSessionLocalDataSource
+import com.fagundes.myshowlist.core.data.local.datasource.GuestSessionLocalDataSourceImpl
 import com.fagundes.myshowlist.core.data.local.datasource.RecentLocalDataSource
 import com.fagundes.myshowlist.core.data.local.datasource.RecentLocalDataSourceImpl
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
@@ -61,13 +64,14 @@ import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveShowOfTheDayUseCa
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveTrendingMoviesUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.RefreshHomeUseCase
 import com.fagundes.myshowlist.feat.home.presentation.home.HomeViewModel
+import com.fagundes.myshowlist.feat.login.domain.usecase.ContinueAsGuestUseCase
 import com.fagundes.myshowlist.feat.login.domain.usecase.LoginWithGoogleUseCase
 import com.fagundes.myshowlist.feat.login.presentation.login.LoginViewModel
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearCacheUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearFavoritesUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearRecentsUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearUserDataUseCase
-import com.fagundes.myshowlist.feat.options.domain.usecase.GetCurrentUserUseCase
+import com.fagundes.myshowlist.feat.options.domain.usecase.GetAuthSessionUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveFavoritesCountUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveRecentsCountUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.SignOutUseCase
@@ -87,8 +91,14 @@ val appModule =
         single { FirebaseAuth.getInstance() }
 
         // ---------- Auth ----------
-        single<AuthRepository> { FirebaseAuthRepository(get()) }
+        single<GuestSessionLocalDataSource> {
+            GuestSessionLocalDataSourceImpl(
+                androidContext().getSharedPreferences(GuestSessionLocalDataSourceImpl.PREFS_NAME, Context.MODE_PRIVATE),
+            )
+        }
+        single<AuthRepository> { FirebaseAuthRepository(firebaseAuth = get(), guestSession = get()) }
         factory { LoginWithGoogleUseCase(get()) }
+        factory { ContinueAsGuestUseCase(get()) }
 
         // ---------- HttpClients ----------
         val tmdbClient = named("TmdbClient")
@@ -191,7 +201,7 @@ val appModule =
         factory { ObserveContentDetailUseCase(get()) }
         factory { RefreshContentDetailUseCase(get()) }
         factory { ObserveFavoriteStateUseCase(get()) }
-        factory { ToggleFavoriteUseCase(get()) }
+        factory { ToggleFavoriteUseCase(repository = get(), authRepository = get()) }
         factory { ObserveTrendingMoviesUseCase(get()) }
         factory { ObserveRecommendedMoviesUseCase(get()) }
         factory { ObserveShowOfTheDayUseCase(get()) }
@@ -205,7 +215,7 @@ val appModule =
         factory { ClearFavoritesUseCase(get()) }
         factory { ClearRecentsUseCase(get()) }
         factory { ClearCacheUseCase(get()) }
-        factory { GetCurrentUserUseCase(get()) }
+        factory { GetAuthSessionUseCase(get()) }
         factory { SignOutUseCase(get()) }
         factory { GetUpcomingMoviesUseCase(get()) }
         factory { GetMoviesByGenreUseCase(get()) }

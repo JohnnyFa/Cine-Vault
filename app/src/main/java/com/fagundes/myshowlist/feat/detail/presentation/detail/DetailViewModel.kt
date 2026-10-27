@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.domain.ContentItem
+import com.fagundes.myshowlist.core.domain.SignInRequiredException
 import com.fagundes.myshowlist.feat.detail.domain.model.ContentDetail
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveContentDetailUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveFavoriteStateUseCase
@@ -58,11 +59,15 @@ class DetailViewModel(
                     }
                     _events.emit(DetailEvent.FavoriteUpdated(isFavorite))
                 }
-                .onFailure {
+                .onFailure { error ->
                     _uiState.update { state ->
                         (state as? DetailUiState.Success)?.copy(isFavoriteLoading = false) ?: state
                     }
-                    _events.emit(DetailEvent.ShowError("Não foi possível atualizar favorito"))
+                    if (error is SignInRequiredException) {
+                        _events.emit(DetailEvent.RequireSignIn)
+                    } else {
+                        _events.emit(DetailEvent.ShowError("Não foi possível atualizar favorito"))
+                    }
                 }
         }
     }

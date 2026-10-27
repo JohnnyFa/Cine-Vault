@@ -2,6 +2,7 @@ package com.fagundes.myshowlist.feat.login.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fagundes.myshowlist.feat.login.domain.usecase.ContinueAsGuestUseCase
 import com.fagundes.myshowlist.feat.login.domain.usecase.LoginWithGoogleUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 
 class LoginViewModel(
     private val loginWithGoogle: LoginWithGoogleUseCase,
+    private val continueAsGuest: ContinueAsGuestUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -37,5 +39,10 @@ class LoginViewModel(
                     _uiState.value = LoginUiState.Error(error.message ?: "Erro Firebase")
                 }
         }
+    }
+
+    fun onContinueAsGuest() {
+        continueAsGuest()
+        _uiEvent.tryEmit(LoginUiEvent.NavigateHome)
     }
 }
