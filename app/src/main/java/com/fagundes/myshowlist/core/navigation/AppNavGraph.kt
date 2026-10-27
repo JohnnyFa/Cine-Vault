@@ -83,11 +83,7 @@ fun AppNavGraph(startDestination: String) {
 
                 OptionsScreen(
                     viewModel = viewModel,
-                    onLogout = {
-                        navController.navigate(AppRoutes.LOGIN) {
-                            popUpTo(0)
-                        }
-                    },
+                    onLogout = { navController.navigate(AppRoutes.LOGIN) { popUpTo(0) } },
                 )
             }
 
@@ -104,6 +100,7 @@ fun AppNavGraph(startDestination: String) {
                 DetailScreen(
                     viewModel = viewModel,
                     onBack = { navController.popBackStack() },
+                    onRequestSignIn = { navController.navigate(AppRoutes.LOGIN) { popUpTo(0) } },
                 )
             }
         }

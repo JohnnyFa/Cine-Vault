@@ -4,6 +4,7 @@ import com.fagundes.myshowlist.core.domain.AuthUser
 
 data class OptionsUiState(
     val user: AuthUser? = null,
+    val isGuest: Boolean = false,
     val favoritesCount: Int = 0,
     val recentsCount: Int = 0,
     val pendingClearAction: ClearAction? = null,

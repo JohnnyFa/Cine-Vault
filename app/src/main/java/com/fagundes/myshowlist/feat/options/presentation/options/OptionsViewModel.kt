@@ -2,11 +2,12 @@ package com.fagundes.myshowlist.feat.options.presentation.options
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fagundes.myshowlist.core.domain.AuthSession
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearCacheUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearFavoritesUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearRecentsUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearUserDataUseCase
-import com.fagundes.myshowlist.feat.options.domain.usecase.GetCurrentUserUseCase
+import com.fagundes.myshowlist.feat.options.domain.usecase.GetAuthSessionUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveFavoritesCountUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveRecentsCountUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.SignOutUseCase
@@ -20,7 +21,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class OptionsViewModel(
-    private val getCurrentUser: GetCurrentUserUseCase,
+    getAuthSession: GetAuthSessionUseCase,
     private val signOut: SignOutUseCase,
     private val clearUserData: ClearUserDataUseCase,
     private val observeFavoritesCount: ObserveFavoritesCountUseCase,
@@ -29,7 +30,15 @@ class OptionsViewModel(
     private val clearRecents: ClearRecentsUseCase,
     private val clearCache: ClearCacheUseCase,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(OptionsUiState(user = getCurrentUser()))
+    private val _uiState =
+        MutableStateFlow(
+            getAuthSession().let { session ->
+                OptionsUiState(
+                    user = (session as? AuthSession.SignedIn)?.user,
+                    isGuest = session is AuthSession.Guest,
+                )
+            },
+        )
     val uiState: StateFlow<OptionsUiState> = _uiState.asStateFlow()
 
     private val _events =
@@ -77,6 +86,7 @@ class OptionsViewModel(
     fun logout() {
         viewModelScope.launch {
             // Sign-out proceeds even if the local wipe fails, so the user is never stuck signed in.
+            // A guest goes through the same path: their device-only recents are wiped on the way out.
             runCatching { clearUserData() }
             signOut()
             _events.tryEmit(OptionsEvent.LoggedOut)

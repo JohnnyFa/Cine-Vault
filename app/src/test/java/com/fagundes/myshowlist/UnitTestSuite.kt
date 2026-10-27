@@ -5,6 +5,7 @@ import com.fagundes.myshowlist.core.data.repository.CacheRepositoryImplTest
 import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetMoviesByGenreUseCaseTest
 import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogViewModelTest
 import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewModelTest
+import com.fagundes.myshowlist.feat.detail.domain.usecase.ToggleFavoriteUseCaseTest
 import com.fagundes.myshowlist.feat.detail.presentation.detail.DetailViewModelTest
 import com.fagundes.myshowlist.feat.home.presentation.home.HomeViewModelTest
 import com.fagundes.myshowlist.feat.login.presentation.login.LoginViewModelTest
@@ -22,6 +23,7 @@ import org.junit.runners.Suite
     UpcomingViewModelTest::class,
     GetMoviesByGenreUseCaseTest::class,
     DetailViewModelTest::class,
+    ToggleFavoriteUseCaseTest::class,
     OptionsViewModelTest::class,
 )
 class UnitTestSuite

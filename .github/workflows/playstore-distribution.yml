@@ -39,7 +39,7 @@ on:
   push:
     tags:
       # Matches v1.3.9+23 but also v1.3.9-dev+23 — the job-level `if` filters out dev tags.
-      - 'v*[+]*'
+      - 'v*\+*'
 
 permissions:
   contents: read
@@ -70,6 +70,9 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # The default also installs the legacy "tools" package, which sdkmanager no longer provides.
+          packages: platform-tools
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4

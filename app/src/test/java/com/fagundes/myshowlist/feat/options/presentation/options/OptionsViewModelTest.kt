@@ -1,11 +1,12 @@
 package com.fagundes.myshowlist.feat.options.presentation.options
 
+import com.fagundes.myshowlist.core.domain.AuthSession
 import com.fagundes.myshowlist.core.domain.AuthUser
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearCacheUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearFavoritesUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearRecentsUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ClearUserDataUseCase
-import com.fagundes.myshowlist.feat.options.domain.usecase.GetCurrentUserUseCase
+import com.fagundes.myshowlist.feat.options.domain.usecase.GetAuthSessionUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveFavoritesCountUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.ObserveRecentsCountUseCase
 import com.fagundes.myshowlist.feat.options.domain.usecase.SignOutUseCase
@@ -27,6 +28,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -34,7 +36,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OptionsViewModelTest {
-    private val getCurrentUser: GetCurrentUserUseCase = mockk()
+    private val getAuthSession: GetAuthSessionUseCase = mockk()
     private val signOut: SignOutUseCase = mockk(relaxed = true)
     private val clearUserDataUseCase: ClearUserDataUseCase = mockk(relaxed = true)
     private val observeFavoritesCountUseCase: ObserveFavoritesCountUseCase = mockk()
@@ -47,7 +49,7 @@ class OptionsViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        every { getCurrentUser() } returns null
+        every { getAuthSession() } returns AuthSession.SignedOut
         coEvery { clearUserDataUseCase() } returns Unit
         every { observeFavoritesCountUseCase() } returns flowOf(0)
         every { observeRecentsCountUseCase() } returns flowOf(0)
@@ -61,7 +63,7 @@ class OptionsViewModelTest {
 
     private fun createViewModel() =
         OptionsViewModel(
-            getCurrentUser = getCurrentUser,
+            getAuthSession = getAuthSession,
             signOut = signOut,
             clearUserData = clearUserDataUseCase,
             observeFavoritesCount = observeFavoritesCountUseCase,
@@ -74,21 +76,54 @@ class OptionsViewModelTest {
     @Test
     fun `state should expose the signed-in user`() {
         val user = AuthUser(displayName = "John Doe", email = "john@example.com", photoUrl = "/photo.jpg")
-        every { getCurrentUser() } returns user
+        every { getAuthSession() } returns AuthSession.SignedIn(user)
 
         val viewModel = createViewModel()
 
         assertEquals(user, viewModel.uiState.value.user)
+        assertFalse(viewModel.uiState.value.isGuest)
     }
 
     @Test
     fun `state user should be null when no one is signed in`() {
-        every { getCurrentUser() } returns null
+        every { getAuthSession() } returns AuthSession.SignedOut
 
         val viewModel = createViewModel()
 
         assertNull(viewModel.uiState.value.user)
+        assertFalse(viewModel.uiState.value.isGuest)
     }
+
+    @Test
+    fun `state should flag a guest session with no user`() {
+        every { getAuthSession() } returns AuthSession.Guest
+
+        val viewModel = createViewModel()
+
+        assertTrue(viewModel.uiState.value.isGuest)
+        assertNull(viewModel.uiState.value.user)
+    }
+
+    @Test
+    fun `logout as a guest should clear local data, sign out and emit LoggedOut`() =
+        runTest {
+            every { getAuthSession() } returns AuthSession.Guest
+            val viewModel = createViewModel()
+
+            var event: OptionsEvent? = null
+            val job = launch { event = viewModel.events.first() }
+            testDispatcher.scheduler.runCurrent()
+
+            viewModel.logout()
+            testDispatcher.scheduler.runCurrent()
+
+            coVerify(ordering = Ordering.ORDERED) {
+                clearUserDataUseCase()
+                signOut()
+            }
+            assertEquals(OptionsEvent.LoggedOut, event)
+            job.cancel()
+        }
 
     @Test
     fun `initial state should have zero counts and no pending action`() {

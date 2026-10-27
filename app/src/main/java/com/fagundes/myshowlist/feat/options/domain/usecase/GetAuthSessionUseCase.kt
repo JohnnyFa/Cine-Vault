@@ -1,10 +1,10 @@
 package com.fagundes.myshowlist.feat.options.domain.usecase
 
-import com.fagundes.myshowlist.core.domain.AuthUser
+import com.fagundes.myshowlist.core.domain.AuthSession
 import com.fagundes.myshowlist.core.domain.repository.AuthRepository
 
-class GetCurrentUserUseCase(
+class GetAuthSessionUseCase(
     private val repository: AuthRepository,
 ) {
-    operator fun invoke(): AuthUser? = repository.currentUser()
+    operator fun invoke(): AuthSession = repository.currentSession()
 }

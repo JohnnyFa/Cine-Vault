@@ -49,4 +49,9 @@
     <string name="dialog_clear_recents_title">Clear Recents?</string>
     <string name="dialog_clear_cache_title">Clear Cache?</string>
     <string name="dialog_clear_message">This action cannot be undone.</string>
+    <string name="sign_in">Sign in</string>
+    <string name="guest_profile_name">Guest</string>
+    <string name="guest_profile_desc">Sign in to save your favorites</string>
+    <string name="dialog_sign_in_required_title">Sign in required</string>
+    <string name="dialog_sign_in_required_message">Sign in with your Google account to save favorites.</string>
 </resources>

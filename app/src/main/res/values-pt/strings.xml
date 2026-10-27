@@ -58,4 +58,9 @@
     <string name="dialog_clear_recents_title">Limpar Recentes?</string>
     <string name="dialog_clear_cache_title">Limpar Cache?</string>
     <string name="dialog_clear_message">Esta ação não pode ser desfeita.</string>
+    <string name="sign_in">Entrar</string>
+    <string name="guest_profile_name">Convidado</string>
+    <string name="guest_profile_desc">Entre para salvar seus favoritos</string>
+    <string name="dialog_sign_in_required_title">Login necessário</string>
+    <string name="dialog_sign_in_required_message">Entre com sua conta Google para salvar favoritos.</string>
 </resources>
