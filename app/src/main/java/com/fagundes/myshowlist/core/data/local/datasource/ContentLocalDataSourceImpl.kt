@@ -12,8 +12,7 @@ class ContentLocalDataSourceImpl(
         category: ContentCategory,
         items: List<ContentEntity>,
     ) {
-        dao.replaceCategory(category)
-        dao.insertAll(items)
+        dao.replaceCategoryWith(category, items)
     }
 
     override fun observeMoviesByCategory(category: ContentCategory): Flow<List<ContentEntity>> = dao.observeCategory(category)

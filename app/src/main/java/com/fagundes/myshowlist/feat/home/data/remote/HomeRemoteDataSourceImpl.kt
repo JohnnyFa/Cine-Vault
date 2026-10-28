@@ -12,8 +12,13 @@ class HomeRemoteDataSourceImpl(
             .results
             .map { it.toDomain() }
 
-    override suspend fun getRecommendedMovies(): List<Movie> =
-        movieApi.getRecommendedMovies()
+    override suspend fun getTopRatedMovies(): List<Movie> =
+        movieApi.getTopRatedMovies()
+            .results
+            .map { it.toDomain() }
+
+    override suspend fun getRecommendationsFor(movieId: Int): List<Movie> =
+        movieApi.getRecommendationsFor(movieId)
             .results
             .map { it.toDomain() }
 

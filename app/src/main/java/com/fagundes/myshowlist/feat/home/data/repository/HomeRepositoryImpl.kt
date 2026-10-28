@@ -12,11 +12,14 @@ import com.fagundes.myshowlist.feat.home.domain.repository.HomeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import java.util.concurrent.ConcurrentHashMap
 
 class HomeRepositoryImpl(
     private val local: ContentLocalDataSource,
     private val remote: HomeRemoteDataSource,
 ) : HomeRepository {
+    private val recommendationsBySeed = ConcurrentHashMap<Int, List<Movie>>()
+
     override fun observePopularMovies(): Flow<List<Movie>> =
         local.observeMoviesByCategory(ContentCategory.POPULAR)
             .map { list -> list.map { it.toMovie() } }
@@ -39,8 +42,28 @@ class HomeRepositoryImpl(
             local.clearExpired(minValid)
 
             refreshCategoryIfNeeded(ContentCategory.POPULAR, minValid) { remote.getPopularMovies() }
-            refreshCategoryIfNeeded(ContentCategory.RECOMMENDED, minValid) { remote.getRecommendedMovies() }
             refreshCategoryIfNeeded(ContentCategory.SHOW_OF_THE_DAY, minValid) { listOf(remote.getShowOfTheDay()) }
+        }
+
+    // TMDB's suggestions for a movie barely change, so each seed is fetched once per process.
+    override suspend fun getRecommendationsFor(movieId: Int): Result<List<Movie>> =
+        runCatching {
+            recommendationsBySeed[movieId] ?: remote.getRecommendationsFor(movieId).also { recommendationsBySeed[movieId] = it }
+        }
+
+    override suspend fun getTopRatedMovies(): Result<List<Movie>> = runCatching { remote.getTopRatedMovies() }
+
+    override suspend fun saveRecommendedMovies(movies: List<Movie>): Result<Unit> =
+        runCatching {
+            // The category is read back ORDER BY cachedAt DESC, and a batch mapped in the same
+            // millisecond would tie, so each rank gets its own timestamp to keep the order.
+            val now = System.currentTimeMillis()
+            local.saveMoviesForCategory(
+                ContentCategory.RECOMMENDED,
+                movies.mapIndexed { rank, movie ->
+                    movie.toEntity(ContentType.MOVIE, ContentCategory.RECOMMENDED).copy(cachedAt = now - rank)
+                },
+            )
         }
 
     private suspend fun refreshCategoryIfNeeded(

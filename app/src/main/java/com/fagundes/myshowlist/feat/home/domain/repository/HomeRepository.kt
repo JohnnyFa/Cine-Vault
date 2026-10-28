@@ -11,4 +11,10 @@ interface HomeRepository {
     fun observeShowOfTheDay(): Flow<Movie?>
 
     suspend fun refreshHomeIfNeeded(): Result<Unit>
+
+    suspend fun getRecommendationsFor(movieId: Int): Result<List<Movie>>
+
+    suspend fun getTopRatedMovies(): Result<List<Movie>>
+
+    suspend fun saveRecommendedMovies(movies: List<Movie>): Result<Unit>
 }
