@@ -144,4 +144,32 @@ class RefreshRecommendationsUseCaseTest {
 
             assertTrue(result.isFailure)
         }
+
+    @Test
+    fun `the top rated fallback should leave out movies the user has already seen`() =
+        runTest {
+            coEvery { repository.getRecommendationsFor(1) } returns Result.success(movies(5))
+
+            useCase(TasteProfile(seeds = listOf(Seed(1, 1.0)), seenIds = setOf(1, 5, 900)))
+
+            assertEquals(movies(901), saved.captured)
+        }
+
+    @Test
+    fun `the fallback for a profile without seeds should also leave out seen movies`() =
+        runTest {
+            useCase(TasteProfile(seeds = emptyList(), seenIds = setOf(901)))
+
+            assertEquals(movies(900), saved.captured)
+        }
+
+    @Test
+    fun `a fallback where every movie was seen should keep the whole list`() =
+        runTest {
+            coEvery { repository.getRecommendationsFor(1) } returns Result.success(movies(5))
+
+            useCase(TasteProfile(seeds = listOf(Seed(1, 1.0)), seenIds = setOf(1, 5, 900, 901)))
+
+            assertEquals(movies(900, 901), saved.captured)
+        }
 }

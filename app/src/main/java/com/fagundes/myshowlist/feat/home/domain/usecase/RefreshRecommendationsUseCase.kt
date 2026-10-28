@@ -12,13 +12,14 @@ import kotlinx.coroutines.coroutineScope
  *
  * Each seed's TMDB recommendations are merged and scored: a movie suggested by several seeds,
  * by heavier seeds, or near the top of a seed's list ranks higher. With no seeds yet (a new
- * user or guest) or nothing left after removing what they've seen, top-rated movies stand in.
+ * user or guest) or nothing left after removing what they've seen, unseen top-rated movies
+ * stand in.
  */
 class RefreshRecommendationsUseCase(
     private val repository: HomeRepository,
 ) {
     suspend operator fun invoke(profile: TasteProfile): Result<Unit> {
-        val movies = if (profile.seeds.isEmpty()) repository.getTopRatedMovies() else recommendFrom(profile)
+        val movies = if (profile.seeds.isEmpty()) topRatedUnseen(profile.seenIds) else recommendFrom(profile)
         return movies.mapCatching { repository.saveRecommendedMovies(it).getOrThrow() }
     }
 
@@ -35,8 +36,16 @@ class RefreshRecommendationsUseCase(
         if (succeeded.isEmpty()) return Result.failure(results.firstNotNullOf { it.second.exceptionOrNull() })
 
         val ranked = rank(succeeded, profile.seenIds)
-        return if (ranked.isEmpty()) repository.getTopRatedMovies() else Result.success(ranked)
+        return if (ranked.isEmpty()) topRatedUnseen(profile.seenIds) else Result.success(ranked)
     }
+
+    // The fallback follows the same rule as personalized results: nothing the user already saw.
+    // If they've seen every top-rated movie, the list stays whole rather than leaving the
+    // section loading forever.
+    private suspend fun topRatedUnseen(seenIds: Set<Int>): Result<List<Movie>> =
+        repository.getTopRatedMovies().map { movies ->
+            movies.filter { it.id !in seenIds }.ifEmpty { movies }
+        }
 
     private fun rank(
         recommendations: List<Pair<TasteProfile.Seed, List<Movie>>>,
