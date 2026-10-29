@@ -63,6 +63,7 @@ import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveRecommendedMovies
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveShowOfTheDayUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveTrendingMoviesUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.RefreshHomeUseCase
+import com.fagundes.myshowlist.feat.home.domain.usecase.RefreshRecommendationsUseCase
 import com.fagundes.myshowlist.feat.home.presentation.home.HomeViewModel
 import com.fagundes.myshowlist.feat.login.domain.usecase.ContinueAsGuestUseCase
 import com.fagundes.myshowlist.feat.login.domain.usecase.LoginWithGoogleUseCase
@@ -206,6 +207,7 @@ val appModule =
         factory { ObserveRecommendedMoviesUseCase(get()) }
         factory { ObserveShowOfTheDayUseCase(get()) }
         factory { RefreshHomeUseCase(get()) }
+        factory { RefreshRecommendationsUseCase(get()) }
         factory { ObserveFavoritesUseCase(get()) }
         factory { SaveRecentMovieUseCase(get()) }
         factory { ObserveRecentsUseCase(get()) }

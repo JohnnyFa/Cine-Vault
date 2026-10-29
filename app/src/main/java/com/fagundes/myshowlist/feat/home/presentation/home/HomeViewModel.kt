@@ -3,17 +3,25 @@ package com.fagundes.myshowlist.feat.home.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fagundes.myshowlist.core.domain.Movie
+import com.fagundes.myshowlist.feat.home.domain.model.TasteProfile
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveFavoritesUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveRecentsUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveRecommendedMoviesUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveShowOfTheDayUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveTrendingMoviesUseCase
 import com.fagundes.myshowlist.feat.home.domain.usecase.RefreshHomeUseCase
+import com.fagundes.myshowlist.feat.home.domain.usecase.RefreshRecommendationsUseCase
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -23,6 +31,7 @@ class HomeViewModel(
     private val refreshHomeUseCase: RefreshHomeUseCase,
     private val observeFavorites: ObserveFavoritesUseCase,
     private val observeRecents: ObserveRecentsUseCase,
+    private val refreshRecommendations: RefreshRecommendationsUseCase,
 ) : ViewModel() {
     private val _trendingState = MutableStateFlow<HomeUiState<List<Movie>>>(HomeUiState.Idle)
     val trendingState: StateFlow<HomeUiState<List<Movie>>> = _trendingState.asStateFlow()
@@ -41,11 +50,17 @@ class HomeViewModel(
 
     private var homeRefreshJob: Job? = null
 
+    // Bumped to rebuild "For You" from the current profile without waiting for it to change.
+    private val recommendationRequests = MutableStateFlow(0)
+
     init {
         observeHomeSections()
-        refreshHome()
+        // The taste profile's first emission already builds "For You"; rebuilding here too would
+        // cancel that run and fetch every seed again on each cold start.
+        refreshHome(rebuildRecommendations = false)
         observeFavoriteSection()
         observeRecentSection()
+        observeTasteProfile()
     }
 
     // Each delegate is a single-expression call — no nesting, no branching here.
@@ -105,18 +120,40 @@ class HomeViewModel(
         }
     }
 
-    private fun refreshHome() {
-        if (homeRefreshJob?.isActive == true) return
-        homeRefreshJob = viewModelScope.launch { doRefreshHome() }
+    // "For You" follows the user: favoriting or opening a movie changes the profile and rebuilds it.
+    // The first emission doubles as the initial load, so it also runs on every app start. Every
+    // trigger goes through this one collectLatest, so a newer run always cancels a stale one
+    // instead of racing it to the cache.
+    private fun observeTasteProfile() {
+        viewModelScope.launch {
+            val profiles =
+                combine(observeFavorites(), observeRecents()) { favorites, recents -> TasteProfile.from(favorites, recents) }
+                    .distinctUntilChanged()
+            combine(profiles, recommendationRequests) { profile, _ -> profile }
+                .collectLatest { profile -> doRefreshRecommendations(profile) }
+        }
     }
 
-    private suspend fun doRefreshHome() {
+    private suspend fun doRefreshRecommendations(profile: TasteProfile) {
+        val result = refreshRecommendations(profile)
+        // runCatching also catches the cancellation collectLatest uses to drop a stale run; that
+        // isn't a failure, so stop here instead of flashing an error.
+        currentCoroutineContext().ensureActive()
+        result.onFailure { _forYouState.setErrorIfLoading("Failed to load recommended") }
+    }
+
+    private fun refreshHome(rebuildRecommendations: Boolean = true) {
+        if (homeRefreshJob?.isActive == true) return
+        homeRefreshJob = viewModelScope.launch { doRefreshHome(rebuildRecommendations) }
+    }
+
+    private suspend fun doRefreshHome(rebuildRecommendations: Boolean) {
         refreshHomeUseCase()
             .onFailure {
                 _trendingState.setErrorIfLoading("Failed to load trending")
-                _forYouState.setErrorIfLoading("Failed to load recommended")
                 _showOfTheDayState.setErrorIfLoading("Failed to load show of the day")
             }
+        if (rebuildRecommendations) recommendationRequests.update { it + 1 }
     }
 
     fun loadPopular() = refreshHome()

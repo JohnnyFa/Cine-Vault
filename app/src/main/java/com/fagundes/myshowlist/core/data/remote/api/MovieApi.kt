@@ -12,7 +12,9 @@ class MovieApi(
 ) {
     suspend fun getPopularMovies(): TmdbResponse = client.get("movie/popular") {}.body()
 
-    suspend fun getRecommendedMovies(): TmdbResponse = client.get("movie/upcoming").body()
+    suspend fun getTopRatedMovies(): TmdbResponse = client.get("movie/top_rated").body()
+
+    suspend fun getRecommendationsFor(movieId: Int): TmdbResponse = client.get("movie/$movieId/recommendations").body()
 
     suspend fun getShowOfTheDay(): TmdbResponse = client.get("discover/movie").body()
 

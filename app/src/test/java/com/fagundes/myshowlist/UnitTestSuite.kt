@@ -7,6 +7,9 @@ import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogViewMode
 import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewModelTest
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ToggleFavoriteUseCaseTest
 import com.fagundes.myshowlist.feat.detail.presentation.detail.DetailViewModelTest
+import com.fagundes.myshowlist.feat.home.data.repository.HomeRepositoryImplTest
+import com.fagundes.myshowlist.feat.home.domain.model.TasteProfileTest
+import com.fagundes.myshowlist.feat.home.domain.usecase.RefreshRecommendationsUseCaseTest
 import com.fagundes.myshowlist.feat.home.presentation.home.HomeViewModelTest
 import com.fagundes.myshowlist.feat.login.presentation.login.LoginViewModelTest
 import com.fagundes.myshowlist.feat.options.presentation.options.OptionsViewModelTest
@@ -19,6 +22,9 @@ import org.junit.runners.Suite
     CacheRepositoryImplTest::class,
     LoginViewModelTest::class,
     HomeViewModelTest::class,
+    HomeRepositoryImplTest::class,
+    TasteProfileTest::class,
+    RefreshRecommendationsUseCaseTest::class,
     CatalogViewModelTest::class,
     UpcomingViewModelTest::class,
     GetMoviesByGenreUseCaseTest::class,

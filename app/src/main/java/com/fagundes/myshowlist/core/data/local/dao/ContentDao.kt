@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.fagundes.myshowlist.core.data.local.entity.ContentEntity
 import com.fagundes.myshowlist.core.data.local.enum.ContentCategory
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +31,16 @@ interface ContentDao {
 
     @Query("DELETE FROM content WHERE category = :category")
     suspend fun replaceCategory(category: ContentCategory)
+
+    // One transaction, so observers of the category never see it empty between the two writes.
+    @Transaction
+    suspend fun replaceCategoryWith(
+        category: ContentCategory,
+        contents: List<ContentEntity>,
+    ) {
+        replaceCategory(category)
+        insertAll(contents)
+    }
 
     @Query("DELETE FROM content WHERE cachedAt < :olderThan")
     suspend fun deleteExpiredCache(olderThan: Long)
