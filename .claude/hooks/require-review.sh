@@ -5,7 +5,10 @@
 # in .claude/.review-passed. A commit is allowed only while the index still hashes to that
 # value, so staging anything after the review means reviewing again. Commits that take
 # content from outside the index (-a, -o/--only, -i/--include, -p, pathspecs) are refused,
-# because the hash can't vouch for them. A CLAUDE.md line is advice; this is enforcement.
+# because the hash can't vouch for them, and so are commits that follow an index-changing git
+# command (add, rm, reset, stash, ...) in the same Bash call: the hook runs before the whole
+# command, so it would compare the index as it was before that command. A CLAUDE.md line is
+# advice; this is enforcement.
 #
 # The command is parsed with shlex, so a quoted "git commit" in an echo or a PR body, or a
 # commit message containing "-a", isn't mistaken for a real commit or flag. Commands nested in
@@ -49,6 +52,8 @@ WRAPPERS = {
     "sudo": {"-u", "-g", "-C", "-D", "-h", "-p", "-r", "-t", "-U"},
     "xargs": {"-n", "-I", "-L", "-P", "-d", "-s", "-E", "-a"},
 }
+# Keywords that can open a simple command (`do git add`, `then git commit`, `{ git add x; }`).
+SHELL_KEYWORDS = {"do", "then", "else", "elif", "if", "while", "until", "{", "!"}
 GIT_OPTS_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path", "--super-prefix", "--config-env"}
 
 # git commit's long options. git accepts any unambiguous prefix, so names are resolved below.
@@ -108,7 +113,7 @@ def strip_wrappers(seg):
     i = 0
     while i < len(seg):
         word = seg[i]
-        if re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", word):
+        if re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", word) or word in SHELL_KEYWORDS:
             i += 1
         elif os.path.basename(word) in WRAPPERS:
             takes_value = WRAPPERS[os.path.basename(word)]
@@ -149,8 +154,8 @@ def all_segments(cmd, depth=0):
     return result
 
 
-def commit_invocation(seg):
-    """Returns (repo dir from -C or None, commit args) if seg runs `git ... commit`, else None."""
+def git_invocation(seg):
+    """Returns (repo dir from -C or None, subcommand, args) if seg runs git, else None."""
     if not seg or os.path.basename(seg[0]) != "git":
         return None
     i, repo = 1, None
@@ -162,9 +167,17 @@ def commit_invocation(seg):
             i += 2
         else:
             i += 1
-    if i >= len(seg) or seg[i] != "commit":
+    if i >= len(seg):
         return None
-    return repo, seg[i + 1:]
+    return repo, seg[i], seg[i + 1:]
+
+
+# Subcommands that can change the index. The hook runs once, before the whole Bash command, so
+# one of these ahead of a commit in the same command would change what gets committed after the
+# index was already compared with the marker.
+INDEX_MUTATING = {"add", "stage", "rm", "mv", "reset", "restore", "checkout", "switch", "apply",
+                  "update-index", "read-tree", "stash", "merge", "cherry-pick", "revert", "pull",
+                  "rebase", "am", "submodule", "mergetool"}
 
 
 def resolve_long(name):
@@ -226,11 +239,14 @@ except Exception:
 
 base_dir = payload.get("cwd") or project_dir
 
+index_changed_by = None
 for seg in all_segments(command):
-    found = commit_invocation(seg)
+    found = git_invocation(seg)
     if not found:
         continue
-    repo, args = found
+    repo, subcommand, args = found
+    if subcommand != "commit" and subcommand not in INDEX_MUTATING:
+        continue
     cwd = os.path.join(base_dir, repo) if repo else base_dir
     try:
         top = git("rev-parse", "--show-toplevel", cwd=cwd).stdout.strip()
@@ -238,6 +254,13 @@ for seg in all_segments(command):
         continue
     if not top or top != project_top:
         continue  # another repository or a separate worktree; /review doesn't cover it
+
+    if subcommand != "commit":
+        index_changed_by = index_changed_by or subcommand
+        continue
+    if index_changed_by:
+        deny(f"git {index_changed_by} runs before git commit in the same command, so the commit would include "
+             "changes /review never saw. Run it on its own, run /review, then commit in a separate command.")
 
     reason = outside_index_reason(args)
     if reason:

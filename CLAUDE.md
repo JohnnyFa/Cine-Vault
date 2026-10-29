@@ -75,7 +75,7 @@ Use cases that carry real logic (a branch, a guard, a mapping) get a test too, u
 ## Git workflow
 
 - **Never commit on `main`.** Branch first: `feat/<name>`, `fix/<name>`, `refactor/<name>`, `ci/<name>`, `docs/<name>`.
-- **Run `/review` before every commit.** It checks the branch, staged secrets and junk, the architecture rules, tests, and the CI gate, and nothing is committed until it says *Ready to commit*. This is enforced: `.claude/hooks/require-review.sh` blocks `git commit` unless the staged tree matches the one `/review` approved, and refuses commits that bypass the index (`-a`, `-o`, `-i`, `-p`, pathspecs).
+- **Run `/review` before every commit.** It checks the branch, staged secrets and junk, the architecture rules, tests, and the CI gate, and nothing is committed until it says *Ready to commit*. This is enforced: `.claude/hooks/require-review.sh` blocks `git commit` unless the staged tree matches the one `/review` approved, and refuses commits that bypass the index (`-a`, `-o`, `-i`, `-p`, pathspecs) or follow an index-changing git command (`git add ... && git commit`) in the same Bash call.
 - **Delete the branch as soon as its PR is merged**, both on GitHub and locally: `gh pr merge <n> --merge --delete-branch`, or `git push origin --delete <branch>` + `git branch -d <branch>` after a merge on GitHub. Never reuse a merged branch; start a new one from an up-to-date `main`.
 
 ## Secrets
