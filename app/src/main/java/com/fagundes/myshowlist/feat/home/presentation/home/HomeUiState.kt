@@ -1,5 +1,7 @@
 package com.fagundes.myshowlist.feat.home.presentation.home
 
+import androidx.annotation.StringRes
+
 sealed interface HomeUiState<out T> {
     object Idle : HomeUiState<Nothing>
 
@@ -10,6 +12,6 @@ sealed interface HomeUiState<out T> {
     ) : HomeUiState<T>
 
     data class Error(
-        val message: String,
+        @StringRes val message: Int,
     ) : HomeUiState<Nothing>
 }

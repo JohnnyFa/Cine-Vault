@@ -190,7 +190,7 @@ fun LoginScreenContent(
 
             if (state is LoginUiState.Error) {
                 Spacer(Modifier.height(16.dp))
-                ErrorText(text = state.message)
+                ErrorText(text = stringResource(state.message))
             }
 
             Spacer(Modifier.weight(1f))
@@ -213,7 +213,7 @@ fun LoginLoadingPreview() {
 @Composable
 fun LoginErrorPreview() {
     LoginScreenContent(
-        state = LoginUiState.Error(stringResource(R.string.authentication_failed)),
+        state = LoginUiState.Error(R.string.authentication_failed),
         onLoginClick = {},
     )
 }

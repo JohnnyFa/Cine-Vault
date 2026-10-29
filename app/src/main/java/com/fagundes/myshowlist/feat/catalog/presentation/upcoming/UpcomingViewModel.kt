@@ -2,6 +2,7 @@ package com.fagundes.myshowlist.feat.catalog.presentation.upcoming
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetUpcomingMoviesUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,6 +27,6 @@ class UpcomingViewModel(
         viewModelScope.launch {
             getUpcomingMovies()
                 .onSuccess { movies -> _uiState.value = UpcomingUiState.Content(movies) }
-                .onFailure { _uiState.value = UpcomingUiState.Error("Erro ao carregar filmes") }
+                .onFailure { _uiState.value = UpcomingUiState.Error(R.string.error_load_upcoming) }
         }
 }

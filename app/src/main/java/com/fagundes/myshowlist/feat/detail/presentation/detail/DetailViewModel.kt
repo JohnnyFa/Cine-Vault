@@ -2,6 +2,7 @@ package com.fagundes.myshowlist.feat.detail.presentation.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.domain.ContentItem
 import com.fagundes.myshowlist.core.domain.SignInRequiredException
@@ -11,6 +12,7 @@ import com.fagundes.myshowlist.feat.detail.domain.usecase.ObserveFavoriteStateUs
 import com.fagundes.myshowlist.feat.detail.domain.usecase.RefreshContentDetailUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.SaveRecentMovieUseCase
 import com.fagundes.myshowlist.feat.detail.domain.usecase.ToggleFavoriteUseCase
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -35,6 +37,7 @@ class DetailViewModel(
     private val _events = MutableSharedFlow<DetailEvent>()
     val events: SharedFlow<DetailEvent> = _events.asSharedFlow()
     private val latestFavoriteState = MutableStateFlow(false)
+    private var refreshJob: Job? = null
 
     init {
         observeFavorite()
@@ -66,7 +69,7 @@ class DetailViewModel(
                     if (error is SignInRequiredException) {
                         _events.emit(DetailEvent.RequireSignIn)
                     } else {
-                        _events.emit(DetailEvent.ShowError("Não foi possível atualizar favorito"))
+                        _events.emit(DetailEvent.ShowError(R.string.error_update_favorite))
                     }
                 }
         }
@@ -94,15 +97,22 @@ class DetailViewModel(
         }
     }
 
+    fun retry() {
+        if (refreshJob?.isActive == true) return
+        _uiState.value = DetailUiState.Loading
+        refreshDetail()
+    }
+
     private fun refreshDetail() {
-        viewModelScope.launch {
-            refreshContentDetail(id)
-                .onFailure {
-                    if (_uiState.value is DetailUiState.Loading) {
-                        _uiState.value = DetailUiState.Error("Failed to load content")
+        refreshJob =
+            viewModelScope.launch {
+                refreshContentDetail(id)
+                    .onFailure {
+                        if (_uiState.value is DetailUiState.Loading) {
+                            _uiState.value = DetailUiState.Error(R.string.error_load_detail)
+                        }
                     }
-                }
-        }
+            }
     }
 }
 

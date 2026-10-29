@@ -1,5 +1,6 @@
 package com.fagundes.myshowlist.feat.catalog.presentation.upcoming
 
+import androidx.annotation.StringRes
 import com.fagundes.myshowlist.core.domain.Movie
 
 sealed interface UpcomingUiState {
@@ -10,6 +11,6 @@ sealed interface UpcomingUiState {
     ) : UpcomingUiState
 
     data class Error(
-        val message: String,
+        @StringRes val message: Int,
     ) : UpcomingUiState
 }

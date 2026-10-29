@@ -28,9 +28,17 @@ fun baseHttpClient(): HttpClient =
                 logger =
                     object : Logger {
                         override fun log(message: String) {
-                            Log.d("Ktor", message)
+                            Log.d("Ktor", redactSecrets(message))
                         }
                     }
             }
         }
     }
+
+private val API_KEY_PARAM = Regex("(api_key=)[^&\\s\"]+")
+
+/**
+ * Masks the TMDB key, which travels as the `api_key` query parameter and so shows up in every
+ * logged URL. Staging builds log too, and they go to testers.
+ */
+internal fun redactSecrets(message: String): String = API_KEY_PARAM.replace(message, "$1***")

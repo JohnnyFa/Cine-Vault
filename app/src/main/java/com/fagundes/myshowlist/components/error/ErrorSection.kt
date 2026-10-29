@@ -22,8 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.ui.theme.CineVaultGradients
 import com.fagundes.myshowlist.ui.theme.NeonRed
 import com.fagundes.myshowlist.ui.theme.TextMuted
@@ -33,6 +35,7 @@ import com.fagundes.myshowlist.ui.theme.TextPrimary
 fun ErrorSection(
     onRetry: (() -> Unit),
     modifier: Modifier = Modifier,
+    message: String = stringResource(R.string.error_section_message),
 ) {
     Column(
         modifier =
@@ -52,7 +55,7 @@ fun ErrorSection(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            text = "Oops! Something went wrong",
+            text = stringResource(R.string.error_section_title),
             color = TextPrimary,
             style = MaterialTheme.typography.titleMedium,
         )
@@ -60,7 +63,7 @@ fun ErrorSection(
         Spacer(Modifier.height(8.dp))
 
         Text(
-            text = "We’re having trouble loading movies right now.",
+            text = message,
             color = TextMuted,
             textAlign = TextAlign.Center,
         )
@@ -82,7 +85,7 @@ fun ErrorSection(
                     .testTag("error_retry_button"),
         ) {
             Text(
-                text = "Retry",
+                text = stringResource(R.string.action_retry),
                 color = Color.Black,
                 style = MaterialTheme.typography.labelLarge,
             )

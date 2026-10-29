@@ -1,5 +1,6 @@
 package com.fagundes.myshowlist.feat.detail.presentation.detail
 
+import androidx.annotation.StringRes
 import com.fagundes.myshowlist.feat.detail.domain.model.ContentDetail
 
 sealed interface DetailUiState {
@@ -12,7 +13,7 @@ sealed interface DetailUiState {
     ) : DetailUiState
 
     data class Error(
-        val message: String,
+        @StringRes val message: Int,
     ) : DetailUiState
 }
 
@@ -24,6 +25,6 @@ sealed interface DetailEvent {
     data object RequireSignIn : DetailEvent
 
     data class ShowError(
-        val message: String,
+        @StringRes val message: Int,
     ) : DetailEvent
 }

@@ -1,6 +1,7 @@
 package com.fagundes.myshowlist.feat.catalog.presentation.catalog
 
 import android.util.Log
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.feat.catalog.domain.model.MovieGenre
 import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetMoviesByGenreUseCase
@@ -109,7 +110,7 @@ class CatalogViewModelTest {
             testDispatcher.scheduler.runCurrent()
 
             assertTrue(viewModel.uiState.value is CatalogUiState.Error)
-            assertEquals("Erro ao carregar categoria", (viewModel.uiState.value as CatalogUiState.Error).message)
+            assertEquals(R.string.error_load_category, (viewModel.uiState.value as CatalogUiState.Error).message)
         }
 
     @Test
@@ -179,7 +180,7 @@ class CatalogViewModelTest {
             testDispatcher.scheduler.runCurrent()
 
             assertTrue(viewModel.uiState.value is CatalogUiState.Error)
-            assertEquals("Erro ao carregar catálogo", (viewModel.uiState.value as CatalogUiState.Error).message)
+            assertEquals(R.string.error_load_catalog, (viewModel.uiState.value as CatalogUiState.Error).message)
         }
 
     @Test

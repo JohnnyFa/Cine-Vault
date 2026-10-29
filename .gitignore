@@ -1,6 +1,7 @@
 *.iml
 .gradle
 /local.properties
+.kotlin/
 /.idea/
 .DS_Store
 /build
@@ -15,4 +16,5 @@ local.properties
 CLAUDE.local.md
 .claude/settings.local.json
 .claude/.kt-touched
+.claude/.review-passed
 .mcp.json
