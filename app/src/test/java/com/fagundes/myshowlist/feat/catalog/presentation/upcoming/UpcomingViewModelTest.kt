@@ -1,5 +1,6 @@
 package com.fagundes.myshowlist.feat.catalog.presentation.upcoming
 
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetUpcomingMoviesUseCase
 import io.mockk.coEvery
@@ -64,7 +65,7 @@ class UpcomingViewModelTest {
 
             val state = viewModel.uiState.value
             assertTrue(state is UpcomingUiState.Error)
-            assertEquals("Erro ao carregar filmes", (state as UpcomingUiState.Error).message)
+            assertEquals(R.string.error_load_upcoming, (state as UpcomingUiState.Error).message)
         }
 
     @Test

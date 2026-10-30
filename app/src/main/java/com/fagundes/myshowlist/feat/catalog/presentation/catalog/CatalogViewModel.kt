@@ -3,6 +3,7 @@ package com.fagundes.myshowlist.feat.catalog.presentation.catalog
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.feat.catalog.domain.model.MovieGenre
 import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetMoviesByGenreUseCase
@@ -76,7 +77,7 @@ class CatalogViewModel(
                 }
                 .onFailure {
                     _uiState.value =
-                        CatalogUiState.Error("Erro ao carregar categoria")
+                        CatalogUiState.Error(R.string.error_load_category)
                 }
         }
     }
@@ -149,7 +150,7 @@ class CatalogViewModel(
                         )
                 }
                 .onFailure {
-                    _uiState.value = CatalogUiState.Error("Erro ao carregar catálogo")
+                    _uiState.value = CatalogUiState.Error(R.string.error_load_catalog)
                 }
         }
 }

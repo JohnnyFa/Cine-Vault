@@ -80,6 +80,14 @@ Report in this order:
 4. Gate result per step (ktlint, detekt, lint, unit tests, build).
 5. When ready: the files to stage and a commit message in the repo's style (`feat(scope): …`, `fix(scope): …`, `ci: …`, `build: …`), imperative, with a body that says why.
 
+When the verdict is **Ready to commit**, and only then, record what was approved:
+
+```
+git write-tree > .claude/.review-passed
+```
+
+`.claude/hooks/require-review.sh` blocks `git commit` unless the index still hashes to that value, and refuses commits that take content from outside the index (`-a`, `-o`, `-i`, `-p`, pathspecs) or that come after `git add`, `git rm`, `git stash` and other index-changing commands in the same Bash call, so commit with a plain `git commit`, in a command of its own, after staging. Staging anything afterwards (including the files `ktlintFormat` touched) means running `/review` again. A **Blocked** verdict writes nothing. The marker is gitignored.
+
 Don't commit unless the user asks.
 
 ## After the merge — delete the branch

@@ -22,6 +22,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -122,6 +123,7 @@ fun CatalogScreenContent(
                 is CatalogUiState.Error -> {
                     ErrorSection(
                         onRetry = onRetry,
+                        message = stringResource(targetState.message),
                         modifier = Modifier.testTag("CatalogError"),
                     )
                 }
@@ -242,7 +244,7 @@ fun CatalogScreenContentLoadingPreview() {
 fun CatalogScreenContentErrorPreview() {
     MyShowListTheme {
         CatalogScreenContent(
-            state = CatalogUiState.Error("An error occurred"),
+            state = CatalogUiState.Error(R.string.error_load_catalog),
             searchQuery = "",
             onSearchChange = {},
             onCategorySelected = {},

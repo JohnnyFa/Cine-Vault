@@ -22,7 +22,7 @@
     <string name="authentication_failed">Authentication failed</string>
     <string name="label_popular_movies">Popular Movies</string>
     <string name="fail_load_popular_movies">Failed to load trending movies</string>
-    <string name="fail_load_recommended">Failed to load trending movies</string>
+    <string name="fail_load_recommended">Failed to load recommendations</string>
     <string name="continue_as_guest">Continue as Guest</string>
     <string name="or">OR</string>
     <string name="by_continuing">By continuing, you agree to our </string>
@@ -54,4 +54,12 @@
     <string name="guest_profile_desc">Sign in to save your favorites</string>
     <string name="dialog_sign_in_required_title">Sign in required</string>
     <string name="dialog_sign_in_required_message">Sign in with your Google account to save favorites.</string>
+    <string name="fail_load_show_of_the_day">Failed to load the featured movie</string>
+    <string name="error_load_category">Failed to load this category</string>
+    <string name="error_load_catalog">Failed to load the catalog</string>
+    <string name="error_load_upcoming">Failed to load upcoming movies</string>
+    <string name="error_update_favorite">Couldn\'t update favorite</string>
+    <string name="error_section_title">Oops! Something went wrong</string>
+    <string name="error_section_message">We\'re having trouble loading movies right now.</string>
+    <string name="action_retry">Retry</string>
 </resources>

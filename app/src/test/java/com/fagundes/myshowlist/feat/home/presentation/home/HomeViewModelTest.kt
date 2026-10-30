@@ -1,6 +1,7 @@
 package com.fagundes.myshowlist.feat.home.presentation.home
 
 import android.util.Log
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.feat.home.domain.model.TasteProfile
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveFavoritesUseCase
@@ -164,7 +165,7 @@ class HomeViewModelTest {
             testDispatcher.scheduler.runCurrent()
 
             assertTrue(viewModel.trendingState.value is HomeUiState.Error)
-            assertEquals("Failed to load trending", (viewModel.trendingState.value as HomeUiState.Error).message)
+            assertEquals(R.string.fail_load_popular_movies, (viewModel.trendingState.value as HomeUiState.Error).message)
         }
 
     @Test
@@ -257,7 +258,7 @@ class HomeViewModelTest {
             testDispatcher.scheduler.runCurrent()
 
             assertTrue(viewModel.forYouState.value is HomeUiState.Error)
-            assertEquals("Failed to load recommended", (viewModel.forYouState.value as HomeUiState.Error).message)
+            assertEquals(R.string.fail_load_recommended, (viewModel.forYouState.value as HomeUiState.Error).message)
         }
 
     @Test

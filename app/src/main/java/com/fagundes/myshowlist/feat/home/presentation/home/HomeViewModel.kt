@@ -1,7 +1,9 @@
 package com.fagundes.myshowlist.feat.home.presentation.home
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.feat.home.domain.model.TasteProfile
 import com.fagundes.myshowlist.feat.home.domain.usecase.ObserveFavoritesUseCase
@@ -139,7 +141,7 @@ class HomeViewModel(
         // runCatching also catches the cancellation collectLatest uses to drop a stale run; that
         // isn't a failure, so stop here instead of flashing an error.
         currentCoroutineContext().ensureActive()
-        result.onFailure { _forYouState.setErrorIfLoading("Failed to load recommended") }
+        result.onFailure { _forYouState.setErrorIfLoading(R.string.fail_load_recommended) }
     }
 
     private fun refreshHome(rebuildRecommendations: Boolean = true) {
@@ -150,8 +152,8 @@ class HomeViewModel(
     private suspend fun doRefreshHome(rebuildRecommendations: Boolean) {
         refreshHomeUseCase()
             .onFailure {
-                _trendingState.setErrorIfLoading("Failed to load trending")
-                _showOfTheDayState.setErrorIfLoading("Failed to load show of the day")
+                _trendingState.setErrorIfLoading(R.string.fail_load_popular_movies)
+                _showOfTheDayState.setErrorIfLoading(R.string.fail_load_show_of_the_day)
             }
         if (rebuildRecommendations) recommendationRequests.update { it + 1 }
     }
@@ -164,6 +166,8 @@ class HomeViewModel(
 }
 
 // Replaces the repeated if-is-Loading-then-set-Error pattern inside onFailure.
-private fun <T> MutableStateFlow<HomeUiState<T>>.setErrorIfLoading(message: String) {
+private fun <T> MutableStateFlow<HomeUiState<T>>.setErrorIfLoading(
+    @StringRes message: Int,
+) {
     if (value is HomeUiState.Loading) value = HomeUiState.Error(message)
 }

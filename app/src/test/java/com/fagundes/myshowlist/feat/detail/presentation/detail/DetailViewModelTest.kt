@@ -1,5 +1,6 @@
 package com.fagundes.myshowlist.feat.detail.presentation.detail
 
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.core.data.local.enum.ContentType
 import com.fagundes.myshowlist.core.domain.ContentItem
 import com.fagundes.myshowlist.core.domain.SignInRequiredException
@@ -16,6 +17,7 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -137,7 +139,7 @@ class DetailViewModelTest {
 
             val state = viewModel.uiState.value
             assertTrue(state is DetailUiState.Error)
-            assertEquals("Failed to load content", (state as DetailUiState.Error).message)
+            assertEquals(R.string.error_load_detail, (state as DetailUiState.Error).message)
         }
 
     @Test
@@ -212,7 +214,7 @@ class DetailViewModelTest {
 
             val state = viewModel.uiState.value as DetailUiState.Success
             assertFalse(state.isFavoriteLoading)
-            assertTrue(event is DetailEvent.ShowError)
+            assertEquals(DetailEvent.ShowError(R.string.error_update_favorite), event)
             job.cancel()
         }
 
@@ -250,6 +252,55 @@ class DetailViewModelTest {
             testDispatcher.scheduler.runCurrent()
 
             coVerify(exactly = 0) { toggleFavorite(any()) }
+        }
+
+    @Test
+    fun `retry should go back to Loading and refresh again`() =
+        runTest {
+            every { observeContentDetail(ID, TYPE) } returns flowOf()
+            coEvery { refreshContentDetail(ID) } returns Result.failure(Exception("Network error"))
+            viewModel = buildViewModel()
+            testDispatcher.scheduler.runCurrent()
+            assertTrue(viewModel.uiState.value is DetailUiState.Error)
+
+            coEvery { refreshContentDetail(ID) } returns Result.success(Unit)
+            viewModel.retry()
+
+            assertEquals(DetailUiState.Loading, viewModel.uiState.value)
+            testDispatcher.scheduler.runCurrent()
+            coVerify(exactly = 2) { refreshContentDetail(ID) }
+        }
+
+    @Test
+    fun `retry that fails again should show Error again`() =
+        runTest {
+            every { observeContentDetail(ID, TYPE) } returns flowOf()
+            coEvery { refreshContentDetail(ID) } returns Result.failure(Exception("Network error"))
+            viewModel = buildViewModel()
+            testDispatcher.scheduler.runCurrent()
+
+            viewModel.retry()
+            testDispatcher.scheduler.runCurrent()
+
+            assertEquals(DetailUiState.Error(R.string.error_load_detail), viewModel.uiState.value)
+        }
+
+    @Test
+    fun `retry should not start a second refresh while one is in flight`() =
+        runTest {
+            every { observeContentDetail(ID, TYPE) } returns flowOf()
+            coEvery { refreshContentDetail(ID) } coAnswers {
+                delay(1_000)
+                Result.failure(Exception("Network error"))
+            }
+            viewModel = buildViewModel()
+            testDispatcher.scheduler.runCurrent()
+
+            viewModel.retry()
+            viewModel.retry()
+            testDispatcher.scheduler.runCurrent()
+
+            coVerify(exactly = 1) { refreshContentDetail(ID) }
         }
 
     private companion object {

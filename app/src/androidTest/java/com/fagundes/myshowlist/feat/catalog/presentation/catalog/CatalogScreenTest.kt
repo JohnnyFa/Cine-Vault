@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.ui.theme.MyShowListTheme
 import org.junit.Rule
@@ -37,7 +38,7 @@ class CatalogScreenTest {
         composeTestRule.setContent {
             MyShowListTheme {
                 CatalogScreenContent(
-                    state = CatalogUiState.Error("Error"),
+                    state = CatalogUiState.Error(R.string.error_generic),
                     searchQuery = "",
                     onSearchChange = {},
                     onCategorySelected = {},

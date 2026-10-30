@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.core.domain.Movie
 import org.junit.Rule
 import org.junit.Test
@@ -72,9 +73,9 @@ class HomeScreenTest {
         var retryClicked = false
         composeTestRule.setContent {
             HomeScreenContent(
-                trendingState = HomeUiState.Error("Error"),
-                forYouState = HomeUiState.Error("Error"),
-                showOfTheDayState = HomeUiState.Error("Error"),
+                trendingState = HomeUiState.Error(R.string.error_generic),
+                forYouState = HomeUiState.Error(R.string.error_generic),
+                showOfTheDayState = HomeUiState.Error(R.string.error_generic),
                 favoritesState = HomeUiState.Idle,
                 recentsState = HomeUiState.Idle,
                 onOpenDetail = { _, _ -> },

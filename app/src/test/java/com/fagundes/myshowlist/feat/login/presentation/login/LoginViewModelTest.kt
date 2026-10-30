@@ -1,5 +1,6 @@
 package com.fagundes.myshowlist.feat.login.presentation.login
 
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.feat.login.domain.usecase.ContinueAsGuestUseCase
 import com.fagundes.myshowlist.feat.login.domain.usecase.LoginWithGoogleUseCase
 import io.mockk.coEvery
@@ -19,7 +20,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -87,27 +87,25 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `onGoogleTokenReceived should surface the failure message`() =
+    fun `onGoogleTokenReceived should show a localized error instead of Firebase's message`() =
         runTest {
             coEvery { loginWithGoogle(TOKEN) } returns Result.failure(Exception("Firebase Error"))
 
             viewModel.onGoogleTokenReceived(TOKEN)
             testDispatcher.scheduler.runCurrent()
 
-            val state = viewModel.uiState.value
-            assertTrue(state is LoginUiState.Error)
-            assertEquals("Firebase Error", (state as LoginUiState.Error).message)
+            assertEquals(LoginUiState.Error(R.string.authentication_failed), viewModel.uiState.value)
         }
 
     @Test
-    fun `onGoogleTokenReceived should fall back when the failure carries no message`() =
+    fun `onGoogleTokenReceived should show the same error when the failure carries no message`() =
         runTest {
             coEvery { loginWithGoogle(TOKEN) } returns Result.failure(Exception())
 
             viewModel.onGoogleTokenReceived(TOKEN)
             testDispatcher.scheduler.runCurrent()
 
-            assertEquals("Erro Firebase", (viewModel.uiState.value as LoginUiState.Error).message)
+            assertEquals(LoginUiState.Error(R.string.authentication_failed), viewModel.uiState.value)
         }
 
     @Test

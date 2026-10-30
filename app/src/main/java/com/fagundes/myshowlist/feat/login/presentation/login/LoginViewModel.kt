@@ -2,6 +2,7 @@ package com.fagundes.myshowlist.feat.login.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fagundes.myshowlist.R
 import com.fagundes.myshowlist.feat.login.domain.usecase.ContinueAsGuestUseCase
 import com.fagundes.myshowlist.feat.login.domain.usecase.LoginWithGoogleUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -35,9 +36,9 @@ class LoginViewModel(
                     _uiState.value = LoginUiState.Idle
                     _uiEvent.tryEmit(LoginUiEvent.NavigateHome)
                 }
-                .onFailure { error ->
-                    _uiState.value = LoginUiState.Error(error.message ?: "Erro Firebase")
-                }
+                // Firebase's own messages are technical and English-only; the user gets a
+                // localized one instead.
+                .onFailure { _uiState.value = LoginUiState.Error(R.string.authentication_failed) }
         }
     }
 

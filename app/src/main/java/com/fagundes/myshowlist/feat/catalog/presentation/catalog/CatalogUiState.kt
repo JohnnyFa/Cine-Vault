@@ -1,5 +1,6 @@
 package com.fagundes.myshowlist.feat.catalog.presentation.catalog
 
+import androidx.annotation.StringRes
 import com.fagundes.myshowlist.core.domain.Movie
 import com.fagundes.myshowlist.feat.catalog.domain.model.MovieGenre
 
@@ -11,7 +12,7 @@ sealed interface CatalogUiState {
     ) : CatalogUiState
 
     data class Error(
-        val message: String,
+        @StringRes val message: Int,
     ) : CatalogUiState
 }
 

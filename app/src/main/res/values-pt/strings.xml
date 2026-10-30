@@ -63,4 +63,12 @@
     <string name="guest_profile_desc">Entre para salvar seus favoritos</string>
     <string name="dialog_sign_in_required_title">Login necessário</string>
     <string name="dialog_sign_in_required_message">Entre com sua conta Google para salvar favoritos.</string>
+    <string name="fail_load_show_of_the_day">Falha ao carregar o destaque do dia</string>
+    <string name="error_load_category">Falha ao carregar a categoria</string>
+    <string name="error_load_catalog">Falha ao carregar o catálogo</string>
+    <string name="error_load_upcoming">Falha ao carregar os lançamentos</string>
+    <string name="error_update_favorite">Não foi possível atualizar o favorito</string>
+    <string name="error_section_title">Ops! Algo deu errado</string>
+    <string name="error_section_message">Estamos com problemas para carregar os filmes agora.</string>
+    <string name="action_retry">Tentar novamente</string>
 </resources>

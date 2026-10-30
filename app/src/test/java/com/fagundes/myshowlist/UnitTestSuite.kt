@@ -2,6 +2,7 @@ package com.fagundes.myshowlist
 
 import com.fagundes.myshowlist.core.data.local.mapper.ContentMapperTest
 import com.fagundes.myshowlist.core.data.repository.CacheRepositoryImplTest
+import com.fagundes.myshowlist.core.network.RedactSecretsTest
 import com.fagundes.myshowlist.feat.catalog.domain.usecase.GetMoviesByGenreUseCaseTest
 import com.fagundes.myshowlist.feat.catalog.presentation.catalog.CatalogViewModelTest
 import com.fagundes.myshowlist.feat.catalog.presentation.upcoming.UpcomingViewModelTest
@@ -20,6 +21,7 @@ import org.junit.runners.Suite
 @Suite.SuiteClasses(
     ContentMapperTest::class,
     CacheRepositoryImplTest::class,
+    RedactSecretsTest::class,
     LoginViewModelTest::class,
     HomeViewModelTest::class,
     HomeRepositoryImplTest::class,
